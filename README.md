@@ -1,6 +1,3 @@
-<div align="center">
-
-  <img src="eureka-logo.png" alt="Eureka Logo" width="300"/>
 
   # Eureka
 

@@ -1,0 +1,9 @@
+version: 2
+updates:
+  # Maintain Python dependencies securely
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+# setup
+# force update

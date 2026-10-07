@@ -16,9 +16,9 @@ print("By tuning the 'Temperature' (a prompt parameter), we control")
 print("the creativity vs. conservatism of the AI's predictions.\n")
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-model_path = 'ai_models/genai_untrained.pth'
+model_path = 'ai_models/genai_trained_weights.pth'
 if not os.path.exists(model_path):
-    print("Error: Could not find 'ai_models/genai_untrained.pth'. Please run 'python ai_models/genai_model.py' first.")
+    print("Error: Could not find 'ai_models/genai_trained_weights.pth'.")
     sys.exit(1)
 
 checkpoint = torch.load(model_path, map_location=device)
@@ -67,9 +67,16 @@ def demo_temperature(temp_value, description):
             print(f"  Generated[{i+1}]: {molecule}")
 
 # Run tests
-demo_temperature(0.1, "Very Low / Conservative. Model plays it extremely safe.")
-demo_temperature(0.8, "Medium / Balanced. The optimal prompt setting.")
-demo_temperature(2.0, "Very High / Creative. Model takes wild hallucinations.")
+if len(sys.argv) > 1:
+    try:
+        custom_temp = float(sys.argv[1])
+        demo_temperature(custom_temp, f"Custom User-Requested Temperature: {custom_temp}")
+    except ValueError:
+        print("Please provide a valid number for temperature (e.g., 1.5)")
+else:
+    demo_temperature(0.1, "Very Low / Conservative. Model plays it extremely safe.")
+    demo_temperature(0.8, "Medium / Balanced. The optimal prompt setting.")
+    demo_temperature(2.0, "Very High / Creative. Model takes wild hallucinations.")
 
 print("\n==================================================")
 print("  CONCLUSION: Prompt parameter 'Temperature' successfully")

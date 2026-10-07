@@ -1,0 +1,15 @@
+pandas
+numpy
+scikit-learn
+xgboost
+torch
+torchvision
+torchaudio
+fastapi
+uvicorn
+pubchempy
+langchain
+openai
+requests
+chembl_webresource_client
+joblib

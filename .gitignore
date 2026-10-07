@@ -1,0 +1,14 @@
+# Environments (DO NOT REMOVE - GitHub will crash if you upload the 2GB PyTorch folder)
+.venv/
+env/
+venv/
+ENV/
+
+# Python caches
+__pycache__/
+*.py[cod]
+*$py.class
+
+# VS Code / IDE
+.vscode/
+.idea/

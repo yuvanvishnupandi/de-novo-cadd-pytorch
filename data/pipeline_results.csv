@@ -1,0 +1,11 @@
+smiles,name,molecular_weight,logp,h_bond_donors,h_bond_acceptors,bioactivity,toxicity
+CC1=C(C=C(C=C1)NC(=O)C2=CC=C(C=C2)CN3CCN(CC3)C)NC4=NC=CC(=N4)C5=CN=CC=C5,Imatinib (Gleevec),493.6,3.5,2,7,active,non-toxic
+CC(C)(C)NCC(O)C1=CC(=C(O)C=C1)CO,Salbutamol (Albuterol),239.31,0.3,4,4,active,non-toxic
+CC(=O)OC1=CC=CC=C1C(=O)O,Aspirin,180.16,1.2,1,4,active,non-toxic
+CN1C=NC2=C1C(=O)N(C(=O)N2C)C,Caffeine,194.19,-0.1,0,3,active,non-toxic
+CC12CCC3C(C1CCC2O)CCC4=CC(=O)CCC34C,Testosterone,288.4,3.3,1,2,active,non-toxic
+CC(=O)NC1=CC=C(C=C1)O,Acetaminophen (Tylenol),151.16,0.5,2,2,active,non-toxic
+C1=CC=C(C=C1)C(=O)O,Benzoic Acid,122.12,1.9,1,2,active,non-toxic
+CC(C)CC1=CC=C(C=C1)C(C)C(=O)O,Ibuprofen,206.28,3.5,1,2,active,non-toxic
+CC(C)NCC(O)C1=CC=C(C=C1)O,Isoproterenol,195.26,0.2,3,3,active,non-toxic
+OC(=O)C1=CC=CC=C1O,Salicylic Acid,138.12,2.3,2,3,active,non-toxic

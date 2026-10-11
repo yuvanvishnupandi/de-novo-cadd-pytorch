@@ -1,11 +1,3 @@
-smiles,name,molecular_weight,logp,h_bond_donors,h_bond_acceptors,bioactivity,toxicity
-"Cc1c(C(=O)N2CCCCCC2)nc2cc(C(=O)N3CCOCC3)ccc2n1C[C@H]1CCCO1
-",GenAI-1,350.5,2.5,2,4,active,non-toxic
-"COC(=O)c1ccc(NC(=O)[C@@H](C)Sc2nc(C)cs2)cc1
-",GenAI-3,336.4,3.4,1,6,active,non-toxic
-"CCN(CC(=O)NNC(=O)c1ccc(-n2ccnc2)cc1)C(=O)[O-]
-",GenAI-4,350.5,2.5,2,4,active,non-toxic
-"Cc1ccc(C)c(NC(=O)Cn2nc(-c3ccccc3)ccc2=O)c1
-",GenAI-7,333.4,3.1,1,3,active,non-toxic
-"CC[NH+](CC)CC(C)(C)OC(=O)c1cc(Br)ccc1F
-",GenAI-10,350.5,2.5,2,4,active,non-toxic
+smiles,name,molecular_weight,logp,h_bond_donors,h_bond_acceptors,bioactivity,toxicity,binding_affinity
+"COc1ccc(NC(=O)c2csc(NC(=O)c3ccc(F)cc3)c2N)cc1
+",GenAI-4,263.05,2.03,3,4,active,non-toxic,-7.4

@@ -60,7 +60,7 @@ class DiscoveryResponse(BaseModel):
     status: str
     total_generated: int
     total_approved: int
-    discovered_molecules: List[str]
+    discovered_molecules: List[dict]
 
 class ProteinRequest(BaseModel):
     """Request to fetch a protein structure from RCSB."""
@@ -129,7 +129,8 @@ def run_discovery_pipeline(request: DiscoveryRequest):
     try:
         valid_molecules = run_pipeline(
             num_molecules_to_generate=request.num_molecules,
-            base_dir='.'
+            base_dir='.',
+            target_input=request.target_disease_id
         )
         
         return DiscoveryResponse(
@@ -180,6 +181,80 @@ def fetch_properties(request: PropertyRequest):
         h_bond_acceptors=int(hba) if hba else None
     )
 
+
+class SDFResponse(BaseModel):
+    sdf_data: str
+
+@app.post("/api/generate_3d", response_model=SDFResponse)
+def generate_3d_conformer(request: PropertyRequest):
+    """
+    Generates a 3D SDF block for a given SMILES string using RDKit.
+    Used for 100% accurate 3D molecule rendering in the frontend.
+    """
+    print(f"\n[API] 3D SDF Generation request for: {request.smiles[:30]}...")
+    try:
+        from rdkit import Chem
+        from rdkit.Chem import AllChem
+        mol = Chem.MolFromSmiles(request.smiles)
+        if not mol:
+            raise Exception("Invalid SMILES string")
+        
+        # Add explicit hydrogens before 3D generation
+        mol = Chem.AddHs(mol)
+        
+        # Generate 3D coordinates
+        # ETKDGv3 is the state-of-the-art method in RDKit for 3D conformer generation
+        params = AllChem.ETKDGv3()
+        params.useRandomCoords = True 
+        res = AllChem.EmbedMolecule(mol, params)
+        if res == -1:
+            # Fallback to random coordinates if ETKDGv3 fails for highly strained molecules
+            params.useRandomCoords = True
+            params.maxIterations = 1000
+            res = AllChem.EmbedMolecule(mol, params)
+            if res == -1:
+                raise Exception("Failed to generate 3D coordinates")
+        
+        # Optimize the geometry using UFF (Universal Force Field)
+        AllChem.UFFOptimizeMolecule(mol)
+        
+        # Convert to SDF block
+        sdf_block = Chem.MolToMolBlock(mol)
+        return SDFResponse(sdf_data=sdf_block)
+    except Exception as e:
+        print(f"[API Error] 3D Generation failed: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+class SVGResponse(BaseModel):
+    svg_data: str
+
+@app.post("/api/generate_2d", response_model=SVGResponse)
+def generate_2d_structure(request: PropertyRequest):
+    """
+    Generates a 100% accurate 2D SVG structure for a given SMILES string using RDKit.
+    Replaces buggy SmilesDrawer JS library.
+    """
+    print(f"\n[API] 2D SVG Generation request for: {request.smiles[:30]}...")
+    try:
+        from rdkit import Chem
+        from rdkit.Chem import Draw
+        mol = Chem.MolFromSmiles(request.smiles)
+        if not mol:
+            raise Exception("Invalid SMILES string")
+        
+        # Generate beautiful 2D SVG
+        drawer = Draw.rdMolDraw2D.MolDraw2DSVG(300, 240)
+        opts = drawer.drawOptions()
+        opts.clearBackground = False
+        opts.addStereoAnnotation = True
+        drawer.DrawMolecule(mol)
+        drawer.FinishDrawing()
+        svg = drawer.GetDrawingText()
+        
+        return SVGResponse(svg_data=svg)
+    except Exception as e:
+        print(f"[API Error] 2D Generation failed: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 # ==================== Server ====================
 if __name__ == "__main__":

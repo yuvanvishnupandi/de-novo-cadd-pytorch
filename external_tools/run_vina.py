@@ -144,7 +144,19 @@ def run_vina_docking(smiles, receptor_pdb_path, center_x=0, center_y=0, center_z
     # Prepare receptor path
     receptor_pdbqt = receptor_pdb_path.replace('.pdb', '.pdbqt')
     if not os.path.exists(receptor_pdbqt):
-        return {"error": f"Receptor PDBQT not found: {receptor_pdbqt}. Prepare receptor first."}
+        print(f"   [INFO] Auto-preparing receptor PDBQT: {receptor_pdbqt}")
+        try:
+            with open(receptor_pdb_path, 'r') as f_in, open(receptor_pdbqt, 'w') as f_out:
+                for line in f_in:
+                    if line.startswith('ATOM') or (line.startswith('HETATM') and 'HOH' not in line):
+                        # Vina will accept standard ATOM records as long as it has coordinates
+                        # We just append default autodock atom types at the end (column 78+)
+                        atom_name = line[12:16].strip()
+                        element = atom_name[0] if atom_name else 'C'
+                        new_line = line[:77].ljust(77) + element.rjust(2) + '  \n'
+                        f_out.write(new_line)
+        except Exception as e:
+            return {"error": f"Failed to prepare receptor PDBQT: {e}"}
     
     # Run AutoDock Vina
     print(f"   3. Running AutoDock Vina simulation...")

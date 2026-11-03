@@ -21,3 +21,4 @@ if (footer) {
   fs.writeFileSync('benchsci_extracted_footer.html', footer[0]);
   console.log('Saved footer, length:', footer[0].length);
 }
+

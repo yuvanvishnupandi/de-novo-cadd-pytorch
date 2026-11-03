@@ -425,3 +425,4 @@ export default function Interactive3DLab() {
     </section>
   );
 }
+

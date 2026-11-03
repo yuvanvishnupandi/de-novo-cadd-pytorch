@@ -8,3 +8,4 @@ sections.forEach((s, i) => {
   fs.writeFileSync(`benchsci_sec_${i+1}.html`, s);
   console.log(`Saved benchsci_sec_${i+1}.html, size:`, s.length);
 });
+

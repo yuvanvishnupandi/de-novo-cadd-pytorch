@@ -230,3 +230,4 @@ export default function BenchSciNav({ onNavigate, activeTab }) {
     </nav>
   );
 }
+

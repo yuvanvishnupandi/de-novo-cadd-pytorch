@@ -323,3 +323,4 @@ export default function Top8PlatformsSection({ onLaunchSpecificTool }) {
     </section>
   );
 }
+

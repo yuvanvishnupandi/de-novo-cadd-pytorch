@@ -19,3 +19,4 @@ if (bodyMatch) {
 const styles = html.match(/<link[^>]+rel=["']stylesheet["'][^>]*>/gi) || [];
 console.log('Stylesheets:');
 styles.forEach(s => console.log(s));
+

@@ -98,3 +98,4 @@ export default function BenchSciHero({ onLaunchLab, onAcademicSignup }) {
     </section>
   );
 }
+

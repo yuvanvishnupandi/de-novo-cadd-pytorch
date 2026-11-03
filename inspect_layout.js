@@ -26,3 +26,4 @@ if (footer) {
   console.log('--- FOOTER ---');
   console.log(footer[0].substring(0, 1500));
 }
+

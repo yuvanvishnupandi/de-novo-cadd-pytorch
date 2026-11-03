@@ -24,3 +24,4 @@ console.log('Sample links:', cleanLinks.slice(0, 30));
 // Find images
 const imgs = html.match(/src=["']([^"']+\.(?:png|jpg|jpeg|svg|webp))["']/gi) || [];
 console.log('Images sample:', imgs.slice(0, 20));
+

@@ -216,11 +216,3 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
-
-# Scratch / temporary scripts in frontend
-frontend/*.py
-frontend/src/*.py
-frontend/*.html
-frontend/proxy.cjs
-frontend/scrape_site.js
-

@@ -1,4 +1,7 @@
-/* EUREKA Architectural Drafting & Scientific Blueprint Stylesheet */
+/* ============================================================
+   EUREKA ARCHITECTURAL DRAFTING & SCIENTIFIC BLUEPRINT CSS
+   Inspired by Scale Studio, 4010 ASCII Tree, Aintrum & Sequel
+   ============================================================ */
 @import "tailwindcss";
 
 :root {
@@ -8,14 +11,19 @@
   
   --paper-bg: #fbf8f3;
   --paper-cream: #f4eee1;
+  --paper-card: #ffffff;
   --ink-primary: #181715;
   --ink-muted: #6b675e;
   --ink-faint: #a29e94;
-  --grid-line: rgba(30, 28, 25, 0.07);
+  --grid-line: rgba(24, 23, 21, 0.05);
   --cyan-highlighter: #00e5ff;
-  --cyan-wash: rgba(0, 229, 255, 0.18);
+  --cyan-wash: rgba(0, 229, 255, 0.22);
   --indigo-footer: #0b3987;
   --indigo-dark: #072355;
+}
+
+* {
+  box-sizing: border-box;
 }
 
 html {
@@ -60,18 +68,13 @@ body {
   background-size: 32px 32px;
 }
 
-/* Monoline Pencil Sketch & Scribble Utilities */
+/* Monoline Pencil Sketch & Borders */
 .pencil-border {
-  border: 1px solid rgba(24, 23, 21, 0.22);
+  border: 1px solid rgba(24, 23, 21, 0.25);
 }
 
 .pencil-border-dashed {
   border: 1px dashed rgba(24, 23, 21, 0.35);
-}
-
-.pencil-border-double {
-  border-top: 1px solid rgba(24, 23, 21, 0.3);
-  border-bottom: 1px solid rgba(24, 23, 21, 0.3);
 }
 
 /* Cyan Blueprint Highlighter Effect (Pin 233483561927146109 / Scale Studio) */
@@ -79,15 +82,11 @@ body {
   position: relative;
   display: inline-block;
   padding: 0 4px;
-  background: linear-gradient(104deg, rgba(0, 229, 255, 0) 0.9%, rgba(0, 229, 255, 0.32) 2.4%, rgba(0, 229, 255, 0.38) 5.8%, rgba(0, 229, 255, 0.28) 93%, rgba(0, 229, 255, 0.35) 96%, rgba(0, 229, 255, 0) 98%);
+  background: linear-gradient(104deg, rgba(0, 229, 255, 0) 0.9%, rgba(0, 229, 255, 0.35) 2.4%, rgba(0, 229, 255, 0.42) 5.8%, rgba(0, 229, 255, 0.32) 93%, rgba(0, 229, 255, 0.38) 96%, rgba(0, 229, 255, 0) 98%);
   border-radius: 2px;
 }
 
-.cyan-marker-bar {
-  background-color: #00e5ff;
-}
-
-/* Editorial Serif & Technical Monospace */
+/* Editorial & Monospace Typography Classes */
 .font-serif-editorial {
   font-family: var(--font-serif);
 }
@@ -100,7 +99,7 @@ body {
   font-family: var(--font-sans);
 }
 
-/* Dossier Badge & Crosshairs */
+/* Crosshairs Corner Marks */
 .crosshair-corner {
   position: relative;
 }
@@ -111,7 +110,7 @@ body {
   left: -6px;
   font-family: var(--font-mono);
   font-size: 13px;
-  color: rgba(24, 23, 21, 0.4);
+  color: rgba(24, 23, 21, 0.45);
 }
 .crosshair-corner::after {
   content: "+";
@@ -120,10 +119,20 @@ body {
   right: -6px;
   font-family: var(--font-mono);
   font-size: 13px;
-  color: rgba(24, 23, 21, 0.4);
+  color: rgba(24, 23, 21, 0.45);
 }
 
-/* Custom Scrollbar for Monospace Data */
+/* Constrained SVG Schematics to prevent blown-up renders */
+.schematic-svg {
+  display: block;
+  max-width: 100%;
+  max-height: 240px;
+  width: auto;
+  height: auto;
+  margin: 0 auto;
+}
+
+/* Custom Scrollbars */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -139,32 +148,12 @@ body {
   background: #9a9484;
 }
 
-/* Keyframe Animations */
-@keyframes scanline {
-  0% { transform: translateY(-100%); }
-  100% { transform: translateY(1000%); }
-}
-
-.animate-scanline {
-  animation: scanline 8s linear infinite;
-}
-
+/* Animations */
 @keyframes pulse-subtle {
   0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
+  50% { opacity: 0.35; }
 }
 
 .animate-pulse-subtle {
   animation: pulse-subtle 2s ease-in-out infinite;
-}
-
-@keyframes dash {
-  to {
-    stroke-dashoffset: -100;
-  }
-}
-
-.animate-dash {
-  stroke-dasharray: 4, 4;
-  animation: dash 15s linear infinite;
 }

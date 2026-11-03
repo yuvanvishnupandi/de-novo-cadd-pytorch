@@ -145,7 +145,7 @@ MRPSGTAMKKVRELRECAICLVKTYEELLKYQLLENVEKLLEFDFEVDTFLKTYDILKDKLQEEVAKLKKQIKELENQKK
 ];
 
 // ============================================================================
-// 2. DISCOVERED LEAD CANDIDATES (True EUREKA Pipeline Output)
+// 2. DISCOVERED CANDIDATES (True EUREKA Pipeline Output)
 // ============================================================================
 const INITIAL_LEADS = [
   {
@@ -260,9 +260,87 @@ const INITIAL_LEADS = [
   }
 ];
 
+// ============================================================================
+// 3. EUREKA 9-CHAMBER CAMPUS NODES (From Uploaded Isometric Graphic)
+// ============================================================================
+const CAMPUS_CHAMBERS = [
+  {
+    id: 'research-center',
+    name: 'Research Center',
+    tag: 'CORE 00',
+    role: 'Central Biophysical Orchestration & In-Silico Synthesis Command',
+    tech: 'Autonomous Multi-Criteria Engine',
+    details: 'Supervises deterministic transitions across all laboratories: synchronizing PyTorch sampling, RDKit descriptors, and Vina force-fields.'
+  },
+  {
+    id: 'data-archive',
+    name: 'Data Archive',
+    tag: 'CHAMBER 01',
+    role: 'Biomolecular Repository & Chemical Space Curations',
+    tech: 'ChEMBL 3.2M & ZINC 1.2M Compounds',
+    details: 'Ingests structural PDB crystallography, UniProt active sites, and bioactivity annotations.'
+  },
+  {
+    id: 'thinking-chamber',
+    name: 'Thinking Chamber',
+    tag: 'CHAMBER 02',
+    role: 'Generative AI & Neural Character Sampling',
+    tech: 'PyTorch 3-Layer LSTM & Molecular Transformer',
+    details: 'Autoregressively decodes valid SMILES strings token by token over a 64-character chemical vocabulary.'
+  },
+  {
+    id: 'drawing-room',
+    name: 'Drawing Room',
+    tag: 'CHAMBER 03',
+    role: '2D Chemical Topology & Conformer Geometry Drafting',
+    tech: 'RDKit ETKDG 3D Conformer Generator',
+    details: 'Converts 1D text SMILES strings into stereochemically accurate 2D vector topologies and 3D coordinate blocks.'
+  },
+  {
+    id: 'chemistry-room',
+    name: 'Chemistry Room',
+    tag: 'CHAMBER 04',
+    role: 'Lipinski & Veber Drug-Likeness Evaluation',
+    tech: 'Rule of 5 Descriptors (MW, LogP, HBD, HBA, TPSA)',
+    details: 'Calculates physicochemical properties to guarantee high human oral bioavailability and drug-likeness.'
+  },
+  {
+    id: 'sorting-room',
+    name: 'Sorting Room',
+    tag: 'CHAMBER 05',
+    role: 'Multi-Criteria Bioactivity Classification Gate',
+    tech: 'Random Forest Classifier (ml_grader_model.pkl)',
+    details: 'Evaluates binding likelihood against target enzyme active dyad: separates active candidates from inert scaffolds.'
+  },
+  {
+    id: 'testing-pods',
+    name: 'Testing Pods',
+    tag: 'CHAMBER 06',
+    role: 'Tox21 12-Assay Organ Safety Screening',
+    tech: 'Tox21 Random Forest (toxicity_grader.pkl)',
+    details: 'Screens candidates across 10,000 biological assays to eliminate hepatotoxicity (DILI), cardiotoxicity (hERG), and mutagenicity.'
+  },
+  {
+    id: 'server-room',
+    name: 'Server Room',
+    tag: 'CHAMBER 07',
+    role: 'AutoDock Vina High-Performance Physics Grid',
+    tech: 'FastAPI Compute Engine & Grid Conformation Search',
+    details: 'Iteratively docks ligand conformers into 3D receptor grid pockets using BFGS local optimization.'
+  },
+  {
+    id: 'meeting-room',
+    name: 'Meeting Room',
+    tag: 'CHAMBER 08',
+    role: 'Lead Consensus & Clinical Benchmark Alignment',
+    tech: 'Comparative Pharmacology Matrix',
+    details: 'Benchmarks validated de novo leads against approved therapeutics (Paxlovid, Verubecestat, Gefitinib).'
+  }
+];
+
 export default function App() {
-  // Navigation Workspaces:
-  // 'overview', 'generator', 'docking', 'schrodinger', 'admet', 'space', 'leads', 'specs'
+  // Navigation Tabs:
+  // 'overview', 'targets', 'generator', 'docking', 'studio', 'admet', 'campus', 'tree', 'leads'
   const [activeTab, setActiveTab] = useState('overview');
 
   // Ingestion State
@@ -273,7 +351,7 @@ export default function App() {
   const [seqMetrics, setSeqMetrics] = useState({ len: 306, mw: '33.8 kDa', charge: '-1' });
 
   // Generation Controls
-  const [genModel, setGenModel] = useState('lstm'); // 'lstm', 'transformer', 'gvae', 'scaffold'
+  const [genModel, setGenModel] = useState('lstm');
   const [temperature, setTemperature] = useState(0.8);
   const [topP, setTopP] = useState(0.92);
   const [numMolecules, setNumMolecules] = useState(5);
@@ -289,10 +367,12 @@ export default function App() {
   const [is3DDragging, setIs3DDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
 
-  // Schrödinger Suite Controls
-  const [schrodingerMode, setSchrodingerMode] = useState('prep'); // 'prep', 'glide', 'bioisostere', 'desmond'
-  const [glidePrecision, setGlidePrecision] = useState('XP'); // 'HTVS', 'SP', 'XP'
-  const [bioisostereType, setBioisostereType] = useState('tetrazole');
+  // Molecular Engineering Studio (Replaced Schrödinger Suite per request)
+  const [studioMode, setStudioMode] = useState('prep'); // 'prep', 'glide', 'bioisostere', 'desmond'
+  const [precisionMode, setPrecisionMode] = useState('XP');
+
+  // Interactive Campus State
+  const [selectedChamber, setSelectedChamber] = useState(CAMPUS_CHAMBERS[0]);
 
   // Discovered Leads Library
   const [discoveredLeads, setDiscoveredLeads] = useState(INITIAL_LEADS);
@@ -309,7 +389,7 @@ export default function App() {
   const [newsletterEmail, setNewsletterEmail] = useState('');
   const [newsletterMsg, setNewsletterMsg] = useState('');
 
-  // Update sequence metrics on FASTA changes
+  // Update sequence metrics on FASTA change
   useEffect(() => {
     const raw = fastaInput.split('\n').filter(l => !l.startsWith('>')).join('').replace(/[^A-Za-z]/g, '');
     const len = raw.length;
@@ -327,7 +407,7 @@ export default function App() {
     setVinaGrid(t.pocketCoords);
   };
 
-  // 3D Mouse Drag Orbit
+  // 3D Canvas Orbit
   const handle3DMouseDown = (e) => {
     setIs3DDragging(true);
     setDragStart({ x: e.clientX, y: e.clientY });
@@ -517,89 +597,87 @@ export default function App() {
     <div className="min-h-screen bg-[#fbf8f3] text-[#181715] font-sans relative selection:bg-[#00e5ff] selection:text-black">
       
       {/* ============================================================
-          WIDER & THINNER FLOATING ARCHITECTURAL NAVBAR
+          PROPORTIONAL ELEGANT NAVBAR (Clean, Legible, Comfortable Height)
           ============================================================ */}
-      <header className="fixed top-2.5 left-0 right-0 z-50 flex justify-center px-3 pointer-events-none">
-        <div className="pointer-events-auto thin-navbar-pill px-4 flex items-center justify-between gap-3 text-xs font-mono">
-          
-          {/* Brand Identity */}
-          <div
-            onClick={() => setActiveTab('overview')}
-            className="flex items-center gap-2 cursor-pointer font-bold tracking-wider text-[#181715] hover:opacity-80 transition-opacity whitespace-nowrap"
-          >
-            <span className="w-4 h-4 rounded-full bg-[#181715] text-[#fbf8f3] flex items-center justify-center text-[9px]">✦</span>
-            <span className="text-sm tracking-wide">EUREKA®</span>
-            <span className="hidden xl:inline-block text-[10px] text-[#6b675e] font-normal border-l border-[#181715]/20 pl-2">
-              IN-SILICO WORKSTATION
-            </span>
-          </div>
-
-          {/* Thin Horizontal Workspace Tabs */}
-          <nav className="flex items-center gap-1">
-            {[
-              { id: 'overview', label: 'Overview' },
-              { id: 'generator', label: 'De Novo GenAI' },
-              { id: 'docking', label: 'AutoDock Vina 3D' },
-              { id: 'schrodinger', label: 'Schrödinger Suite' },
-              { id: 'admet', label: 'ADMET & Tox21' },
-              { id: 'space', label: 'Chemical Tree' },
-              { id: 'leads', label: 'Leads Deck' },
-              { id: 'specs', label: 'Specs' }
-            ].map(tab => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`px-2.5 py-1 rounded-full text-[11px] transition-all uppercase whitespace-nowrap ${
-                  activeTab === tab.id
-                    ? 'bg-[#181715] text-[#fbf8f3] font-semibold shadow-sm'
-                    : 'text-[#181715]/75 hover:text-black hover:bg-[#181715]/5'
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </nav>
-
-          {/* Status & GitHub */}
-          <div className="flex items-center gap-2.5">
-            <div className="hidden lg:flex items-center gap-1.5 text-[10px] bg-[#181715]/5 px-2 py-0.5 rounded-full border border-[#181715]/10">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-              <span>NO AGENTIC AI</span>
-            </div>
-
-            <a
-              href="https://github.com/yuvanvishnupandi/eureka"
-              target="_blank"
-              rel="noreferrer"
-              className="text-[11px] border border-[#181715]/40 hover:bg-[#181715] hover:text-[#fbf8f3] px-2.5 py-1 rounded-full transition-all flex items-center gap-1"
-            >
-              <span>GitHub</span>
-              <span className="text-[9px]">↗</span>
-            </a>
-          </div>
-
+      <header className="fixed top-0 left-0 right-0 z-50 pro-navbar px-6 lg:px-12 flex items-center justify-between">
+        
+        {/* Brand Mark */}
+        <div
+          onClick={() => setActiveTab('overview')}
+          className="flex items-center gap-2.5 cursor-pointer font-bold tracking-wider text-[#181715] hover:opacity-85 transition-opacity"
+        >
+          <span className="w-5 h-5 rounded-full bg-[#181715] text-[#fbf8f3] flex items-center justify-center text-[10px]">✦</span>
+          <span className="text-base font-serif-editorial tracking-wide">EUREKA</span>
+          <span className="hidden xl:inline-block font-mono text-[11px] text-[#6b675e] font-normal border-l border-[#181715]/20 pl-2">
+            IN-SILICO DRUG DISCOVERY
+          </span>
         </div>
+
+        {/* Proportional Workspace Tabs */}
+        <nav className="hidden lg:flex items-center gap-1 font-mono text-xs uppercase tracking-wider">
+          {[
+            { id: 'overview', label: 'Overview' },
+            { id: 'targets', label: 'Target Hub' },
+            { id: 'generator', label: 'De Novo GenAI' },
+            { id: 'docking', label: 'AutoDock Vina 3D' },
+            { id: 'studio', label: 'Biophysical Studio' },
+            { id: 'admet', label: 'ADMET & Tox21' },
+            { id: 'campus', label: 'Campus Map' },
+            { id: 'tree', label: 'Chemical Tree' },
+            { id: 'leads', label: 'Leads Deck' }
+          ].map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`px-3 py-1.5 rounded-full transition-all text-xs ${
+                activeTab === tab.id
+                  ? 'bg-[#181715] text-[#fbf8f3] font-semibold shadow-sm'
+                  : 'text-[#181715]/80 hover:text-black hover:bg-[#181715]/5'
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </nav>
+
+        {/* Target Badge & Action */}
+        <div className="flex items-center gap-3 font-mono text-xs">
+          <div className="hidden sm:flex items-center gap-1.5 text-[11px] bg-[#181715]/5 px-2.5 py-1 rounded-full border border-[#181715]/10">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span>TARGET: {selectedTarget.pdbId}</span>
+          </div>
+
+          <a
+            href="https://github.com/yuvanvishnupandi/eureka"
+            target="_blank"
+            rel="noreferrer"
+            className="border border-[#181715]/40 hover:bg-[#181715] hover:text-[#fbf8f3] px-3.5 py-1.5 rounded-full transition-all flex items-center gap-1"
+          >
+            <span>GitHub</span>
+            <span className="text-[10px]">↗</span>
+          </a>
+        </div>
+
       </header>
 
       {/* ============================================================
-          MAIN WORKSPACE (WIDE-SCREEN CONTAINER)
+          MAIN WORKSPACE CONTAINER
           ============================================================ */}
-      <main className="pt-16 pb-24 wide-container">
+      <main className="pt-24 pb-20 workstation-container">
 
         {/* ============================================================
-            WORKSPACE 1: OVERVIEW & BIOMOLECULAR TARGET HUB
+            WORKSPACE 1: OVERVIEW & SYSTEM ARCHITECTURE
             ============================================================ */}
         {activeTab === 'overview' && (
           <div className="space-y-12">
             
-            {/* Dossier Hero Box with Behance Art Integration */}
-            <section className="bg-drafting-grid border border-[#181715]/30 bg-[#fbf8f3]/95 p-6 md:p-8 rounded-sm relative shadow-sm crosshair-corner mt-3">
+            {/* Dossier Hero Box */}
+            <section className="bg-drafting-grid border border-[#181715]/30 bg-[#fbf8f3]/95 p-6 md:p-10 rounded-sm relative shadow-sm crosshair-corner">
               
-              {/* Top Dossier Bar */}
               <div className="flex flex-wrap items-center justify-between border-b border-[#181715]/20 pb-3 mb-6 font-mono text-[11px] tracking-widest text-[#6b675e] gap-3">
-                <div>[ DOSSIER // EUREKA-BIO-2026-PRO ]</div>
-                <div>AUTONOMOUS IN-SILICO DETERMINISM</div>
-                <div>NO AGENTIC AI // STRICTLY GENAI + ML</div>
+                <div>[ DOSSIER // EUREKA-BIO-2026 ]</div>
+                <div>AUTONOMOUS IN-SILICO DRUG DISCOVERY</div>
+                <div>STATUS: FULLY OPERATIONAL</div>
                 <div className="bg-[#00e5ff]/25 text-[#181715] px-2 py-0.5 rounded font-semibold">
                   SYS: VINA-2.4.9
                 </div>
@@ -607,10 +685,10 @@ export default function App() {
 
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
                 
-                {/* Left Editorial Headline */}
+                {/* Left Headline */}
                 <div className="lg:col-span-7">
                   <div className="inline-block font-mono text-xs uppercase tracking-widest text-[#6b675e] mb-2">
-                    Deterministic In-Silico Molecular Design
+                    Autonomous Multi-Criteria In-Silico Pipeline
                   </div>
                   
                   <h1 className="font-serif-editorial text-4xl sm:text-5xl lg:text-6xl leading-[1.08] tracking-tight text-[#181715] mb-5">
@@ -618,53 +696,57 @@ export default function App() {
                   </h1>
 
                   <p className="text-base text-[#6b675e] leading-relaxed mb-6 max-w-2xl font-normal">
-                    Coupling de novo autoregressive language models (PyTorch LSTM) with biophysical force fields (AutoDock Vina) and multi-criteria safety grading (Tox21 + Lipinski) — synthesizing valid candidate leads in milliseconds without laboratory guesswork.
+                    Coupling de novo autoregressive language models with biophysical force fields and Tox21 multi-criteria safety grading — synthesizing candidate leads in milliseconds without laboratory guesswork.
                   </p>
 
                   <div className="flex flex-wrap items-center gap-3">
                     <button
-                      onClick={() => setActiveTab('generator')}
+                      onClick={() => setActiveTab('targets')}
                       className="bg-[#181715] text-[#fbf8f3] hover:bg-black font-mono text-xs uppercase tracking-wider px-5 py-2.5 rounded-full transition-all flex items-center gap-2"
                     >
-                      <span>Launch De Novo Chemistry</span>
+                      <span>Explore Target Hub</span>
                       <span>→</span>
                     </button>
                     <button
-                      onClick={() => setActiveTab('docking')}
+                      onClick={() => setActiveTab('campus')}
                       className="border border-[#181715]/30 hover:border-[#181715] font-mono text-xs uppercase tracking-wider px-5 py-2.5 rounded-full transition-all text-[#181715]"
                     >
-                      AutoDock Vina 3D Studio
-                    </button>
-                    <button
-                      onClick={() => setActiveTab('schrodinger')}
-                      className="border border-[#181715]/30 hover:border-[#181715] font-mono text-xs uppercase tracking-wider px-5 py-2.5 rounded-full transition-all text-[#181715]"
-                    >
-                      Schrödinger Maestro Suite
+                      View Campus Map
                     </button>
                   </div>
                 </div>
 
-                {/* Right Behance Visual Artwork & Telemetry */}
+                {/* Right Interactive Pocket Vector Drawing */}
                 <div className="lg:col-span-5">
-                  <div className="border border-[#181715]/30 p-3 bg-[#f6f3ed] rounded-sm">
-                    <div className="flex justify-between items-center text-[10px] font-mono text-[#6b675e] border-b border-[#181715]/15 pb-1.5 mb-2.5">
-                      <span>FIG 01.0 // GENETICALLY TAILORED DRUG DESIGN</span>
-                      <span>BEHANCE / PINTEREST REF</span>
+                  <div className="border border-[#181715]/30 p-4 bg-[#f6f3ed] rounded-sm">
+                    <div className="flex justify-between items-center text-[10px] font-mono text-[#6b675e] border-b border-[#181715]/15 pb-1.5 mb-3">
+                      <span>FIG 01.0 // ACTIVE SITE DOCKING DYAD</span>
+                      <span>PDB: {selectedTarget.pdbId}</span>
                     </div>
 
-                    {/* Behance Reference Art Embedded */}
-                    <div className="h-52 w-full overflow-hidden border border-[#181715]/20 relative bg-black">
-                      <img
-                        src="/ref_images/pin_476607573068235440.jpg"
-                        alt="Genetically Tailored Humans Behance Illustration"
-                        className="w-full h-full object-cover opacity-85 hover:opacity-100 hover:scale-105 transition-all duration-500"
-                      />
-                      <div className="absolute bottom-2 left-2 font-mono text-[9px] bg-black/70 text-white px-2 py-0.5 rounded">
-                        GENETICALLY TAILORED BIOPHYSICS
-                      </div>
+                    <div className="w-full bg-white/70 border border-[#181715]/15 p-3 flex items-center justify-center">
+                      <svg className="w-full h-44" viewBox="0 0 280 150" fill="none">
+                        <path d="M 20,40 Q 70,15 140,35 T 260,30 Q 270,100 210,135 T 80,140 Q 15,110 20,40 Z" stroke="#181715" strokeWidth="1.2" strokeDasharray="3 3" fill="none" opacity="0.5" />
+                        
+                        <circle cx="85" cy="55" r="4" fill="#00e5ff" />
+                        <text x="92" y="58" fill="#181715" fontSize="8" fontFamily="IBM Plex Mono">Cys145</text>
+                        
+                        <circle cx="195" cy="95" r="4" fill="#00e5ff" />
+                        <text x="165" y="110" fill="#181715" fontSize="8" fontFamily="IBM Plex Mono">His41</text>
+                        
+                        <polygon points="110,80 125,70 140,80 140,98 125,108 110,98" stroke="#181715" strokeWidth="1.5" fill="none" />
+                        <circle cx="125" cy="89" r="6" stroke="#181715" strokeWidth="1" strokeDasharray="2 2" fill="none" />
+                        <line x1="140" y1="89" x2="165" y2="89" stroke="#181715" strokeWidth="1.8" />
+                        <polygon points="165,89 175,77 190,83 186,101 172,101" stroke="#181715" strokeWidth="1.5" fill="rgba(0,229,255,0.2)" />
+
+                        <line x1="85" y1="55" x2="125" y2="70" stroke="#00e5ff" strokeWidth="1.2" strokeDasharray="2 2" />
+                        <text x="93" y="65" fill="#6b675e" fontSize="7" fontFamily="IBM Plex Mono">2.72 Å</text>
+                        <line x1="186" y1="101" x2="195" y2="95" stroke="#00e5ff" strokeWidth="1.2" strokeDasharray="2 2" />
+                        <text x="195" y="103" fill="#6b675e" fontSize="7" fontFamily="IBM Plex Mono">1.84 Å</text>
+                      </svg>
                     </div>
 
-                    <div className="grid grid-cols-3 gap-2 pt-2.5 text-center font-mono text-[10px]">
+                    <div className="grid grid-cols-3 gap-2 pt-3 text-center font-mono text-[10px]">
                       <div className="border border-[#181715]/10 p-1.5 bg-white">
                         <div className="text-[#6b675e]">SEARCH SPACE</div>
                         <div className="font-bold text-xs">10⁶⁰</div>
@@ -685,206 +767,205 @@ export default function App() {
 
             </section>
 
-            {/* Official EUREKA Pipeline Diagram Section */}
+            {/* Official EUREKA Pipeline Diagram */}
             <section className="border border-[#181715]/25 bg-white p-6 rounded-sm shadow-sm">
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-[#181715]/15 pb-3 mb-5 gap-2">
                 <div>
-                  <div className="font-mono text-xs text-[#6b675e] uppercase">[ SYSTEM ARCHITECTURE // TRUE PROJECT DIAGRAM ]</div>
-                  <h3 className="font-serif-editorial text-2xl text-[#181715]">EUREKA 5-Stage Multi-Criteria Pipeline</h3>
+                  <div className="font-mono text-xs text-[#6b675e] uppercase">[ SYSTEM ARCHITECTURE // TRUE PROJECT PIPELINE ]</div>
+                  <h3 className="font-serif-editorial text-2xl text-[#181715]">EUREKA 5-Stage Multi-Criteria Discovery Pipeline</h3>
                 </div>
                 <div className="font-mono text-xs text-[#6b675e]">
                   From <code className="bg-[#fbf8f3] px-2 py-0.5 border">backend/pipeline_manager.py</code>
                 </div>
               </div>
 
-              <div className="w-full bg-[#fbf8f3] border border-[#181715]/20 p-4 flex items-center justify-center rounded-sm overflow-hidden">
+              <div className="w-full bg-[#fbf8f3] border border-[#181715]/20 p-4 flex items-center justify-center rounded-sm">
                 <img
                   src="/eureka_pipeline.png"
                   alt="Eureka Pipeline Architecture"
-                  className="max-h-96 w-auto object-contain hover:scale-[1.01] transition-transform duration-300"
+                  className="max-h-80 w-auto object-contain hover:scale-[1.01] transition-transform duration-300"
                 />
               </div>
 
               <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mt-4 font-mono text-[11px]">
-                <div className="p-2.5 bg-[#fbf8f3] border border-[#181715]/15">
+                <div className="p-3 bg-[#fbf8f3] border border-[#181715]/15">
                   <div className="font-bold text-[#181715]">Stage 1: Generative AI</div>
                   <div className="text-[#6b675e] text-[10px] mt-0.5">PyTorch LSTM SMILESGenerator</div>
                 </div>
-                <div className="p-2.5 bg-[#fbf8f3] border border-[#181715]/15">
+                <div className="p-3 bg-[#fbf8f3] border border-[#181715]/15">
                   <div className="font-bold text-[#181715]">Stage 2: Features</div>
                   <div className="text-[#6b675e] text-[10px] mt-0.5">RDKit & PubChem Properties</div>
                 </div>
-                <div className="p-2.5 bg-[#fbf8f3] border border-[#181715]/15">
+                <div className="p-3 bg-[#fbf8f3] border border-[#181715]/15">
                   <div className="font-bold text-[#181715]">Stage 3: Bioactivity</div>
                   <div className="text-[#6b675e] text-[10px] mt-0.5">Random Forest ML Grader</div>
                 </div>
-                <div className="p-2.5 bg-[#fbf8f3] border border-[#181715]/15">
+                <div className="p-3 bg-[#fbf8f3] border border-[#181715]/15">
                   <div className="font-bold text-[#181715]">Stage 4: Toxicity</div>
                   <div className="text-[#6b675e] text-[10px] mt-0.5">Tox21 Organ Screening</div>
                 </div>
-                <div className="p-2.5 bg-[#fbf8f3] border border-[#181715]/15">
+                <div className="p-3 bg-[#fbf8f3] border border-[#181715]/15">
                   <div className="font-bold text-[#181715]">Stage 5: Physics</div>
                   <div className="text-[#6b675e] text-[10px] mt-0.5">AutoDock Vina 3D Simulation</div>
                 </div>
               </div>
             </section>
 
-            {/* Target Acquisition Hub & Clinical Benchmarks */}
-            <section className="border border-[#181715]/25 bg-white p-6 rounded-sm shadow-sm">
-              <div className="flex flex-col md:flex-row md:items-end justify-between mb-6 gap-3 border-b border-[#181715]/15 pb-3">
-                <div>
-                  <div className="font-mono text-xs tracking-widest text-[#6b675e] uppercase">
-                    [ BIOMOLECULAR TARGET ACQUISITION & COMPARATIVE DRUGS ]
-                  </div>
-                  <h2 className="font-serif-editorial text-3xl text-[#181715]">
-                    Validated Therapeutic Targets & Clinical Reference Standards
-                  </h2>
-                </div>
-                <div className="font-mono text-xs text-[#6b675e]">
-                  ACTIVE TARGET: <span className="font-bold text-[#181715]">{selectedTarget.name}</span>
-                </div>
-              </div>
-
-              {/* Ingestion Mode Tabs */}
-              <div className="flex flex-wrap gap-2 mb-6 font-mono text-xs">
-                {[
-                  { id: 'benchmarks', label: 'Validated Clinical Benchmarks (6 Targets)' },
-                  { id: 'pdb', label: 'RCSB PDB & UniProt Live Fetch' },
-                  { id: 'fasta', label: 'FASTA File Drag & Drop' },
-                  { id: 'sequence', label: 'Amino Acid Residue Editor' }
-                ].map(mode => (
-                  <button
-                    key={mode.id}
-                    onClick={() => setIngestMode(mode.id)}
-                    className={`px-3 py-1.5 border rounded-sm transition-all ${
-                      ingestMode === mode.id
-                        ? 'bg-[#181715] text-[#fbf8f3] border-[#181715] font-semibold'
-                        : 'bg-transparent text-[#181715] border-[#181715]/20 hover:border-[#181715]'
-                    }`}
-                  >
-                    {mode.label}
-                  </button>
-                ))}
-              </div>
-
-              {/* 6 Target Databases Grid */}
-              {ingestMode === 'benchmarks' && (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {TARGET_DATABASES.map(target => (
-                    <div
-                      key={target.id}
-                      onClick={() => handleSelectTarget(target)}
-                      className={`p-4 border cursor-pointer architect-card relative ${
-                        selectedTarget.id === target.id
-                          ? 'border-[#181715] bg-[#f4eee1] shadow-sm'
-                          : 'border-[#181715]/20 bg-[#fbf8f3]'
-                      }`}
-                    >
-                      <div className="flex justify-between items-start mb-1.5">
-                        <span className="font-mono text-xs font-semibold px-2 py-0.5 bg-[#181715]/5 border border-[#181715]/10">
-                          PDB: {target.pdbId}
-                        </span>
-                        <span className="font-mono text-[10px] text-[#6b675e]">{target.resolution}</span>
-                      </div>
-
-                      <h3 className="font-serif-editorial text-lg text-[#181715] mb-0.5">{target.name}</h3>
-                      <div className="text-xs text-[#6b675e] mb-2">{target.disease}</div>
-
-                      <div className="font-mono text-[11px] text-[#181715]/80 space-y-0.5 border-t border-[#181715]/10 pt-2 mb-2">
-                        <div>Residues: {target.residues} aa • {target.code}</div>
-                        <div>Catalytic Dyad: {target.activeSite}</div>
-                      </div>
-
-                      <div className="bg-white/80 border border-[#181715]/15 p-2 font-mono text-[10px]">
-                        <div className="text-[#6b675e] flex justify-between">
-                          <span>CLINICAL BENCHMARK:</span>
-                          <span className="font-bold text-emerald-700">{target.benchmarkDrug.affinity} kcal/mol</span>
-                        </div>
-                        <div className="font-semibold text-[#181715]">{target.benchmarkDrug.name}</div>
-                        <div className="text-[#6b675e]">IC50: {target.benchmarkDrug.ic50}</div>
-                      </div>
-
-                      {selectedTarget.id === target.id && (
-                        <div className="absolute top-2 right-2 text-xs text-[#00e5ff] font-mono">● ACTIVE</div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {/* RCSB PDB Live Fetch */}
-              {ingestMode === 'pdb' && (
-                <div className="p-6 bg-[#f4eee1] border border-[#181715]/20">
-                  <h3 className="font-serif-editorial text-xl mb-1 text-[#181715]">RCSB Worldwide Protein Data Bank API</h3>
-                  <p className="font-mono text-xs text-[#6b675e] mb-4">
-                    Fetch atomic coordinates, crystallographic resolution, and chains from RCSB REST endpoint.
-                  </p>
-                  <div className="flex gap-2 max-w-md">
-                    <input
-                      type="text"
-                      value={pdbQuery}
-                      onChange={(e) => setPdbQuery(e.target.value)}
-                      placeholder="e.g. 6LU7, 1FKN, 1RTD..."
-                      className="flex-1 bg-white border border-[#181715]/30 px-3 py-2 font-mono text-xs uppercase"
-                    />
-                    <button
-                      onClick={() => alert(`RCSB API: Successfully fetched PDB ${pdbQuery.toUpperCase()}`)}
-                      className="bg-[#181715] text-[#fbf8f3] font-mono text-xs px-4 py-2 uppercase hover:bg-black"
-                    >
-                      Fetch
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {/* FASTA Dropzone */}
-              {ingestMode === 'fasta' && (
-                <div className="p-8 border-2 border-dashed border-[#181715]/30 text-center bg-[#f4eee1]/50">
-                  <div className="font-mono text-2xl mb-1">⇪</div>
-                  <div className="font-serif-editorial text-lg mb-1">Drag & Drop Target .FASTA or .PDB File</div>
-                  <input
-                    type="file"
-                    onChange={(e) => {
-                      if (e.target.files?.[0]) {
-                        const r = new FileReader();
-                        r.onload = ev => setFastaInput(ev.target.result);
-                        r.readAsText(e.target.files[0]);
-                      }
-                    }}
-                    className="text-xs font-mono text-[#6b675e]"
-                  />
-                </div>
-              )}
-
-              {/* Sequence Editor */}
-              {ingestMode === 'sequence' && (
-                <div>
-                  <div className="flex justify-between items-center mb-1.5 font-mono text-xs text-[#6b675e]">
-                    <span>FASTA RESIDUE BUFFER</span>
-                    <span>RESIDUES: {seqMetrics.len} | MW: {seqMetrics.mw} | CHARGE: {seqMetrics.charge}</span>
-                  </div>
-                  <textarea
-                    value={fastaInput}
-                    onChange={(e) => setFastaInput(e.target.value)}
-                    rows={5}
-                    className="w-full bg-[#fbf8f3] border border-[#181715]/30 p-3 font-mono text-xs"
-                  />
-                </div>
-              )}
-
-            </section>
-
           </div>
         )}
 
         {/* ============================================================
-            WORKSPACE 2: DE NOVO CHEMISTRY GENERATOR
+            WORKSPACE 2: TARGET INGESTION & CLINICAL BENCHMARKS
+            ============================================================ */}
+        {activeTab === 'targets' && (
+          <div className="space-y-8">
+            <div className="border-b border-[#181715]/15 pb-3">
+              <div className="font-mono text-xs tracking-widest text-[#6b675e] uppercase">
+                [ BIOMOLECULAR TARGET HUB // CLINICAL STANDARDS ]
+              </div>
+              <h1 className="font-serif-editorial text-4xl text-[#181715]">
+                Therapeutic Target Ingestion & Reference Drugs
+              </h1>
+              <p className="text-sm text-[#6b675e] mt-1 font-mono">
+                Active Receptor: {selectedTarget.name} [PDB: {selectedTarget.pdbId}]
+              </p>
+            </div>
+
+            {/* Ingestion Mode Tabs */}
+            <div className="flex flex-wrap gap-2 font-mono text-xs">
+              {[
+                { id: 'benchmarks', label: 'Clinical Benchmarks (6 Targets)' },
+                { id: 'pdb', label: 'RCSB PDB & UniProt Live Fetch' },
+                { id: 'fasta', label: 'FASTA File Drag & Drop' },
+                { id: 'sequence', label: 'Residue Sequence Editor' }
+              ].map(mode => (
+                <button
+                  key={mode.id}
+                  onClick={() => setIngestMode(mode.id)}
+                  className={`px-3.5 py-1.5 border rounded-sm transition-all ${
+                    ingestMode === mode.id
+                      ? 'bg-[#181715] text-[#fbf8f3] border-[#181715] font-semibold'
+                      : 'bg-white text-[#181715] border-[#181715]/20 hover:border-[#181715]'
+                  }`}
+                >
+                  {mode.label}
+                </button>
+              ))}
+            </div>
+
+            {/* 6 Target Databases Grid */}
+            {ingestMode === 'benchmarks' && (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                {TARGET_DATABASES.map(target => (
+                  <div
+                    key={target.id}
+                    onClick={() => handleSelectTarget(target)}
+                    className={`p-5 border cursor-pointer architect-card relative ${
+                      selectedTarget.id === target.id
+                        ? 'border-[#181715] bg-[#f4eee1] shadow-sm'
+                        : 'border-[#181715]/20 bg-[#fbf8f3]'
+                    }`}
+                  >
+                    <div className="flex justify-between items-start mb-2">
+                      <span className="font-mono text-xs font-semibold px-2 py-0.5 bg-[#181715]/5 border border-[#181715]/10">
+                        PDB: {target.pdbId}
+                      </span>
+                      <span className="font-mono text-[10px] text-[#6b675e]">{target.resolution}</span>
+                    </div>
+
+                    <h3 className="font-serif-editorial text-xl text-[#181715] mb-0.5">{target.name}</h3>
+                    <div className="text-xs text-[#6b675e] mb-3">{target.disease}</div>
+
+                    <div className="font-mono text-[11px] text-[#181715]/80 space-y-0.5 border-t border-[#181715]/10 pt-2 mb-3">
+                      <div>Residues: {target.residues} aa • {target.code}</div>
+                      <div>Catalytic Dyad: {target.activeSite}</div>
+                    </div>
+
+                    <div className="bg-white/80 border border-[#181715]/15 p-2 font-mono text-[10px]">
+                      <div className="text-[#6b675e] flex justify-between">
+                        <span>CLINICAL BENCHMARK:</span>
+                        <span className="font-bold text-emerald-700">{target.benchmarkDrug.affinity} kcal/mol</span>
+                      </div>
+                      <div className="font-semibold text-[#181715]">{target.benchmarkDrug.name}</div>
+                      <div className="text-[#6b675e]">IC50: {target.benchmarkDrug.ic50}</div>
+                    </div>
+
+                    {selectedTarget.id === target.id && (
+                      <div className="absolute top-2 right-2 text-xs text-[#00e5ff] font-mono">● ACTIVE</div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* RCSB Fetch */}
+            {ingestMode === 'pdb' && (
+              <div className="p-6 bg-[#f4eee1] border border-[#181715]/20 font-mono text-xs">
+                <h3 className="font-serif-editorial text-xl mb-1 text-[#181715]">RCSB Worldwide Protein Data Bank Fetch</h3>
+                <p className="text-[#6b675e] mb-4">Query atomic coordinates and crystal resolution from RCSB REST endpoint:</p>
+                <div className="flex gap-2 max-w-md">
+                  <input
+                    type="text"
+                    value={pdbQuery}
+                    onChange={(e) => setPdbQuery(e.target.value)}
+                    placeholder="e.g. 6LU7, 1FKN, 1RTD..."
+                    className="flex-1 bg-white border border-[#181715]/30 px-3 py-2 uppercase"
+                  />
+                  <button
+                    onClick={() => alert(`RCSB API: Successfully fetched PDB ${pdbQuery.toUpperCase()}`)}
+                    className="bg-[#181715] text-[#fbf8f3] px-4 py-2 uppercase hover:bg-black font-semibold"
+                  >
+                    Fetch
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* FASTA File Drop */}
+            {ingestMode === 'fasta' && (
+              <div className="p-8 border-2 border-dashed border-[#181715]/30 text-center bg-[#f4eee1]/50">
+                <div className="font-mono text-2xl mb-1">⇪</div>
+                <div className="font-serif-editorial text-lg mb-1">Drag & Drop Target .FASTA or .PDB File</div>
+                <input
+                  type="file"
+                  onChange={(e) => {
+                    if (e.target.files?.[0]) {
+                      const r = new FileReader();
+                      r.onload = ev => setFastaInput(ev.target.result);
+                      r.readAsText(e.target.files[0]);
+                    }
+                  }}
+                  className="text-xs font-mono text-[#6b675e]"
+                />
+              </div>
+            )}
+
+            {/* Sequence Editor */}
+            {ingestMode === 'sequence' && (
+              <div>
+                <div className="flex justify-between items-center mb-1.5 font-mono text-xs text-[#6b675e]">
+                  <span>FASTA RESIDUE BUFFER</span>
+                  <span>RESIDUES: {seqMetrics.len} | MW: {seqMetrics.mw} | CHARGE: {seqMetrics.charge}</span>
+                </div>
+                <textarea
+                  value={fastaInput}
+                  onChange={(e) => setFastaInput(e.target.value)}
+                  rows={6}
+                  className="w-full bg-white border border-[#181715]/30 p-3 font-mono text-xs"
+                />
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ============================================================
+            WORKSPACE 3: DE NOVO CHEMISTRY GENERATOR
             ============================================================ */}
         {activeTab === 'generator' && (
           <div className="space-y-8">
             <div className="border-b border-[#181715]/15 pb-3">
               <div className="font-mono text-xs tracking-widest text-[#6b675e] uppercase">
-                [ DE NOVO CHEMISTRY STUDIO // PYTORCH LSTM & TRANSFORMER ]
+                [ DE NOVO CHEMISTRY STUDIO // PYTORCH LSTM ]
               </div>
               <h1 className="font-serif-editorial text-4xl text-[#181715]">
                 Autoregressive SMILES Chemical Generator
@@ -990,7 +1071,7 @@ export default function App() {
 
               </div>
 
-              {/* Terminal Logs & Output */}
+              {/* Terminal Logs Column */}
               <div className="lg:col-span-7 space-y-5">
                 <div className="border border-[#181715]/30 bg-[#181715] text-[#fbf8f3] p-5 rounded-sm font-mono text-xs h-80 overflow-y-auto">
                   <div className="text-[10px] text-white/50 border-b border-white/10 pb-2 mb-3 flex justify-between">
@@ -1038,7 +1119,7 @@ export default function App() {
         )}
 
         {/* ============================================================
-            WORKSPACE 3: AUTODOCK VINA 3D WORKSTATION
+            WORKSPACE 4: AUTODOCK VINA 3D WORKSTATION
             ============================================================ */}
         {activeTab === 'docking' && (
           <div className="space-y-8">
@@ -1079,7 +1160,6 @@ export default function App() {
                         transition: is3DDragging ? 'none' : 'transform 0.15s ease-out'
                       }}
                     >
-                      {/* Bounding Box Wireframe */}
                       <polygon points="170,90 330,90 360,130 200,130" stroke="#00e5ff" strokeWidth="1" strokeDasharray="3 3" fill="none" opacity="0.4" />
                       <polygon points="170,220 330,220 360,260 200,260" stroke="#00e5ff" strokeWidth="1" strokeDasharray="3 3" fill="none" opacity="0.4" />
                       <line x1="170" y1="90" x2="170" y2="220" stroke="#00e5ff" strokeWidth="1" strokeDasharray="3 3" opacity="0.4" />
@@ -1087,18 +1167,15 @@ export default function App() {
                       <line x1="360" y1="130" x2="360" y2="260" stroke="#00e5ff" strokeWidth="1" strokeDasharray="3 3" opacity="0.4" />
                       <line x1="200" y1="130" x2="200" y2="260" stroke="#00e5ff" strokeWidth="1" strokeDasharray="3 3" opacity="0.4" />
 
-                      {/* Alpha Helix Ribbon */}
                       <path d="M 80,60 Q 140,40 180,100 T 160,220 Q 120,290 80,260" stroke="rgba(255,255,255,0.25)" strokeWidth="8" fill="none" strokeLinecap="round" />
                       <path d="M 380,50 Q 420,120 390,190 T 360,290" stroke="rgba(255,255,255,0.25)" strokeWidth="8" fill="none" strokeLinecap="round" />
 
-                      {/* Active Dyad Nodes */}
                       <circle cx="210" cy="140" r="6" fill="#00e5ff" />
                       <text x="220" y="143" fill="#00e5ff" fontSize="10" fontFamily="IBM Plex Mono">Cys145</text>
                       
                       <circle cx="310" cy="190" r="6" fill="#00e5ff" />
                       <text x="320" y="193" fill="#00e5ff" fontSize="10" fontFamily="IBM Plex Mono">His41</text>
 
-                      {/* Docked Conformer Ligand */}
                       <polygon points="240,160 265,145 290,160 290,190 265,205 240,190" stroke="#fbf8f3" strokeWidth="3" fill="rgba(255,255,255,0.1)" />
                       <circle cx="240" cy="160" r="5" fill="#fbf8f3" />
                       <circle cx="265" cy="145" r="5" fill="#fbf8f3" />
@@ -1124,7 +1201,6 @@ export default function App() {
                     </div>
                   </div>
 
-                  {/* Energy Decomposition */}
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-3 font-mono text-[10px]">
                     <div className="border border-white/10 p-2 bg-white/5">
                       <div className="text-white/50">TOTAL BINDING AFFINITY</div>
@@ -1147,7 +1223,7 @@ export default function App() {
                 </div>
               </div>
 
-              {/* Grid Box & Poses Column */}
+              {/* Grid Box & Poses */}
               <div className="lg:col-span-4 space-y-5">
                 <div className="border border-[#181715]/25 bg-white p-5 rounded-sm font-mono text-xs space-y-3">
                   <div className="font-semibold text-[#181715] uppercase border-b border-[#181715]/10 pb-2">
@@ -1229,36 +1305,35 @@ export default function App() {
         )}
 
         {/* ============================================================
-            WORKSPACE 4: SCHRÖDINGER IN-SILICO SUITE
-            (Maestro / Glide / QikProp / Desmond Inspired Features)
+            WORKSPACE 5: BIOPHYSICAL MOLECULAR ENGINEERING STUDIO
+            (Replaced Schrödinger Suite per user request - 100% EUREKA Branded)
             ============================================================ */}
-        {activeTab === 'schrodinger' && (
+        {activeTab === 'studio' && (
           <div className="space-y-8">
             <div className="border-b border-[#181715]/15 pb-3">
               <div className="font-mono text-xs tracking-widest text-[#6b675e] uppercase">
-                [ ADVANCED SUITE // SCHRÖDINGER MAESTRO & GLIDE PARADIGM ]
+                [ ADVANCED SUITE // MOLECULAR ENGINEERING WORKSTATION ]
               </div>
               <h1 className="font-serif-editorial text-4xl text-[#181715]">
-                Protein Prep, Bioisosteres & Molecular Dynamics
+                Biophysical Studio & Precision Engineering
               </h1>
               <p className="text-sm text-[#6b675e] mt-1 font-mono">
-                Schrödinger-equivalent high-precision workflows integrated into the EUREKA deterministic framework.
+                High-precision structural preparation, bioisosteric optimization, and molecular dynamics.
               </p>
             </div>
 
-            {/* Sub-Tabs */}
             <div className="flex gap-2 font-mono text-xs border-b border-[#181715]/15 pb-3">
               {[
-                { id: 'prep', label: '01. Protein PrepWizard' },
-                { id: 'glide', label: '02. Glide Precision Docking' },
-                { id: 'bioisostere', label: '03. Bioisostere Replacer' },
-                { id: 'desmond', label: '04. Desmond MD Trajectory' }
+                { id: 'prep', label: '01. Structure Quality & Prep' },
+                { id: 'glide', label: '02. Precision Scoring Matrix' },
+                { id: 'bioisostere', label: '03. Bioisosteric Swaps' },
+                { id: 'desmond', label: '04. Molecular Dynamics (10ns)' }
               ].map(sub => (
                 <button
                   key={sub.id}
-                  onClick={() => setSchrodingerMode(sub.id)}
+                  onClick={() => setStudioMode(sub.id)}
                   className={`px-3 py-1.5 border rounded-sm transition-all ${
-                    schrodingerMode === sub.id
+                    studioMode === sub.id
                       ? 'bg-[#181715] text-[#fbf8f3] font-semibold border-[#181715]'
                       : 'bg-white text-[#181715] border-[#181715]/20 hover:border-[#181715]'
                   }`}
@@ -1268,11 +1343,10 @@ export default function App() {
               ))}
             </div>
 
-            {/* Sub-view 1: PrepWizard */}
-            {schrodingerMode === 'prep' && (
+            {studioMode === 'prep' && (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 font-mono text-xs">
                 <div className="border border-[#181715]/25 bg-white p-5 rounded-sm space-y-3">
-                  <div className="font-bold text-[#181715] uppercase border-b pb-2">Hydrogen & Protonation States</div>
+                  <div className="font-bold text-[#181715] uppercase border-b pb-2">Protonation States at pH 7.4</div>
                   <p className="text-[#6b675e] text-[11px] leading-relaxed">
                     EUREKA assigns protonation states at physiological pH 7.4 via PROPKA heuristic:
                   </p>
@@ -1284,7 +1358,7 @@ export default function App() {
                 </div>
 
                 <div className="border border-[#181715]/25 bg-white p-5 rounded-sm space-y-3">
-                  <div className="font-bold text-[#181715] uppercase border-b pb-2">Ramachandran Plot Quality</div>
+                  <div className="font-bold text-[#181715] uppercase border-b pb-2">Ramachandran Dihedral Angles</div>
                   <p className="text-[#6b675e] text-[11px] leading-relaxed">
                     Backbone dihedral angles (Phi / Psi) verified across 306 residues:
                   </p>
@@ -1296,9 +1370,9 @@ export default function App() {
                 </div>
 
                 <div className="border border-[#181715]/25 bg-white p-5 rounded-sm space-y-3">
-                  <div className="font-bold text-[#181715] uppercase border-b pb-2">Active Site Hydration (WaterMap)</div>
+                  <div className="font-bold text-[#181715] uppercase border-b pb-2">Active Site Hydration Map</div>
                   <p className="text-[#6b675e] text-[11px] leading-relaxed">
-                    Identifies unstable crystallographic waters in the pocket:
+                    Identifies unstable crystallographic waters in the binding pocket:
                   </p>
                   <div className="space-y-1 bg-[#fbf8f3] p-3 border border-[#181715]/10 text-[11px]">
                     <div>HOH-402: Displaceable (+3.2 kcal/mol)</div>
@@ -1309,21 +1383,20 @@ export default function App() {
               </div>
             )}
 
-            {/* Sub-view 2: Glide Precision Docking */}
-            {schrodingerMode === 'glide' && (
+            {studioMode === 'glide' && (
               <div className="border border-[#181715]/25 bg-white p-6 rounded-sm space-y-5">
                 <div className="flex justify-between items-center border-b pb-3 font-mono text-xs">
                   <div>
-                    <h3 className="font-serif-editorial text-2xl text-[#181715]">Glide Precision Scoring Modes</h3>
-                    <div className="text-[#6b675e]">Standard Precision (SP) vs Extra Precision (XP) GlideScore</div>
+                    <h3 className="font-serif-editorial text-2xl text-[#181715]">Precision Scoring Matrix</h3>
+                    <div className="text-[#6b675e]">Standard Precision (SP) vs Extra Precision (XP) Formulation</div>
                   </div>
                   <div className="flex gap-2">
                     {['HTVS', 'SP', 'XP'].map(lvl => (
                       <button
                         key={lvl}
-                        onClick={() => setGlidePrecision(lvl)}
+                        onClick={() => setPrecisionMode(lvl)}
                         className={`px-3 py-1 border text-xs font-bold ${
-                          glidePrecision === lvl ? 'bg-[#181715] text-white' : 'bg-[#fbf8f3] text-[#181715]'
+                          precisionMode === lvl ? 'bg-[#181715] text-white' : 'bg-[#fbf8f3] text-[#181715]'
                         }`}
                       >
                         {lvl}
@@ -1333,9 +1406,9 @@ export default function App() {
                 </div>
 
                 <div className="bg-[#fbf8f3] p-4 border border-[#181715]/15 font-mono text-xs">
-                  <div className="text-[#6b675e] mb-1">CURRENT FORMULATION (XP MODE):</div>
+                  <div className="text-[#6b675e] mb-1">XP FORMULATION BREAKDOWN:</div>
                   <div className="font-bold text-[#181715] leading-relaxed">
-                    GlideScore = 0.065 × vdW + 0.130 × Coul + Lipo + H-Bond + Metal + BuryP + RotB + SiteScore
+                    Score = 0.065 × vdW + 0.130 × Coul + Lipo + H-Bond + Metal + BuryP + RotB + SiteScore
                   </div>
                 </div>
 
@@ -1360,12 +1433,11 @@ export default function App() {
               </div>
             )}
 
-            {/* Sub-view 3: Bioisostere Replacer */}
-            {schrodingerMode === 'bioisostere' && (
+            {studioMode === 'bioisostere' && (
               <div className="border border-[#181715]/25 bg-white p-6 rounded-sm space-y-5 font-mono text-xs">
                 <div className="border-b pb-3">
-                  <h3 className="font-serif-editorial text-2xl text-[#181715]">Schrödinger Ligand Designer Bioisostere Engine</h3>
-                  <div className="text-[#6b675e]">Swap metabolic liabilities while maintaining electronic and steric profile</div>
+                  <h3 className="font-serif-editorial text-2xl text-[#181715]">Bioisosteric Replacement Engine</h3>
+                  <div className="text-[#6b675e]">Automated functional group replacement maintaining electronic and steric profile</div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -1386,11 +1458,10 @@ export default function App() {
               </div>
             )}
 
-            {/* Sub-view 4: Desmond MD */}
-            {schrodingerMode === 'desmond' && (
+            {studioMode === 'desmond' && (
               <div className="border border-[#181715]/25 bg-white p-6 rounded-sm space-y-5 font-mono text-xs">
                 <div className="border-b pb-3">
-                  <h3 className="font-serif-editorial text-2xl text-[#181715]">Desmond 10 Nanosecond Molecular Dynamics Trajectory</h3>
+                  <h3 className="font-serif-editorial text-2xl text-[#181715]">10 Nanosecond Molecular Dynamics Trajectory</h3>
                   <div className="text-[#6b675e]">Solvated OPLS4 Force-Field in explicit TIP3P water box (300 K, 1 atm)</div>
                 </div>
 
@@ -1441,7 +1512,7 @@ export default function App() {
         )}
 
         {/* ============================================================
-            WORKSPACE 5: ADMET & TOX21 SAFETY SCREENING
+            WORKSPACE 6: ADMET & TOX21 SAFETY SCREENING
             ============================================================ */}
         {activeTab === 'admet' && (
           <div className="space-y-8">
@@ -1457,7 +1528,6 @@ export default function App() {
               </p>
             </div>
 
-            {/* Lipinski Rule of 5 Matrix */}
             <div className="border border-[#181715]/25 bg-white p-6 rounded-sm shadow-sm">
               <div className="flex justify-between items-center border-b border-[#181715]/15 pb-3 mb-5">
                 <div>
@@ -1493,7 +1563,6 @@ export default function App() {
               </div>
             </div>
 
-            {/* Tox21 12-Assay Panel */}
             <div className="border border-[#181715]/25 bg-white p-6 rounded-sm shadow-sm">
               <div className="border-b border-[#181715]/15 pb-3 mb-5">
                 <h3 className="font-serif-editorial text-xl text-[#181715]">Tox21 12-Assay Organ Toxicity Screening</h3>
@@ -1526,7 +1595,6 @@ export default function App() {
               </div>
             </div>
 
-            {/* Synthesizability & QED Score */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 font-mono text-xs">
               <div className="border border-[#181715]/25 bg-white p-5 rounded-sm">
                 <div className="text-[#6b675e] uppercase text-[10px]">SYNTHETIC ACCESSIBILITY (SA-SCORE)</div>
@@ -1551,9 +1619,108 @@ export default function App() {
         )}
 
         {/* ============================================================
-            WORKSPACE 6: ASCII CHEMICAL SPACE TREE CANVAS
+            WORKSPACE 7: INTERACTIVE EUREKA CAMPUS MAP
+            (Features User Uploaded Isometric Graphic & Interactive Mindmap)
             ============================================================ */}
-        {activeTab === 'space' && (
+        {activeTab === 'campus' && (
+          <div className="space-y-10">
+            <div className="border-b border-[#181715]/15 pb-3">
+              <div className="font-mono text-xs tracking-widest text-[#6b675e] uppercase">
+                [ INTERACTIVE ISOMETRIC CAMPUS // EUREKA SYSTEM TOPOLOGY ]
+              </div>
+              <h1 className="font-serif-editorial text-4xl text-[#181715]">
+                EUREKA Autonomous Campus & Laboratory Network
+              </h1>
+              <p className="text-sm text-[#6b675e] mt-1 font-mono">
+                Click any chamber to inspect its biophysical parameters, connected data pipelines, and computational tasks.
+              </p>
+            </div>
+
+            {/* Featured Uploaded Campus Image */}
+            <div className="border border-[#181715]/30 bg-black rounded-sm overflow-hidden p-2 shadow-lg">
+              <div className="text-[10px] font-mono text-white/50 px-3 py-1.5 flex justify-between border-b border-white/10 mb-2">
+                <span>EUREKA 9-CHAMBER AUTONOMOUS IN-SILICO FACILITY</span>
+                <span className="text-[#00e5ff]">INTERACTIVE TOPOLOGY</span>
+              </div>
+              <img
+                src="/eureka_campus.jpg"
+                alt="Eureka Autonomous Drug Discovery Campus"
+                className="w-full h-auto object-contain rounded-sm"
+              />
+            </div>
+
+            {/* Interactive Connected-Dot Mindmap & Chamber Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+              
+              {/* Left Chamber Selector Grid */}
+              <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                {CAMPUS_CHAMBERS.map(chamber => (
+                  <div
+                    key={chamber.id}
+                    onClick={() => setSelectedChamber(chamber)}
+                    className={`p-3.5 border cursor-pointer architect-card transition-all ${
+                      selectedChamber.id === chamber.id
+                        ? 'border-[#181715] bg-[#f4eee1] shadow-sm font-semibold'
+                        : 'border-[#181715]/20 bg-white'
+                    }`}
+                  >
+                    <div className="text-[10px] font-mono text-[#6b675e] flex justify-between mb-1">
+                      <span>{chamber.tag}</span>
+                      {selectedChamber.id === chamber.id && <span className="text-[#00e5ff]">● ACTIVE</span>}
+                    </div>
+                    <div className="text-sm font-serif-editorial text-[#181715] font-bold">{chamber.name}</div>
+                    <div className="text-[10px] font-mono text-[#6b675e] mt-1 truncate">{chamber.tech}</div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Right Chamber Detail Inspector Card */}
+              <div className="lg:col-span-5 border border-[#181715]/30 bg-[#f6f3ed] p-6 rounded-sm shadow-sm space-y-4">
+                <div className="flex justify-between items-center border-b border-[#181715]/15 pb-2 font-mono text-xs text-[#6b675e]">
+                  <span>{selectedChamber.tag}</span>
+                  <span className="bg-[#181715] text-[#fbf8f3] px-2 py-0.5 rounded text-[10px]">CHAMBER INSPECTION</span>
+                </div>
+
+                <div>
+                  <h3 className="font-serif-editorial text-2xl text-[#181715]">{selectedChamber.name}</h3>
+                  <div className="font-mono text-xs font-semibold text-emerald-800 mt-0.5">{selectedChamber.tech}</div>
+                </div>
+
+                <div className="bg-white p-3 border border-[#181715]/15 font-mono text-xs text-[#181715] leading-relaxed">
+                  <div className="text-[#6b675e] text-[10px] uppercase mb-1">PRIMARY FUNCTION:</div>
+                  {selectedChamber.role}
+                </div>
+
+                <div className="bg-white p-3 border border-[#181715]/15 font-mono text-xs text-[#181715] leading-relaxed">
+                  <div className="text-[#6b675e] text-[10px] uppercase mb-1">OPERATIONAL SPECIFICATIONS:</div>
+                  {selectedChamber.details}
+                </div>
+
+                <div className="pt-2 flex gap-2 font-mono text-xs">
+                  <button
+                    onClick={() => setActiveTab('generator')}
+                    className="flex-1 bg-[#181715] text-[#fbf8f3] py-2 hover:bg-black transition-all text-center uppercase"
+                  >
+                    Open Generator →
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('docking')}
+                    className="flex-1 border border-[#181715]/30 bg-white py-2 hover:bg-[#181715] hover:text-white transition-all text-center uppercase"
+                  >
+                    Open Vina 3D →
+                  </button>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+        )}
+
+        {/* ============================================================
+            WORKSPACE 8: ASCII CHEMICAL SPACE TREE CANVAS
+            ============================================================ */}
+        {activeTab === 'tree' && (
           <div className="space-y-8">
             <div className="border-b border-[#181715]/15 pb-3">
               <div className="font-mono text-xs tracking-widest text-[#6b675e] uppercase">
@@ -1614,7 +1781,7 @@ export default function App() {
         )}
 
         {/* ============================================================
-            WORKSPACE 7: LEAD CANDIDATES DECK & EXPORTER
+            WORKSPACE 9: LEAD CANDIDATES DECK & EXPORTER
             ============================================================ */}
         {activeTab === 'leads' && (
           <div className="space-y-8">
@@ -1662,7 +1829,6 @@ export default function App() {
               </div>
             </div>
 
-            {/* Table */}
             <div className="border border-[#181715]/30 bg-white overflow-x-auto shadow-sm">
               <table className="w-full text-left font-mono text-xs border-collapse">
                 <thead>
@@ -1713,7 +1879,6 @@ export default function App() {
               </table>
             </div>
 
-            {/* Selected Lead Card */}
             {selectedLead && (
               <div className="border border-[#181715]/30 p-6 bg-[#f6f3ed] rounded-sm grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
                 <div className="lg:col-span-8">
@@ -1771,54 +1936,6 @@ export default function App() {
                 </div>
               </div>
             )}
-          </div>
-        )}
-
-        {/* ============================================================
-            WORKSPACE 8: SPECS & WHITEPAPER
-            ============================================================ */}
-        {activeTab === 'specs' && (
-          <div className="space-y-8">
-            <div className="border-b border-[#181715]/15 pb-3">
-              <div className="font-mono text-xs tracking-widest text-[#6b675e] uppercase">
-                [ SYSTEM SPECIFICATIONS // WHITEPAPER ]
-              </div>
-              <h1 className="font-serif-editorial text-4xl text-[#181715]">
-                Biophysical Scoring & Neural Architecture
-              </h1>
-              <p className="text-sm text-[#6b675e] mt-1 font-mono">
-                Mathematical Foundations of the EUREKA Discovery Engine (GenAI + AutoDock Vina)
-              </p>
-            </div>
-
-            <div className="space-y-6">
-              <div className="border border-[#181715]/25 bg-white p-6 rounded-sm">
-                <h3 className="font-serif-editorial text-xl mb-2 text-[#181715]">1. Autoregressive Language Model Scoring</h3>
-                <p className="font-mono text-xs text-[#6b675e] leading-relaxed mb-4">
-                  The de novo chemical generator models token joint probabilities across 64 discrete SMILES characters:
-                </p>
-                <div className="bg-[#fbf8f3] border border-[#181715]/15 p-4 font-mono text-xs">
-                  P(M) = ∏ P(c_t | c_1, c_2, ..., c_{'{t-1}'}; θ)
-                </div>
-              </div>
-
-              <div className="border border-[#181715]/25 bg-white p-6 rounded-sm">
-                <h3 className="font-serif-editorial text-xl mb-2 text-[#181715]">2. AutoDock Vina Empirical Scoring Function</h3>
-                <p className="font-mono text-xs text-[#6b675e] leading-relaxed mb-4">
-                  The intermolecular free energy of binding is calculated as the sum of pairwise atom interactions within the defined receptor bounding box:
-                </p>
-                <div className="bg-[#fbf8f3] border border-[#181715]/15 p-4 font-mono text-xs space-y-1">
-                  <div>ΔG_bind = ΔG_gauss1 + ΔG_gauss2 + ΔG_repulsion + ΔG_hydrophobic + ΔG_hbond + 0.0584 × N_rot</div>
-                </div>
-              </div>
-
-              <div className="border border-[#181715]/25 bg-white p-6 rounded-sm">
-                <h3 className="font-serif-editorial text-xl mb-2 text-[#181715]">3. Strict Policy: No Agentic AI</h3>
-                <p className="font-mono text-xs text-[#181715]/80 leading-relaxed">
-                  EUREKA strictly operates via deterministic deep learning models (autoregressive LSTMs and Transformers) and biophysical force-fields (AutoDock Vina, RDKit). All execution paths are deterministic, reproducible, and verifiable against experimental crystallography.
-                </p>
-              </div>
-            </div>
           </div>
         )}
 
@@ -1881,16 +1998,14 @@ export default function App() {
       )}
 
       {/* ============================================================
-          THE EXACT INDIGO BLUEPRINT FOOTER (Pin 1079104760742428689)
-          Preserved full-width ("excepty that footer") with seamless
-          etched mountain landscape illustration
+          CLEAN SCIENTIFIC BIOTECH FOOTER
+          (Removed cowboy landscape - replaced with elegant biochemical lattice)
           ============================================================ */}
-      <footer className="w-full bg-[#0b3987] text-white pt-16 pb-0 relative overflow-hidden">
+      <footer className="w-full bg-[#081a3e] text-white pt-16 pb-0 relative overflow-hidden">
         
-        {/* Subtle Architectural Blueprint Grid in Sky */}
         <div className="absolute inset-0 bg-blueprint-dark opacity-30 pointer-events-none"></div>
 
-        <div className="max-w-7xl mx-auto px-6 md:px-12 relative z-10">
+        <div className="max-w-6xl mx-auto px-6 md:px-12 relative z-10">
           
           {/* Masthead */}
           <div className="border-b border-white/20 pb-8 mb-10">
@@ -1902,7 +2017,7 @@ export default function App() {
             </p>
           </div>
 
-          {/* Underlined Header Link Columns (Pin 1079104760742428689 Style) */}
+          {/* Underlined Header Link Columns */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12 font-serif-editorial">
             
             {/* Column 1: _PLATFORM_ */}
@@ -1911,13 +2026,13 @@ export default function App() {
                 _PLATFORM_
               </div>
               <ul className="space-y-2 text-sm text-white/85">
-                <li><button onClick={() => setActiveTab('overview')} className="hover:underline text-left">Target Ingestion Hub</button></li>
-                <li><button onClick={() => setActiveTab('generator')} className="hover:underline text-left">De Novo PyTorch LSTM</button></li>
+                <li><button onClick={() => setActiveTab('overview')} className="hover:underline text-left">Overview & Architecture</button></li>
+                <li><button onClick={() => setActiveTab('targets')} className="hover:underline text-left">Target Ingestion Hub</button></li>
+                <li><button onClick={() => setActiveTab('generator')} className="hover:underline text-left">De Novo Chemical Generator</button></li>
                 <li><button onClick={() => setActiveTab('docking')} className="hover:underline text-left">AutoDock Vina 3D Engine</button></li>
-                <li><button onClick={() => setActiveTab('schrodinger')} className="hover:underline text-left">Schrödinger Maestro Suite</button></li>
+                <li><button onClick={() => setActiveTab('studio')} className="hover:underline text-left">Biophysical Studio</button></li>
                 <li><button onClick={() => setActiveTab('admet')} className="hover:underline text-left">Tox21 Safety Screening</button></li>
-                <li><button onClick={() => setActiveTab('space')} className="hover:underline text-left">Chemical Space Tree</button></li>
-                <li><button onClick={() => setActiveTab('leads')} className="hover:underline text-left">Discovered Leads Deck</button></li>
+                <li><button onClick={() => setActiveTab('campus')} className="hover:underline text-left">Campus Facility Map</button></li>
               </ul>
             </div>
 
@@ -1932,7 +2047,7 @@ export default function App() {
                     <button
                       onClick={() => {
                         handleSelectTarget(t);
-                        setActiveTab('overview');
+                        setActiveTab('targets');
                       }}
                       className="hover:underline text-left"
                     >
@@ -1953,7 +2068,8 @@ export default function App() {
                 <li><a href="https://www.rcsb.org/" target="_blank" rel="noreferrer" className="hover:underline">RCSB Protein Data Bank ↗</a></li>
                 <li><a href="https://www.ebi.ac.uk/chembl/" target="_blank" rel="noreferrer" className="hover:underline">EMBL-EBI ChEMBL API ↗</a></li>
                 <li><a href="https://pubchem.ncbi.nlm.nih.gov/" target="_blank" rel="noreferrer" className="hover:underline">PubChem Database ↗</a></li>
-                <li><button onClick={() => setActiveTab('specs')} className="hover:underline text-left">Mathematical Specs</button></li>
+                <li><button onClick={() => setActiveTab('tree')} className="hover:underline text-left">Chemical Space Tree</button></li>
+                <li><button onClick={() => setActiveTab('leads')} className="hover:underline text-left">Discovered Leads Deck</button></li>
               </ul>
             </div>
 
@@ -1980,7 +2096,7 @@ export default function App() {
                 />
                 <button
                   type="submit"
-                  className="absolute right-0 top-0 bottom-0 px-3 bg-white text-[#0b3987] hover:bg-white/90 font-bold"
+                  className="absolute right-0 top-0 bottom-0 px-3 bg-white text-[#081a3e] hover:bg-white/90 font-bold"
                 >
                   →
                 </button>
@@ -2002,24 +2118,37 @@ export default function App() {
               <span>LAT: 37°46'N 122°25'W</span>
               <span>SYS: BUILD 2.4.9-VINA</span>
             </div>
-            <div>STRICTLY GENERATIVE AI + ML (NO AGENTIC AI)</div>
+            <div>AUTONOMOUS IN-SILICO MOLECULAR DESIGN</div>
           </div>
 
         </div>
 
-        {/* Etched Landscape Illustration from Pin 1079104760742428689 */}
-        <div className="w-full relative mt-2 overflow-hidden select-none pointer-events-none">
-          <div
-            className="absolute inset-0 z-10"
-            style={{
-              background: 'linear-gradient(to bottom, #0b3987 0%, rgba(11, 57, 135, 0.4) 30%, transparent 70%)'
-            }}
-          />
-          <img
-            src="/footer_landscape.jpg"
-            alt="Etched Landscape"
-            className="w-full h-auto object-cover object-bottom block mix-blend-luminosity opacity-80"
-          />
+        {/* Elegant Continuous Biochemical Lattice Vector Graphic (NO COWBOY) */}
+        <div className="w-full h-24 overflow-hidden relative select-none pointer-events-none opacity-40">
+          <svg className="w-full h-full" viewBox="0 0 1440 96" fill="none" preserveAspectRatio="none">
+            <path
+              d="M0,48 Q180,96 360,48 T720,48 T1080,48 T1440,48"
+              stroke="#00e5ff"
+              strokeWidth="1.5"
+              fill="none"
+              opacity="0.6"
+            />
+            <path
+              d="M0,60 Q180,12 360,60 T720,60 T1080,60 T1440,60"
+              stroke="#ffffff"
+              strokeWidth="1"
+              strokeDasharray="4 4"
+              fill="none"
+              opacity="0.4"
+            />
+            {/* Hexagonal molecular lattice points */}
+            {[60, 180, 300, 420, 540, 660, 780, 900, 1020, 1140, 1260, 1380].map(x => (
+              <g key={x}>
+                <circle cx={x} cy={48 + Math.sin(x) * 16} r="3" fill="#00e5ff" />
+                <line x1={x} y1={48 + Math.sin(x) * 16} x2={x} y2={96} stroke="#ffffff" strokeWidth="0.5" strokeDasharray="2 2" opacity="0.3" />
+              </g>
+            ))}
+          </svg>
         </div>
 
       </footer>

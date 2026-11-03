@@ -1,6 +1,5 @@
 /* ============================================================
    EUREKA ARCHITECTURAL DRAFTING & SCIENTIFIC BLUEPRINT CSS
-   Inspired by Scale Studio, 4010 ASCII Tree, Aintrum & Sequel
    ============================================================ */
 @import "tailwindcss";
 
@@ -18,8 +17,8 @@
   --grid-line: rgba(24, 23, 21, 0.05);
   --cyan-highlighter: #00e5ff;
   --cyan-wash: rgba(0, 229, 255, 0.22);
-  --indigo-footer: #0b3987;
-  --indigo-dark: #072355;
+  --indigo-footer: #081a3e;
+  --indigo-dark: #05112a;
 }
 
 * {
@@ -43,10 +42,10 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Wide Container for Professional Workstation Density */
-.wide-container {
+/* Proportional Scientific Workstation Container */
+.workstation-container {
   width: 100%;
-  max-width: 1720px;
+  max-width: 1440px;
   margin-left: auto;
   margin-right: auto;
   padding-left: 1.5rem;
@@ -54,23 +53,19 @@ body {
 }
 
 @media (min-width: 1024px) {
-  .wide-container {
-    padding-left: 2.5rem;
-    padding-right: 2.5rem;
+  .workstation-container {
+    padding-left: 3rem;
+    padding-right: 3rem;
   }
 }
 
-/* Thin Sleek Architectural Navbar */
-.thin-navbar-pill {
-  width: 96%;
-  max-width: 1720px;
-  height: 48px;
-  background-color: rgba(251, 248, 243, 0.94);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(24, 23, 21, 0.22);
-  border-radius: 9999px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+/* Proportional Elegant Navbar */
+.pro-navbar {
+  height: 62px;
+  background-color: rgba(251, 248, 243, 0.95);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(24, 23, 21, 0.18);
 }
 
 /* Drafting Grid Backgrounds */
@@ -91,24 +86,24 @@ body {
 }
 
 .bg-blueprint-dark {
-  background-color: #0b3987;
+  background-color: #081a3e;
   background-image: 
-    linear-gradient(to right, rgba(255, 255, 255, 0.06) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.06) 1px, transparent 1px);
-  background-size: 32px 32px;
+    linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 28px 28px;
 }
 
 /* Card Hover Elevation Effects */
 .architect-card {
   background: #ffffff;
-  border: 1px solid rgba(24, 23, 21, 0.2);
+  border: 1px solid rgba(24, 23, 21, 0.18);
   transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .architect-card:hover {
   border-color: rgba(24, 23, 21, 0.7);
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(24, 23, 21, 0.05);
+  box-shadow: 0 8px 24px rgba(24, 23, 21, 0.06);
 }
 
 .hover-glow-cyan {
@@ -179,4 +174,16 @@ body {
 }
 ::-webkit-scrollbar-thumb:hover {
   background: #9a9484;
+}
+
+/* Particle animation along network lines */
+@keyframes dash-flow {
+  to {
+    stroke-dashoffset: -40;
+  }
+}
+
+.animate-network-flow {
+  stroke-dasharray: 4, 4;
+  animation: dash-flow 1.8s linear infinite;
 }

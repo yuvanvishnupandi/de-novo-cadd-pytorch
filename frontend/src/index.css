@@ -1,24 +1,24 @@
 /* ============================================================
-   EUREKA ARCHITECTURAL DRAFTING & SCIENTIFIC BLUEPRINT CSS
+   BENCHSCI DESIGN SYSTEM & IN-SILICO DISCOVERY WORKBENCH CSS
    ============================================================ */
+@import "./benchsci.css";
 @import "tailwindcss";
 
 :root {
-  --font-serif: 'Newsreader', 'Playfair Display', Georgia, serif;
-  --font-mono: 'IBM Plex Mono', 'JetBrains Mono', Courier, monospace;
-  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --color-bg: #171615;
+  --color-bg-elevated: #1e1d1b;
+  --color-fg: #f5f2ee;
+  --color-fg-muted: #a1a1a1;
+  --color-fg-subtle: #737373;
+  --color-line: #2e2c29;
+  --color-line-hover: #4a4742;
   
-  --paper-bg: #faf8f5;
-  --paper-cream: #f4efe6;
-  --paper-card: #ffffff;
-  --ink-primary: #181715;
-  --ink-muted: #6b675e;
-  --ink-faint: #a29e94;
-  --grid-line: rgba(24, 23, 21, 0.05);
-  --cyan-highlighter: #00e5ff;
-  --cyan-wash: rgba(0, 229, 255, 0.22);
-  --lilac-accent: #8e75ff;
-  --lilac-subtle: #f0edff;
+  --page-max: 1300px;
+  --page-gutter-mobile: 1.5rem;
+  
+  --font-serif: 'IBM Plex Serif', Georgia, serif;
+  --font-mono: 'IBM Plex Mono', 'JetBrains Mono', monospace;
+  --font-sans: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 * {
@@ -28,192 +28,42 @@
 html {
   scroll-behavior: smooth;
   font-family: var(--font-sans);
-  background-color: var(--paper-bg);
-  color: var(--ink-primary);
+  background-color: #171615;
+  color: #f5f2ee;
+  color-scheme: dark;
 }
 
 body {
   margin: 0;
   padding: 0;
   overflow-x: hidden;
-  background-color: var(--paper-bg);
-  color: var(--ink-primary);
+  background-color: #171615;
+  color: #f5f2ee;
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Proportional Workstation Container */
-.workstation-container {
-  width: 100%;
-  max-width: 1400px;
-  margin-left: auto;
-  margin-right: auto;
-  padding-left: 1.5rem;
-  padding-right: 1.5rem;
-}
-
-@media (min-width: 1024px) {
-  .workstation-container {
-    padding-left: 2.5rem;
-    padding-right: 2.5rem;
-  }
-}
-
-/* Floating Pill Navbar (Wispr Flow / Windsurf Style) */
-.floating-pill-nav {
-  position: fixed;
-  top: 1rem;
-  left: 50%;
-  transform: translateX(-50%);
-  width: calc(100% - 2rem);
-  max-width: 1060px;
-  height: 56px;
-  background-color: rgba(250, 248, 245, 0.94);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(24, 23, 21, 0.14);
-  border-radius: 9999px;
-  box-shadow: 0 4px 24px rgba(24, 23, 21, 0.06);
-  z-index: 50;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 1.25rem;
-  transition: all 0.25s ease;
-}
-
-.floating-pill-nav:hover {
-  border-color: rgba(24, 23, 21, 0.26);
-  box-shadow: 0 6px 28px rgba(24, 23, 21, 0.09);
-}
-
-/* Drafting Grid Backgrounds */
-.bg-drafting-grid {
-  background-color: #faf8f5;
-  background-image: 
-    linear-gradient(to right, rgba(24, 23, 21, 0.05) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(24, 23, 21, 0.05) 1px, transparent 1px);
-  background-size: 24px 24px;
-}
-
-.bg-drafting-subgrid {
-  background-color: #faf8f5;
-  background-image: 
-    linear-gradient(to right, rgba(24, 23, 21, 0.03) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(24, 23, 21, 0.03) 1px, transparent 1px);
-  background-size: 8px 8px;
-}
-
-/* Card Hover Elevation Effects */
-.architect-card {
-  background: #ffffff;
-  border: 1px solid rgba(24, 23, 21, 0.16);
-  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.architect-card:hover {
-  border-color: rgba(24, 23, 21, 0.5);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(24, 23, 21, 0.06);
-}
-
-.hover-glow-cyan {
-  transition: all 0.2s ease;
-}
-
-.hover-glow-cyan:hover {
-  border-color: #00e5ff !important;
-  box-shadow: 0 0 16px rgba(0, 229, 255, 0.28);
-}
-
-/* Editorial & Monospace Typography */
-.font-serif-editorial {
-  font-family: var(--font-serif);
-}
-
-.font-mono-tech {
-  font-family: var(--font-mono);
-}
-
-.font-sans-ui {
-  font-family: var(--font-sans);
-}
-
-/* Crosshairs Corner Marks */
-.crosshair-corner {
-  position: relative;
-}
-.crosshair-corner::before {
-  content: "+";
-  position: absolute;
-  top: -8px;
-  left: -6px;
-  font-family: var(--font-mono);
-  font-size: 13px;
-  color: rgba(24, 23, 21, 0.45);
-}
-.crosshair-corner::after {
-  content: "+";
-  position: absolute;
-  bottom: -8px;
-  right: -6px;
-  font-family: var(--font-mono);
-  font-size: 13px;
-  color: rgba(24, 23, 21, 0.45);
-}
-
-/* Kinetic Scrolling Marquee Ticker */
-@keyframes kinetic-marquee {
-  0% { transform: translateX(0%); }
-  100% { transform: translateX(-50%); }
-}
-
-.animate-kinetic-marquee {
-  display: flex;
-  width: max-content;
-  animation: kinetic-marquee 28s linear infinite;
-}
-
-.animate-kinetic-marquee:hover {
-  animation-play-state: paused;
-}
-
-/* Flowing Network Pulses */
-@keyframes dash-flow {
-  to {
-    stroke-dashoffset: -40;
-  }
-}
-
-.animate-network-flow {
-  stroke-dasharray: 4, 4;
-  animation: dash-flow 1.8s linear infinite;
-}
-
-/* Custom Scrollbars */
+/* Custom Sleek Dark Scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
 }
+
 ::-webkit-scrollbar-track {
-  background: #f1ebd8;
+  background: #171615;
 }
+
 ::-webkit-scrollbar-thumb {
-  background: #c3beaf;
-  border-radius: 3px;
+  background: #2e2c29;
+  border-radius: 4px;
 }
+
 ::-webkit-scrollbar-thumb:hover {
-  background: #9a9484;
+  background: #4a4742;
 }
 
-/* Wispr Flow Soundwave Pulse Bars */
-@keyframes soundwave-pulse {
-  0%, 100% { height: 6px; }
-  50% { height: 22px; }
+/* Code block highlight styling */
+pre, code {
+  font-family: var(--font-mono);
 }
-
-.wave-bar-1 { animation: soundwave-pulse 1.1s ease-in-out infinite 0.1s; }
-.wave-bar-2 { animation: soundwave-pulse 1.1s ease-in-out infinite 0.25s; }
-.wave-bar-3 { animation: soundwave-pulse 1.1s ease-in-out infinite 0.4s; }
-.wave-bar-4 { animation: soundwave-pulse 1.1s ease-in-out infinite 0.15s; }
-.wave-bar-5 { animation: soundwave-pulse 1.1s ease-in-out infinite 0.3s; }

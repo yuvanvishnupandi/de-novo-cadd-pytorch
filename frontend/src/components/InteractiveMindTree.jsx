@@ -584,3 +584,4 @@ export default function InteractiveMindTree({ onSelectNode }) {
     </div>
   );
 }
+

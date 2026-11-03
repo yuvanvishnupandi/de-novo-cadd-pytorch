@@ -244,3 +244,4 @@ export default function ActiveSiteMindmap({ pdbId = '7BQY', onInspectResidue }) 
     </div>
   );
 }
+

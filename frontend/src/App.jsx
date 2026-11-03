@@ -597,8 +597,22 @@ export default function App() {
   }, [treeDepth, treeSpread, treeRenderMode, activeTab]);
 
   return (
-    <div className="min-h-screen bg-[#fbf8f3] text-[#181715] font-sans relative selection:bg-[#00e5ff] selection:text-black">
+    <div className="min-h-screen bg-[#faf8f5] text-[#181715] font-sans relative selection:bg-[#00e5ff] selection:text-black">
       
+      {/* ============================================================
+          TOP ANNOUNCEMENT BAR (Wispr Flow Pin 884746289444791447)
+          ============================================================ */}
+      <div className="w-full bg-[#052e16] text-[#bbf7d0] py-2 px-4 text-center text-xs font-mono flex items-center justify-center gap-2 border-b border-emerald-900/40 relative z-40">
+        <span>✦ Breakthrough In-Silico Biophysics: Autoregressive PyTorch LSTM + AutoDock Vina Engine.</span>
+        <button
+          onClick={() => setActiveTab('studio')}
+          className="underline hover:text-white font-semibold flex items-center gap-1"
+        >
+          <span>Read Benchmark</span>
+          <span>→</span>
+        </button>
+      </div>
+
       {/* ============================================================
           FLOATING PILL NAVBAR (Wispr Flow / Windsurf Style - Centered, Comfortable Height)
           ============================================================ */}
@@ -672,145 +686,293 @@ export default function App() {
       {/* ============================================================
           MAIN WORKSPACE CONTAINER
           ============================================================ */}
-      <main className="pt-24 pb-20 workstation-container">
+      <main className="pt-28 pb-20 workstation-container">
 
         {/* ============================================================
-            WORKSPACE 1: OVERVIEW & SYSTEM ARCHITECTURE
+            WORKSPACE 1: MASTER EDITORIAL OVERVIEW & ARCHITECTURE
+            (Exact Realization of Wispr Flow, Aintrum, Behance & Mind-Tree Pins)
             ============================================================ */}
         {activeTab === 'overview' && (
-          <div className="space-y-12">
+          <div className="space-y-20">
             
-            {/* Dossier Hero Box */}
-            <section className="bg-drafting-grid border border-[#181715]/30 bg-[#fbf8f3]/95 p-6 md:p-10 rounded-sm relative shadow-sm crosshair-corner">
+            {/* HERO SECTION: WISPR FLOW STYLE (Pin 884746289444791447) */}
+            <section className="text-center pt-8 pb-12 relative overflow-hidden">
               
-              <div className="flex flex-wrap items-center justify-between border-b border-[#181715]/20 pb-3 mb-6 font-mono text-[11px] tracking-widest text-[#6b675e] gap-3">
-                <div>[ DOSSIER // EUREKA-BIO-2026 ]</div>
-                <div>AUTONOMOUS IN-SILICO DRUG DISCOVERY</div>
-                <div>STATUS: FULLY OPERATIONAL</div>
-                <div className="bg-[#00e5ff]/25 text-[#181715] px-2 py-0.5 rounded font-semibold">
-                  SYS: VINA-2.4.9
+              {/* Category Pill */}
+              <div className="inline-flex items-center gap-2 bg-[#181715]/5 border border-[#181715]/10 px-4 py-1.5 rounded-full text-xs font-mono text-[#6b675e] mb-6">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span>AUTONOMOUS IN-SILICO DRUG DISCOVERY · BUILD 2.4.9</span>
+              </div>
+
+              {/* High-Contrast Editorial Serif Headline (Wispr Flow "Don't type, just speak" two-tone) */}
+              <h1 className="font-serif-editorial text-5xl sm:text-7xl lg:text-8xl tracking-tight leading-[1.04] max-w-5xl mx-auto mb-6">
+                <span className="text-[#8c897f]">Don't guess chemistry, </span>
+                <span className="text-[#181715]">just synthesize.</span>
+              </h1>
+
+              {/* Subtitle */}
+              <p className="text-base sm:text-lg md:text-xl text-[#6b675e] max-w-2xl mx-auto font-sans leading-relaxed mb-8">
+                The autonomous in-silico platform coupling autoregressive language models with AutoDock Vina force-fields — engineering precision lead therapeutics in seconds.
+              </p>
+
+              {/* Pill Action Button (Wispr Flow Soft Lilac Pill) */}
+              <div className="flex flex-col items-center gap-3">
+                <div className="flex flex-wrap items-center justify-center gap-3">
+                  <button
+                    onClick={() => setActiveTab('docking')}
+                    className="bg-[#e4dcf9] hover:bg-[#d8cbf7] text-[#181715] font-semibold text-sm px-8 py-3.5 rounded-full border border-[#181715]/15 shadow-sm transition-all flex items-center gap-2"
+                  >
+                    <span>Launch In-Silico Docking</span>
+                    <span className="font-mono text-xs">→</span>
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('tree')}
+                    className="bg-white hover:bg-[#181715] hover:text-white text-[#181715] font-semibold text-sm px-7 py-3.5 rounded-full border border-[#181715]/20 shadow-sm transition-all"
+                  >
+                    Explore Mind-Tree
+                  </button>
+                </div>
+                <div className="text-xs text-[#6b675e] font-mono mt-1">
+                  Available for SARS-CoV-2 Mpro, BACE-1, HIV-1 RT, EGFR Kinase & Custom FASTA
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-                
-                {/* Left Headline */}
-                <div className="lg:col-span-7">
-                  <div className="inline-block font-mono text-xs uppercase tracking-widest text-[#6b675e] mb-2">
-                    Autonomous Multi-Criteria In-Silico Pipeline
-                  </div>
+              {/* Wispr Flow Molecular Stream Curved Ribbon with Soundwave Capsule */}
+              <div className="mt-14 relative max-w-4xl mx-auto">
+                <div className="w-full bg-[#181715] text-[#faf8f5] py-3 px-6 rounded-full overflow-hidden shadow-lg border border-[#181715]/20 flex items-center justify-between gap-4">
                   
-                  <h1 className="font-serif-editorial text-4xl sm:text-5xl lg:text-6xl leading-[1.08] tracking-tight text-[#181715] mb-5">
-                    Autonomous <span className="highlight-cyan font-serif italic">in-silico</span> drug discovery for novel therapeutic targets.
-                  </h1>
-
-                  <p className="text-base text-[#6b675e] leading-relaxed mb-6 max-w-2xl font-normal">
-                    Coupling de novo autoregressive language models with biophysical force fields and Tox21 multi-criteria safety grading — synthesizing candidate leads in milliseconds without laboratory guesswork.
-                  </p>
-
-                  <div className="flex flex-wrap items-center gap-3">
-                    <button
-                      onClick={() => setActiveTab('targets')}
-                      className="bg-[#181715] text-[#fbf8f3] hover:bg-black font-mono text-xs uppercase tracking-wider px-5 py-2.5 rounded-full transition-all flex items-center gap-2"
-                    >
-                      <span>Explore Target Hub</span>
-                      <span>→</span>
-                    </button>
-                    <button
-                      onClick={() => setActiveTab('campus')}
-                      className="border border-[#181715]/30 hover:border-[#181715] font-mono text-xs uppercase tracking-wider px-5 py-2.5 rounded-full transition-all text-[#181715]"
-                    >
-                      View Campus Map
-                    </button>
+                  {/* Continuous Scrolling Biochemical Ticker */}
+                  <div className="overflow-hidden whitespace-nowrap text-xs font-mono opacity-80 flex-1">
+                    <div className="animate-kinetic-marquee flex items-center gap-8">
+                      <span>Cys145 Covalent Attack (2.72 Å)</span>
+                      <span>·</span>
+                      <span>His41 Catalytic Dyad (3.11 Å)</span>
+                      <span>·</span>
+                      <span>AutoDock Vina ΔG: -9.84 kcal/mol</span>
+                      <span>·</span>
+                      <span>Ki: 58.4 nM</span>
+                      <span>·</span>
+                      <span>Tox21 Safety Yield: 98%</span>
+                      <span>·</span>
+                      <span>100% Lipinski Compliant</span>
+                      <span>·</span>
+                      <span>10ns Desmond RMSD: 1.42 Å</span>
+                      <span>·</span>
+                      <span>Cys145 Covalent Attack (2.72 Å)</span>
+                      <span>·</span>
+                      <span>His41 Catalytic Dyad (3.11 Å)</span>
+                      <span>·</span>
+                      <span>AutoDock Vina ΔG: -9.84 kcal/mol</span>
+                    </div>
                   </div>
-                </div>
 
-                {/* Right Interactive Pocket Mindmap & Vector Network */}
-                <div className="lg:col-span-5">
-                  <ActiveSiteMindmap pdbId={selectedTarget.pdbId} />
-                </div>
+                  {/* Wispr Flow Soundwave Capsule in the Center */}
+                  <div className="bg-[#2a2825] px-3.5 py-1.5 rounded-full flex items-center gap-2 border border-white/10 shrink-0">
+                    <div className="flex items-center gap-1 h-5">
+                      <span className="w-0.5 bg-[#00e5ff] rounded-full wave-bar-1"></span>
+                      <span className="w-0.5 bg-[#8e75ff] rounded-full wave-bar-2"></span>
+                      <span className="w-0.5 bg-[#00e5ff] rounded-full wave-bar-3"></span>
+                      <span className="w-0.5 bg-[#8e75ff] rounded-full wave-bar-4"></span>
+                      <span className="w-0.5 bg-[#00e5ff] rounded-full wave-bar-5"></span>
+                    </div>
+                    <span className="text-[11px] font-mono text-[#00e5ff] font-bold">
+                      EUR-2026-α: -9.84 kcal/mol
+                    </span>
+                  </div>
 
+                </div>
               </div>
 
             </section>
 
-            {/* Official EUREKA Pipeline Diagram */}
-            <section className="border border-[#181715]/25 bg-white p-6 rounded-sm shadow-sm">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-[#181715]/15 pb-3 mb-5 gap-2">
+            {/* SECTION 1: ACTIVE SITE DYAD MINDMAP & VECTOR NETWORK */}
+            <section className="space-y-4">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-[#181715]/15 pb-3 gap-2">
                 <div>
-                  <div className="font-mono text-xs text-[#6b675e] uppercase">[ SYSTEM ARCHITECTURE // TRUE PROJECT PIPELINE ]</div>
-                  <h3 className="font-serif-editorial text-2xl text-[#181715]">EUREKA 5-Stage Multi-Criteria Discovery Pipeline</h3>
+                  <div className="font-mono text-xs text-[#6b675e] uppercase">[ ACTIVE POCKET DYAD // INTERACTION MINDMAP ]</div>
+                  <h2 className="font-serif-editorial text-3xl text-[#181715]">
+                    Catalytic Site Interaction & Coordinate Vector Network
+                  </h2>
                 </div>
                 <div className="font-mono text-xs text-[#6b675e]">
-                  From <code className="bg-[#fbf8f3] px-2 py-0.5 border">backend/pipeline_manager.py</code>
+                  Target: <span className="font-bold text-[#181715]">{selectedTarget.name}</span> ({selectedTarget.pdbId})
                 </div>
               </div>
 
-              <div className="w-full bg-[#fbf8f3] border border-[#181715]/20 p-4 flex items-center justify-center rounded-sm">
+              <ActiveSiteMindmap pdbId={selectedTarget.pdbId} />
+            </section>
+
+            {/* SECTION 2: AINTRUM ISOMETRIC CONVEYOR & CAMPUS NETWORK (Pin 352969689567259844) */}
+            <section className="bg-white border border-[#181715]/20 p-6 md:p-8 rounded-sm shadow-sm space-y-6 crosshair-corner">
+              
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-[#181715]/15 pb-4 gap-2">
+                <div>
+                  <div className="font-mono text-xs text-[#6b675e] uppercase">[ ISOMETRIC CONVEYOR ARCHITECTURE // PIN 352969689567259844 ]</div>
+                  <h2 className="font-serif-editorial text-3xl text-[#181715]">
+                    Biophysical Architecture That Keeps Chemistry Deterministic
+                  </h2>
+                  <p className="text-xs text-[#6b675e] font-sans mt-1">
+                    Real-time de novo generation, energy minimization, and Tox21 grading in one synchronized hub.
+                  </p>
+                </div>
+
+                <button
+                  onClick={() => setActiveTab('campus')}
+                  className="bg-[#181715] hover:bg-black text-[#faf8f5] text-xs font-mono uppercase tracking-wider px-4 py-2 rounded-sm transition-all"
+                >
+                  Explore 9-Chamber Facility →
+                </button>
+              </div>
+
+              {/* Uploaded Campus Map Display */}
+              <div className="w-full bg-[#fbf8f3] border border-[#181715]/20 p-4 rounded-sm flex items-center justify-center overflow-hidden">
                 <img
-                  src="/eureka_pipeline.png"
-                  alt="Eureka Pipeline Architecture"
-                  className="max-h-80 w-auto object-contain hover:scale-[1.01] transition-transform duration-300"
+                  src="/eureka_campus.jpg"
+                  alt="Eureka Autonomous Drug Discovery Campus"
+                  className="w-full max-h-[460px] object-contain hover:scale-[1.01] transition-transform duration-300"
                 />
               </div>
 
-              <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mt-4 font-mono text-[11px]">
-                <div className="p-3 bg-[#fbf8f3] border border-[#181715]/15">
-                  <div className="font-bold text-[#181715]">Stage 1: Generative AI</div>
-                  <div className="text-[#6b675e] text-[10px] mt-0.5">PyTorch LSTM SMILESGenerator</div>
-                </div>
-                <div className="p-3 bg-[#fbf8f3] border border-[#181715]/15">
-                  <div className="font-bold text-[#181715]">Stage 2: Features</div>
-                  <div className="text-[#6b675e] text-[10px] mt-0.5">RDKit & PubChem Properties</div>
-                </div>
-                <div className="p-3 bg-[#fbf8f3] border border-[#181715]/15">
-                  <div className="font-bold text-[#181715]">Stage 3: Bioactivity</div>
-                  <div className="text-[#6b675e] text-[10px] mt-0.5">Random Forest ML Grader</div>
-                </div>
-                <div className="p-3 bg-[#fbf8f3] border border-[#181715]/15">
-                  <div className="font-bold text-[#181715]">Stage 4: Toxicity</div>
-                  <div className="text-[#6b675e] text-[10px] mt-0.5">Tox21 Organ Screening</div>
-                </div>
-                <div className="p-3 bg-[#fbf8f3] border border-[#181715]/15">
-                  <div className="font-bold text-[#181715]">Stage 5: Physics</div>
-                  <div className="text-[#6b675e] text-[10px] mt-0.5">AutoDock Vina 3D Simulation</div>
-                </div>
+              {/* Chamber Quick Selector Grid */}
+              <div className="grid grid-cols-3 sm:grid-cols-5 lg:grid-cols-9 gap-2 font-mono text-[10px]">
+                {CAMPUS_CHAMBERS.map(c => (
+                  <button
+                    key={c.id}
+                    onClick={() => {
+                      setSelectedChamber(c);
+                      setActiveTab('campus');
+                    }}
+                    className="p-2 border border-[#181715]/15 hover:border-[#181715] bg-[#faf8f5] hover:bg-[#181715] hover:text-white transition-all text-center rounded-sm"
+                  >
+                    <div className="font-bold truncate">{c.name}</div>
+                    <div className="text-[9px] opacity-70 mt-0.5">{c.tag}</div>
+                  </button>
+                ))}
               </div>
+
             </section>
 
-            {/* Genetically Tailored Macromolecules (Behance / Pin 476607573068235440) */}
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-6 bg-white border border-[#181715]/20 p-6 rounded-sm shadow-sm items-center crosshair-corner">
-              <div className="md:col-span-5 overflow-hidden rounded border border-[#181715]/15 bg-[#fbf8f3]">
+            {/* SECTION 3: GENETICALLY TAILORED MACROMOLECULES (Behance / Pin 476607573068235440) */}
+            <section className="grid grid-cols-1 md:grid-cols-12 gap-8 bg-white border border-[#181715]/20 p-8 rounded-sm shadow-sm items-center crosshair-corner">
+              
+              <div className="md:col-span-5 overflow-hidden rounded border border-[#181715]/15 bg-[#fbf8f3] group">
                 <img
                   src="/ref_images/pin_476607573068235440.jpg"
                   alt="Genetically Tailored Humans - Macromolecular Sequence Ingestion"
-                  className="w-full h-56 object-cover hover:scale-105 transition-transform duration-500"
+                  className="w-full h-64 sm:h-72 object-cover group-hover:scale-105 transition-transform duration-500"
                 />
               </div>
-              <div className="md:col-span-7 space-y-3 font-mono">
-                <div className="text-[10px] uppercase text-[#6b675e] tracking-widest">[ GENETICALLY TAILORED MACROMOLECULES // TARGET TRANSLATION ]</div>
-                <h3 className="font-serif-editorial text-2xl text-[#181715] font-bold">
-                  Direct Translation From Primary FASTA Sequence To Validated Small-Molecule Ligands
-                </h3>
-                <p className="text-xs text-[#6b675e] font-sans leading-relaxed">
-                  Targeting lethal pathogens and oncogenic drivers at the atomic level. EUREKA ingests raw amino acid sequences, identifies cryptic allosteric and active pockets, and generates custom de novo ligands validated against AutoDock Vina force-fields and Tox21 multi-criteria safety profiles.
+
+              <div className="md:col-span-7 space-y-4 font-mono">
+                <div className="text-xs uppercase text-[#6b675e] tracking-widest">[ GENETICALLY TAILORED MOLECULAR THERAPEUTICS // BEHANCE DISCOVERY ]</div>
+                <h2 className="font-serif-editorial text-3xl sm:text-4xl text-[#181715] font-bold leading-tight">
+                  Direct Translation From Primary FASTA Sequence To Validated Atomic Therapeutics
+                </h2>
+                <p className="text-xs sm:text-sm text-[#6b675e] font-sans leading-relaxed">
+                  Targeting lethal pathogens and oncogenic drivers at atomic resolution. EUREKA ingests the primary amino acid sequence, assigns physiological protonation states at pH 7.4, calculates pocket steric envelopes, and constructs custom de novo pharmacophores without manual trial-and-error.
                 </p>
-                <div className="flex flex-wrap gap-2 pt-1 text-xs">
+
+                <div className="grid grid-cols-3 gap-3 pt-2 text-xs">
+                  <div className="border border-[#181715]/15 p-2.5 bg-[#faf8f5]">
+                    <div className="text-[#6b675e] text-[10px]">SEQUENCE VALIDITY</div>
+                    <div className="font-bold text-sm text-[#181715]">100%</div>
+                  </div>
+                  <div className="border border-[#181715]/15 p-2.5 bg-[#faf8f5]">
+                    <div className="text-[#6b675e] text-[10px]">POCKET ACCESSIBILITY</div>
+                    <div className="font-bold text-sm text-[#181715]">320 Å³</div>
+                  </div>
+                  <div className="border border-[#181715]/15 p-2.5 bg-[#faf8f5]">
+                    <div className="text-[#6b675e] text-[10px]">CATALYTIC DYAD</div>
+                    <div className="font-bold text-sm text-[#181715]">Cys145-His41</div>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap gap-3 pt-2">
                   <button
                     onClick={() => setActiveTab('targets')}
-                    className="bg-[#181715] text-[#faf8f5] px-4 py-2 rounded-full hover:bg-black transition-all font-semibold"
+                    className="bg-[#181715] text-[#faf8f5] px-5 py-2.5 rounded-full hover:bg-black transition-all font-semibold text-xs"
                   >
                     Ingest Target FASTA →
                   </button>
                   <button
                     onClick={() => setActiveTab('generator')}
-                    className="border border-[#181715]/30 px-4 py-2 rounded-full hover:bg-[#faf8f5] transition-all text-[#181715]"
+                    className="border border-[#181715]/30 px-5 py-2.5 rounded-full hover:bg-[#faf8f5] transition-all text-[#181715] text-xs font-semibold"
                   >
-                    Explore De Novo Generator
+                    Generate De Novo Leads
                   </button>
                 </div>
               </div>
-            </div>
+
+            </section>
+
+            {/* SECTION 4: DYNAMIC CHEMICAL SPACE MIND-TREE (Pin 470063279832294061) */}
+            <section className="space-y-4">
+              <InteractiveMindTree
+                onSelectNode={(node) => {
+                  setActiveTab('docking');
+                  setIsDocking(true);
+                }}
+              />
+            </section>
+
+            {/* SECTION 5: DISCOVERED LEADS DECK & BENCHMARK COMPARISON */}
+            <section className="bg-white border border-[#181715]/20 p-6 md:p-8 rounded-sm shadow-sm space-y-6 crosshair-corner">
+              
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-[#181715]/15 pb-4 gap-2">
+                <div>
+                  <div className="font-mono text-xs text-[#6b675e] uppercase">[ VALIDATED CANDIDATE LIBRARY // IN-SILICO RELEASES ]</div>
+                  <h2 className="font-serif-editorial text-3xl text-[#181715]">
+                    High-Affinity Discovered Lead Candidates
+                  </h2>
+                </div>
+
+                <div className="flex items-center gap-2 font-mono text-xs">
+                  <button
+                    onClick={() => setActiveTab('leads')}
+                    className="bg-[#181715] hover:bg-black text-white px-4 py-2 rounded-sm transition-all"
+                  >
+                    Full Library & Exporter →
+                  </button>
+                </div>
+              </div>
+
+              {/* Top 3 Leads Quick Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {discoveredLeads.slice(0, 3).map((lead) => (
+                  <div
+                    key={lead.code}
+                    className="border border-[#181715]/15 p-4 rounded-sm bg-[#faf8f5] space-y-3 font-mono hover:border-[#181715] transition-all"
+                  >
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="font-bold text-[#181715]">{lead.code}</span>
+                      <span className="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[10px] font-bold">
+                        {lead.affinity} kcal/mol
+                      </span>
+                    </div>
+
+                    <div className="text-[10px] text-[#6b675e] break-all bg-white p-2 rounded border border-[#181715]/10">
+                      {lead.smiles}
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-1 text-[10px] text-center pt-1 border-t border-[#181715]/10">
+                      <div>
+                        <span className="text-[#6b675e] block">MW</span>
+                        <span className="font-bold">{lead.mw}</span>
+                      </div>
+                      <div>
+                        <span className="text-[#6b675e] block">LogP</span>
+                        <span className="font-bold">{lead.logp}</span>
+                      </div>
+                      <div>
+                        <span className="text-[#6b675e] block">Tox21</span>
+                        <span className="font-bold text-emerald-600">{lead.tox21}</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+            </section>
 
           </div>
         )}

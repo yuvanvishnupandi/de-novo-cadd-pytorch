@@ -1,7 +1,7 @@
 /* ============================================================
-   BENCHSCI DESIGN SYSTEM & IN-SILICO DISCOVERY WORKBENCH CSS
+   EUREKA DISCOVERY WORKBENCH DESIGN SYSTEM & COMPONENT CSS
    ============================================================ */
-@import "./benchsci.css";
+@import "./design-system.css";
 @import "tailwindcss";
 
 :root {
@@ -67,3 +67,32 @@ body {
 pre, code {
   font-family: var(--font-mono);
 }
+
+/* Ensure all interactive elements show pointer cursor */
+button,
+a,
+[role="button"],
+input[type="button"],
+input[type="submit"],
+select,
+.cursor-pointer {
+  cursor: pointer !important;
+}
+
+/* Subtle, creative tactile interactive feel */
+button, a {
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+button:active, a:active {
+  transform: scale(0.98);
+}
+
+/* Creative hover glow utility */
+.hover-lift {
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+.hover-lift:hover {
+  transform: translateY(-2px);
+}
+

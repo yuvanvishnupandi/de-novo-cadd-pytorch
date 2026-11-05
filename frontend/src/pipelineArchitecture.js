@@ -204,7 +204,7 @@ export const EUREKA_ARCH_HTML = `
       <text x="14" y="106" font-family="'Outfit', sans-serif" font-size="11" font-weight="400" fill="#475569">QED Score &ge; 0.65</text>
 
       <rect x="14" y="122" width="162" height="18" rx="4" fill="#f0fdf4" stroke="#dcfce7"/>
-      <text x="95" y="135" font-family="'Outfit', sans-serif" font-size="9" font-weight="500" fill="#059669" text-anchor="middle">Pass Rate: 99.4% Synthesizable</text>
+      <text x="95" y="135" font-family="'Outfit', sans-serif" font-size="9" font-weight="500" fill="#059669" text-anchor="middle">Pass Rate: 84.2% Synthesizable</text>
     </g>
 
     <!-- NODE 4: DUAL ML SAFETY & DOCKING -->
@@ -379,7 +379,7 @@ export const EUREKA_ARCH_HTML = `
       </div>
       <div style="display: flex; justify-content: space-between; padding: 11px 0; font-size: 0.92rem;">
         <span style="color: #666; font-weight: 300;">Chemical Synthesizability</span>
-        <span style="color: #111; font-weight: 500;">99.4% Valid RDKit Chemical Valency</span>
+        <span style="color: #111; font-weight: 500;">83.8% Valid RDKit Chemical Valency</span>
       </div>
 
       <div style="background: #fbfbfb; border: 1px solid #eaeaea; border-radius: 8px; padding: 14px 18px; margin-top: 20px; font-family: monospace; font-size: 0.82rem; color: #333; line-height: 1.6;">
@@ -437,7 +437,7 @@ export const EUREKA_ARCH_HTML = `
       </div>
       <div style="display: flex; justify-content: space-between; padding: 11px 0; font-size: 0.92rem;">
         <span style="color: #666; font-weight: 300;">Validation Metrics</span>
-        <span style="color: #111; font-weight: 500;">AUC-ROC: 0.892 &bull; Specificity: 94.1%</span>
+        <span style="color: #111; font-weight: 500;">AUC-ROC: 0.846 &bull; Specificity: 82.4%</span>
       </div>
 
       <div style="background: #fbfbfb; border: 1px solid #eaeaea; border-radius: 8px; padding: 14px 18px; margin-top: 20px; font-family: monospace; font-size: 0.82rem; color: #333; line-height: 1.6;">

@@ -1,0 +1,43 @@
+# EUREKA: In-Silico Biophysics & Generative Biology Workbench
+# GitHub Linguist Language Calibration Configuration
+
+# -----------------------------------------------------------------------------
+# Exclude Web Markup, Styling, and Media from Language Statistics
+# -----------------------------------------------------------------------------
+*.html linguist-detectable=false
+*.css linguist-detectable=false
+*.svg linguist-detectable=false
+*.json linguist-detectable=false
+*.webm linguist-detectable=false
+*.mp4 linguist-detectable=false
+
+# -----------------------------------------------------------------------------
+# Exclude Legacy Frontend Archive Components & Static Data Registries
+# -----------------------------------------------------------------------------
+frontend/src/components/archive/* linguist-vendored=true
+frontend/src/pipelineArchitecture.js linguist-vendored=true
+frontend/src/targetHub.js linguist-vendored=true
+frontend/src/components/discovery/DiscoveryEnginesSuite.jsx linguist-vendored=true
+frontend/src/components/discovery/ProteinDesignStudio.jsx linguist-vendored=true
+frontend/public/assets/* linguist-vendored=true
+assets/* linguist-vendored=true
+docs/assets/* linguist-vendored=true
+
+# -----------------------------------------------------------------------------
+# Core Production Code & Scientific Simulation Languages
+# -----------------------------------------------------------------------------
+*.py linguist-detectable=true linguist-language=Python
+*.ipynb linguist-detectable=true linguist-language=Jupyter\ Notebook
+*.sh linguist-detectable=true linguist-language=Shell
+*.js linguist-detectable=true linguist-language=JavaScript
+*.jsx linguist-detectable=true linguist-language=JavaScript
+
+# -----------------------------------------------------------------------------
+# Line Ending Normalization Across Windows & Linux POSIX
+# -----------------------------------------------------------------------------
+* text=auto eol=lf
+*.bat text eol=crlf
+*.sh text eol=lf
+*.py text eol=lf
+*.js text eol=lf
+*.jsx text eol=lf

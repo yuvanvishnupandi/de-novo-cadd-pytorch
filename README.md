@@ -166,27 +166,6 @@ $ cd frontend && npm run dev
 # Interface active at http://localhost:5173
 ```
 
----
-
-## Contributors
-
-- **Yuvan Vishnu Pandi** ([@yuvanvishnupandi](https://github.com/yuvanvishnupandi))
-- **Aanujvj** ([@Aanujvj](https://github.com/Aanujvj))
-
----
-
-## Citation
-
-```bibtex
-@article{pandi2026eureka,
-  title={EUREKA: The Computational Biophysics and Generative Biology Workbench},
-  author={Pandi, Yuvan Vishnu and Aanujvj},
-  journal={IEEE/ACM Transactions on Computational Biology and Bioinformatics},
-  year={2026},
-  url={https://github.com/yuvanvishnupandi/eureka}
-}
-```
-
 ## License
 
 Apache License 2.0. See [LICENSE](LICENSE) for details.

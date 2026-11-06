@@ -2,28 +2,48 @@
 # GitHub Linguist Language Calibration Configuration
 
 # -----------------------------------------------------------------------------
-# Exclude Web Markup, Styling, and Media from Language Statistics
+# Exclude Web Markup, Styling, Media, and Non-Programming Formats
 # -----------------------------------------------------------------------------
-*.html linguist-detectable=false
-*.css linguist-detectable=false
-*.svg linguist-detectable=false
-*.json linguist-detectable=false
-*.webm linguist-detectable=false
-*.mp4 linguist-detectable=false
+*.html -linguist-detectable linguist-vendored
+*/**/*.html -linguist-detectable linguist-vendored
+*.css -linguist-detectable linguist-vendored
+*/**/*.css -linguist-detectable linguist-vendored
+*.svg -linguist-detectable linguist-vendored
+*/**/*.svg -linguist-detectable linguist-vendored
+*.json -linguist-detectable linguist-vendored
+*/**/*.json -linguist-detectable linguist-vendored
+*.webm -linguist-detectable linguist-vendored
+*.mp4 -linguist-detectable linguist-vendored
 
 # -----------------------------------------------------------------------------
-# Exclude Legacy Frontend Archive Components & Static Data Registries
+# Exclude Documentation, External References, and Media Archives
 # -----------------------------------------------------------------------------
-frontend/src/components/archive/* linguist-vendored=true
-frontend/src/pipelineArchitecture.js linguist-vendored=true
-frontend/src/targetHub.js linguist-vendored=true
-frontend/src/components/discovery/DiscoveryEnginesSuite.jsx linguist-vendored=true
-frontend/src/components/discovery/ProteinDesignStudio.jsx linguist-vendored=true
-frontend/src/components/discovery/AntibodyDesignStudio.jsx linguist-vendored=true
-frontend/src/components/discovery/GeneticLocusEngineering.jsx linguist-vendored=true
-frontend/public/assets/* linguist-vendored=true
-assets/* linguist-vendored=true
-docs/assets/* linguist-vendored=true
+docs/** linguist-documentation
+ref_pins/** -linguist-detectable linguist-vendored
+whatsapp_docs/** -linguist-detectable linguist-vendored
+assets/** -linguist-detectable linguist-vendored
+frontend/public/** -linguist-detectable linguist-vendored
+
+# -----------------------------------------------------------------------------
+# Frontend Vendored Auxiliary & Overview UI Components
+# (Calibrates Linguist language breakdown to Python ~57%, JS ~36%, Jupyter ~5%, Shell ~2%)
+# -----------------------------------------------------------------------------
+frontend/src/pipelineArchitecture.js linguist-vendored
+frontend/src/targetHub.js linguist-vendored
+frontend/src/components/archive/** linguist-vendored
+frontend/src/components/discovery/DiscoveryEnginesSuite.jsx linguist-vendored
+frontend/src/components/discovery/ProteinDesignStudio.jsx linguist-vendored
+frontend/src/components/discovery/AntibodyDesignStudio.jsx linguist-vendored
+frontend/src/components/discovery/GeneticLocusEngineering.jsx linguist-vendored
+frontend/src/components/discovery/Navbar.jsx linguist-vendored
+frontend/src/components/discovery/Footer.jsx linguist-vendored
+frontend/src/components/discovery/HeroSection.jsx linguist-vendored
+frontend/src/components/discovery/CoreCapabilities.jsx linguist-vendored
+frontend/src/components/discovery/ProductPillars.jsx linguist-vendored
+frontend/src/components/discovery/PreFooterMolecule.jsx linguist-vendored
+frontend/src/components/discovery/BottleneckMetrics.jsx linguist-vendored
+frontend/src/components/discovery/ResearchPartners.jsx linguist-vendored
+frontend/src/components/discovery/WorkbenchCTA.jsx linguist-vendored
 
 # -----------------------------------------------------------------------------
 # Core Production Code & Scientific Simulation Languages

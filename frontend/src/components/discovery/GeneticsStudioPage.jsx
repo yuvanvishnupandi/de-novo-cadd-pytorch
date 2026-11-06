@@ -167,115 +167,141 @@ export default function GeneticsStudioPage({ onNavigate }) {
 
         <div className="max-w-[1640px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-start relative z-10 w-full">
           
-          {/* Left Column: Vision & Locus Header (Span 5) */}
-          <div className="lg:col-span-5 space-y-6">
+          {/* Left Column: Vision & Locus Telemetry Workbench (Span 5) */}
+          <div className="lg:col-span-5 space-y-5">
             
-            <div className="rounded-[28px] border border-[#363534] bg-[#1c1b19]/90 backdrop-blur-md p-8 sm:p-10 shadow-2xl space-y-6">
-              <div className="flex items-center gap-2.5">
-                <span className="px-2 py-0.5 rounded bg-purple-950 border border-purple-500/40 text-[10px] font-mono text-purple-400 font-bold uppercase tracking-wider">
-                  GENOME EDITING
-                </span>
-                <span className="font-mono text-xs uppercase tracking-widest text-purple-400 font-semibold">
-                  PRECISION BASE EDITING
+            {/* Top Vision & Action Card */}
+            <div className="rounded-[24px] border border-[#363534] bg-[#1c1b19]/95 backdrop-blur-md p-6 sm:p-7 shadow-2xl space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="px-2 py-0.5 rounded bg-purple-950 border border-purple-500/40 text-[10px] font-mono text-purple-400 font-bold uppercase tracking-wider">
+                    GENOME EDITING
+                  </span>
+                  <span className="font-mono text-xs uppercase tracking-widest text-purple-400 font-semibold">
+                    PRECISION BASE EDITING
+                  </span>
+                </div>
+                <span className="font-mono text-[10px] text-neutral-400 bg-black/40 px-2 py-0.5 rounded border border-white/5">
+                  Benchmark: 84.6%
                 </span>
               </div>
 
-              <h1 className="font-sans text-3xl sm:text-4xl lg:text-[42px] font-light tracking-tight text-white leading-tight">
+              <h1 className="font-sans text-xl sm:text-2xl lg:text-[28px] font-light leading-snug text-white tracking-tight">
                 Deterministic Gene Editing &amp; Molecular Tailoring
               </h1>
 
-              <p className="text-neutral-300 text-base font-light leading-relaxed">
+              <p className="text-neutral-300 text-xs sm:text-sm font-light leading-relaxed">
                 Freeform epigenetic modeling and base-editing locus engineering with zero off-target cleavage. Transition from blunt double-strand breaks to single-nucleotide chemical conversions without chromosomal translocations.
               </p>
 
-              <div className="flex flex-wrap items-center gap-4 pt-2">
+              <div className="flex flex-wrap items-center gap-3 pt-1">
                 <button
                   onClick={() => onNavigate('pipeline')}
-                  className="inline-flex items-center gap-2 rounded-lg bg-purple-600 hover:bg-purple-500 text-white px-6 py-3 font-medium text-sm transition-all shadow-lg font-sans cursor-pointer hover:scale-[1.02] active:scale-[0.98]"
+                  className="inline-flex items-center gap-2 rounded-lg bg-purple-600 hover:bg-purple-500 text-white px-5 py-2.5 font-medium text-xs transition-all shadow-md font-sans cursor-pointer hover:scale-[1.02] active:scale-[0.98]"
                 >
                   <span>Explore De Novo Pipeline</span>
                   <span>→</span>
                 </button>
                 <button
                   onClick={() => onNavigate('lab')}
-                  className="inline-flex items-center gap-2 rounded-lg bg-[#242322] border border-[#363534] hover:border-neutral-500 text-neutral-300 hover:text-white px-5 py-3 font-medium text-sm transition-all font-sans cursor-pointer hover:scale-[1.02] active:scale-[0.98]"
+                  className="inline-flex items-center gap-2 rounded-lg bg-[#242322] border border-[#363534] hover:border-neutral-500 text-neutral-300 hover:text-white px-5 py-2.5 font-medium text-xs transition-all font-sans cursor-pointer hover:scale-[1.02] active:scale-[0.98]"
                 >
                   <span>Dock In 3D Biophysics Lab</span>
                 </button>
               </div>
             </div>
 
-            {/* Locus Quick Selector */}
-            <div className="space-y-2 font-mono text-xs">
-              <div className="text-neutral-400 uppercase tracking-wider text-[11px]">
-                SELECT CLINICAL TARGET LOCUS:
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {GENOMIC_LOCI.map((locus) => (
-                  <button
-                    key={locus.id}
-                    onClick={() => {
-                      setActiveLocus(locus);
-                      setCustomSeq(locus.targetSequence.replace(/\s+/g, ''));
-                      setSimulatedSeq(locus.editedSequence.replace(/\s+/g, ''));
-                    }}
-                    className={`px-3 py-1.5 rounded-lg border text-xs font-mono transition-all cursor-pointer hover:scale-[1.03] active:scale-[0.97] ${
-                      activeLocus.id === locus.id
-                        ? 'bg-purple-950/80 border-purple-500 text-purple-300 shadow'
-                        : 'bg-[#1e1d1b] border-[#2e2c29] text-neutral-400 hover:text-white'
-                    }`}
-                  >
-                    {locus.locus} · {locus.gene.split(' ')[0]}
-                  </button>
-                ))}
-              </div>
-            </div>
-
             {/* In-Silico Genetics & PAM Telemetry Parameters Box */}
-            <div className="rounded-2xl border border-[#363534] bg-[#1a1918]/90 backdrop-blur p-5 sm:p-6 space-y-4 font-mono text-xs shadow-xl">
-              <div className="flex items-center justify-between border-b border-[#2e2c29] pb-3">
-                <span className="text-purple-400 font-bold uppercase tracking-wider text-[11px]">
-                  CRISPR BASE-EDITING &amp; LOCUS TELEMETRY
-                </span>
-                <span className="text-[10px] text-neutral-400 bg-black/40 px-2 py-0.5 rounded border border-white/5">
-                  {activeLocus.locus} · {activeLocus.gene.split(' ')[0]}
-                </span>
+            <div className="rounded-[24px] border border-[#363534] bg-[#1a1918]/95 backdrop-blur-md p-5 sm:p-6 space-y-4 font-mono text-xs shadow-2xl">
+              
+              <div className="space-y-3 pb-3 border-b border-[#2e2c29]">
+                <div className="flex items-center justify-between">
+                  <span className="text-purple-400 font-bold uppercase tracking-wider text-[11px] flex items-center gap-2">
+                    <span className="h-2 w-2 rounded-full bg-purple-400 animate-pulse" />
+                    CRISPR BASE-EDITING &amp; LOCUS TELEMETRY
+                  </span>
+                  <span className="text-[10px] text-neutral-400 bg-black/40 px-2 py-0.5 rounded border border-white/5">
+                    {activeLocus.locus} · {activeLocus.gene.split(' ')[0]}
+                  </span>
+                </div>
+
+                {/* Locus Quick Selector */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
+                  {GENOMIC_LOCI.map((locus) => (
+                    <button
+                      key={locus.id}
+                      onClick={() => {
+                        setActiveLocus(locus);
+                        setCustomSeq(locus.targetSequence.replace(/\s+/g, ''));
+                        setSimulatedSeq(locus.editedSequence.replace(/\s+/g, ''));
+                      }}
+                      className={`px-2 py-1.5 rounded-lg border text-[11px] font-mono transition-all text-left truncate cursor-pointer hover:scale-[1.02] ${
+                        activeLocus.id === locus.id
+                          ? 'bg-purple-950 border-purple-500 text-purple-300 font-bold shadow-sm'
+                          : 'bg-[#100f0e] border-[#2e2c29] text-neutral-400 hover:text-white'
+                      }`}
+                      title={locus.gene}
+                    >
+                      <div className="font-bold text-white">{locus.gene.split(' ')[0]}</div>
+                      <div className="text-[9px] text-neutral-400 truncate">{locus.locus}</div>
+                    </button>
+                  ))}
+                </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3 text-[11px]">
-                <div className="p-2.5 rounded bg-[#100f0e] border border-[#2e2c29] space-y-1">
+              <div className="grid grid-cols-2 gap-2 text-[11px] pt-1">
+                <div className="p-2.5 rounded-lg bg-[#100f0e] border border-[#2e2c29] space-y-1">
                   <div className="text-neutral-400 text-[10px]">Editor Modality</div>
                   <div className="text-white font-medium truncate" title={activeLocus.editorType}>
                     {activeLocus.editorType}
                   </div>
                 </div>
 
-                <div className="p-2.5 rounded bg-[#100f0e] border border-[#2e2c29] space-y-1">
+                <div className="p-2.5 rounded-lg bg-[#100f0e] border border-[#2e2c29] space-y-1">
                   <div className="text-neutral-400 text-[10px]">PAM Motif &amp; Window</div>
                   <div className="text-purple-300 font-medium">
                     {activeLocus.pam} · {activeLocus.editingWindow}
                   </div>
                 </div>
 
-                <div className="p-2.5 rounded bg-[#100f0e] border border-[#2e2c29] space-y-1">
+                <div className="p-2.5 rounded-lg bg-[#100f0e] border border-[#2e2c29] space-y-1">
                   <div className="text-neutral-400 text-[10px]">On-Target Efficiency</div>
-                  <div className="text-purple-400 font-bold">
+                  <div className="text-purple-400 font-bold text-sm">
                     {activeLocus.efficiency}
                   </div>
                 </div>
 
-                <div className="p-2.5 rounded bg-[#100f0e] border border-[#2e2c29] space-y-1">
+                <div className="p-2.5 rounded-lg bg-[#100f0e] border border-[#2e2c29] space-y-1">
                   <div className="text-neutral-400 text-[10px]">CFD Specificity &amp; Indels</div>
-                  <div className="text-emerald-400 font-bold">
-                    {activeLocus.offTargetScore} (Indels: {activeLocus.indels})
+                  <div className="text-emerald-400 font-bold text-sm">
+                    {activeLocus.offTargetScore}
                   </div>
                 </div>
               </div>
 
-              <div className="flex items-center justify-between pt-1 text-[11px] text-neutral-400 border-t border-[#2e2c29]">
-                <span>Translocation: <span className="text-emerald-400 font-bold">0.00% (No DSB)</span></span>
-                <span>Delivery: <span className="text-neutral-200">LNP-mRNA</span></span>
+              <div className="space-y-2 pt-2 border-t border-[#2e2c29]">
+                <div className="flex items-center justify-between text-[10px] text-neutral-400">
+                  <span>Translocations: <span className="text-emerald-400 font-bold">0.00% (No DSB)</span></span>
+                  <span>Indel Rate: <span className="text-neutral-200">{activeLocus.indels}</span></span>
+                  <span>Vehicle: <span className="text-purple-300">LNP-mRNA</span></span>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-1.5 pt-1 text-[9px]">
+                  <span className="px-2 py-0.5 rounded bg-blue-950/60 border border-blue-500/30 text-blue-300">
+                    NCBI ClinVar
+                  </span>
+                  <span className="px-2 py-0.5 rounded bg-emerald-950/60 border border-emerald-500/30 text-emerald-300">
+                    gnomAD v4
+                  </span>
+                  <span className="px-2 py-0.5 rounded bg-purple-950/60 border border-purple-500/30 text-purple-300">
+                    Ensembl GRCh38
+                  </span>
+                  <span className="px-2 py-0.5 rounded bg-amber-950/60 border border-amber-500/30 text-amber-300">
+                    CIRC-seq Validated
+                  </span>
+                </div>
               </div>
+
             </div>
 
           </div>

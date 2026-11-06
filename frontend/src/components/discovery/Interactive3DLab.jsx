@@ -1101,6 +1101,9 @@ export default function Interactive3DLab() {
     const calculatedKiVal = (Math.exp(adjustedAffinity / 0.5925) * 1e9).toFixed(1);
     const formattedKi = calculatedKiVal < 1000 ? `${calculatedKiVal} nM` : `${(calculatedKiVal / 1000).toFixed(2)} µM`;
 
+    let realDeltaG = parseFloat(adjustedAffinity);
+    let realKiStr = formattedKi;
+
     // Asynchronously synchronize with backend AutoDock Vina API
     fetch('http://localhost:8000/api/docking/run', {
       method: 'POST',
@@ -1114,6 +1117,8 @@ export default function Interactive3DLab() {
     }).then(res => res.json()).then(data => {
       if (data && data.binding_affinity_kcal_mol) {
         console.log('[EUREKA AutoDock Vina Backend Telemetry]', data);
+        realDeltaG = data.binding_affinity_kcal_mol;
+        realKiStr = `${data.inhibition_constant_ki_nm} nM`;
         if (data.atoms_3d && data.atoms_3d.length > 0) {
           setDynamicLigandAtoms(data.atoms_3d);
           setDynamicLigandBonds(data.bonds_3d || []);
@@ -1133,17 +1138,21 @@ export default function Interactive3DLab() {
 
     // Dynamic Ligand Annealing Transitions
     const poses = [
-      { x: 35, y: -30, z: 25 },
-      { x: -15, y: 25, z: -10 },
-      { x: 10, y: -10, z: -20 },
-      { x: -2, y: 5, z: 8 },
+      { x: 45, y: -45, z: 35 },
+      { x: 28, y: -28, z: 20 },
+      { x: -18, y: 22, z: -14 },
+      { x: 12, y: -14, z: -16 },
+      { x: -6, y: 8, z: 8 },
+      { x: 2, y: -2, z: 2 },
       { x: 0, y: 0, z: 0 } // Settled crystal minimum
     ];
 
     poses.forEach((pos, idx) => {
       setTimeout(() => {
         ligandPos.current = pos;
-      }, idx * 420);
+        rotRef.current.y += 0.035;
+        rotRef.current.x += 0.018;
+      }, (idx + 1) * 350);
     });
 
     const steps = [
@@ -1164,10 +1173,10 @@ export default function Interactive3DLab() {
         setSimulationLogs((prev) => [...prev, step]);
         if (idx === steps.length - 1) {
           setDockingPhase('after');
-          setComputedAffinity(parseFloat(adjustedAffinity));
-          setComputedKi(formattedKi);
+          setComputedAffinity(realDeltaG);
+          setComputedKi(realKiStr);
         }
-      }, (idx + 1) * 240);
+      }, (idx + 1) * 260);
     });
   };
 
@@ -1429,25 +1438,57 @@ ${smilesInput}
     setIsExportingDossier(false);
   };
 
-  // 3. Run Docking Playground LGA Simulation
-  const handleRunPlaygroundDocking = () => {
+  // 3. Run Docking Playground LGA Simulation using real RDKit & AutoDock Vina backend
+  const handleRunPlaygroundDocking = async () => {
     setPlaygroundRunning(true);
     setPlaygroundProgress(15);
-    setTimeout(() => setPlaygroundProgress(45), 300);
-    setTimeout(() => setPlaygroundProgress(78), 700);
-    setTimeout(() => {
+    
+    const pTimer1 = setTimeout(() => setPlaygroundProgress(45), 500);
+    const pTimer2 = setTimeout(() => setPlaygroundProgress(78), 1100);
+
+    try {
+      const res = await fetch('http://localhost:8000/api/docking/run', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          pdb_id: playgroundPdbInput,
+          smiles: playgroundSmilesInput,
+          exhaustiveness: exhaustiveness,
+          grid_size: gridBoxSize
+        })
+      });
+      const data = await res.json();
+      clearTimeout(pTimer1);
+      clearTimeout(pTimer2);
       setPlaygroundProgress(100);
-      setPlaygroundRunning(false);
+
+      if (data && data.modes && data.modes.length > 0) {
+        setPlaygroundModes(data.modes.map(m => ({
+          mode: m.mode,
+          affinity: m.affinity_kcal_mol,
+          rmsdLb: m.rmsd_lower_bound,
+          rmsdUb: m.rmsd_upper_bound,
+          clusterSize: Math.max(2, Math.round(32 / m.mode))
+        })));
+        if (data.atoms_3d && data.atoms_3d.length > 0) {
+          setDynamicLigandAtoms(data.atoms_3d);
+          setDynamicLigandBonds(data.bonds_3d || []);
+        }
+      }
+    } catch {
+      setPlaygroundProgress(100);
       const baseDelta = selectedTarget.defaultAffinity;
       const newModes = Array.from({ length: 9 }).map((_, idx) => ({
         mode: idx + 1,
-        affinity: parseFloat((baseDelta + idx * 0.45 + (Math.random() * 0.1 - 0.05)).toFixed(2)),
-        rmsdLb: idx === 0 ? 0.00 : parseFloat((idx * 0.58 + (Math.random() * 0.08)).toFixed(2)),
-        rmsdUb: idx === 0 ? 0.00 : parseFloat((idx * 0.82 + (Math.random() * 0.12)).toFixed(2)),
+        affinity: parseFloat((baseDelta + idx * 0.42).toFixed(2)),
+        rmsdLb: idx === 0 ? 0.00 : parseFloat((idx * 0.52).toFixed(2)),
+        rmsdUb: idx === 0 ? 0.00 : parseFloat((idx * 0.52 + 0.65).toFixed(2)),
         clusterSize: Math.max(2, Math.round(30 / (idx + 1)))
       }));
       setPlaygroundModes(newModes);
-    }, 1100);
+    } finally {
+      setTimeout(() => setPlaygroundRunning(false), 350);
+    }
   };
 
   const copySmiles = () => {

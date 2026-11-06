@@ -1024,11 +1024,17 @@ export default function Interactive3DLab() {
 
   const handleMouseUp = () => setIsDragging(false);
 
-  // Wheel zoom handler
-  const handleWheel = (e) => {
-    e.preventDefault();
-    setZoomLevel((prev) => Math.max(0.6, Math.min(2.0, prev - e.deltaY * 0.001)));
-  };
+  // Wheel zoom handler with non-passive event listener
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const onWheel = (e) => {
+      e.preventDefault();
+      setZoomLevel((prev) => Math.max(0.6, Math.min(2.0, prev - e.deltaY * 0.001)));
+    };
+    canvas.addEventListener('wheel', onWheel, { passive: false });
+    return () => canvas.removeEventListener('wheel', onWheel);
+  }, []);
 
   // Run AutoDock Vina In-Silico Docking Simulation
   const executeDocking = () => {
@@ -1596,7 +1602,6 @@ $$$$
                 onMouseMove={handleMouseMove}
                 onMouseUp={handleMouseUp}
                 onMouseLeave={handleMouseUp}
-                onWheel={handleWheel}
                 className="w-full h-full cursor-grab active:cursor-grabbing block"
               />
 

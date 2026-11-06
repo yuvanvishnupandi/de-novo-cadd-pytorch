@@ -280,16 +280,15 @@ export default function GeneticsStudioPage({ onNavigate }) {
 
           </div>
 
-          {/* Right Column: Seamless 3D Macromolecule (Expansive Cinema-Scale, Covering Near Navbar to Middle) */}
-          <div className="lg:col-span-7 xl:col-span-7 relative flex items-start justify-center lg:justify-end pointer-events-none min-h-[580px] sm:min-h-[680px] lg:min-h-[760px] xl:min-h-[820px] -mt-4 sm:-mt-8 lg:-mt-12 overflow-visible">
+          {/* Right Column: Seamless 3D Macromolecule Showcase */}
+          <div className="lg:col-span-7 relative flex items-center justify-center lg:justify-end pointer-events-none min-h-[460px] sm:min-h-[520px] lg:min-h-[580px] overflow-hidden">
             
             {/* Ambient Backlight Glow behind molecule */}
-            <div className="absolute right-0 top-1/3 -translate-y-1/2 w-[700px] sm:w-[850px] h-[700px] sm:h-[850px] bg-purple-600/20 rounded-full blur-[160px] pointer-events-none select-none" />
+            <div className="absolute right-0 top-1/2 -translate-y-1/2 w-[520px] h-[520px] bg-purple-600/15 rounded-full blur-[120px] pointer-events-none select-none" />
 
-            {/* Expansive 3D WebM Molecule Player - Hardware Accelerated, Zero Lag */}
+            {/* 3D WebM Molecule Player - Hardware Accelerated, Zero Lag */}
             <video
-              className="w-[120%] sm:w-[130%] lg:w-[145%] xl:w-[155%] max-w-none h-auto object-contain object-top lg:object-right-top select-none pointer-events-none transform-gpu will-change-transform scale-120 sm:scale-130 lg:scale-145 xl:scale-155 origin-top-right -translate-y-2 sm:-translate-y-4 lg:-translate-y-6"
-              style={{ contain: 'paint' }}
+              className="w-full max-w-[560px] xl:max-w-[640px] h-auto object-contain select-none pointer-events-none drop-shadow-[0_20px_50px_rgba(0,0,0,0.85)]"
               src="/images/bigmolecule_website_rightside.webm"
               autoPlay
               loop
@@ -299,14 +298,14 @@ export default function GeneticsStudioPage({ onNavigate }) {
             />
 
             {/* Bottom Specificity Glass Badge (Pinned cleanly in bottom right corner) */}
-            <div className="absolute bottom-4 right-4 sm:right-6 bg-[#141312]/92 backdrop-blur-md px-5 py-3 rounded-xl border border-purple-500/40 text-right shadow-2xl pointer-events-none z-10">
-              <div className="font-mono text-2xl sm:text-3xl font-bold text-purple-400 tracking-tight">
+            <div className="absolute bottom-4 right-4 sm:right-6 bg-[#141312]/92 backdrop-blur-md px-5 py-3 rounded-xl border border-purple-500/40 text-right shadow-2xl pointer-events-none z-10 font-mono">
+              <div className="text-2xl sm:text-3xl font-bold text-purple-400 tracking-tight">
                 {activeLocus.efficiency}
               </div>
-              <div className="text-[10px] font-mono text-neutral-400 uppercase tracking-wider">
+              <div className="text-[10px] text-neutral-400 uppercase tracking-wider">
                 ON-TARGET EFFICIENCY
               </div>
-              <div className="text-xs font-mono text-emerald-400 mt-0.5 font-medium">
+              <div className="text-xs text-emerald-400 mt-0.5 font-medium">
                 Off-Target: {activeLocus.offTargetScore}
               </div>
             </div>

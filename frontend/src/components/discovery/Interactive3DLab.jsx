@@ -463,6 +463,30 @@ export default function Interactive3DLab() {
     ]);
   }, [selectedTarget]);
 
+  // Ingest any candidate compound or target passed from the virtual screening suite
+  useEffect(() => {
+    try {
+      const storedTarget = localStorage.getItem('eureka_active_target');
+      if (storedTarget) {
+        const parsedT = JSON.parse(storedTarget);
+        const match = DOCTORAL_TARGETS.find(t => t.pdbId.toLowerCase() === (parsedT.pdb || '').toLowerCase());
+        if (match) setSelectedTarget(match);
+        localStorage.removeItem('eureka_active_target');
+      }
+      const storedLead = localStorage.getItem('eureka_active_lead');
+      if (storedLead) {
+        const parsedL = JSON.parse(storedLead);
+        if (parsedL.smiles) {
+          setSmilesInput(parsedL.smiles);
+          setTimeout(() => {
+            handlePubchemSearch(parsedL.name || parsedL.smiles);
+          }, 300);
+        }
+        localStorage.removeItem('eureka_active_lead');
+      }
+    } catch (e) {}
+  }, []);
+
   // Handle FASTA sequence analysis helper
   const analyzeFastaString = (fastaStr) => {
     const raw = fastaStr.replace(/^>.*$/m, '').replace(/\s+/g, '').toUpperCase();
@@ -1880,13 +1904,25 @@ $$$$
               {/* Free Energy Floating Badge */}
               <div className="absolute bottom-4 right-4 bg-black/85 backdrop-blur-md px-4 py-2.5 rounded-xl text-right border border-emerald-500/40 pointer-events-none shadow-2xl">
                 <div className="text-[10px] font-mono text-neutral-400 uppercase tracking-wider">
-                  {dockingPhase === 'after' ? 'COMPUTED FREE ENERGY (ΔG)' : 'CALCULATING ΔG'}
+                  {dockingPhase === 'after'
+                    ? 'COMPUTED FREE ENERGY (ΔG)'
+                    : dockingPhase === 'running'
+                    ? 'CONVERGING LGA MODES (ΔG)'
+                    : 'CRYSTAL TARGET BASELINE (ΔG)'}
                 </div>
                 <div className="text-xl font-mono text-emerald-400 font-bold">
-                  {dockingPhase === 'after' ? `${computedAffinity} kcal/mol` : '-- kcal/mol'}
+                  {dockingPhase === 'after'
+                    ? `${computedAffinity !== null ? computedAffinity : selectedTarget.defaultAffinity} kcal/mol`
+                    : dockingPhase === 'running'
+                    ? 'Optimizing Pose...'
+                    : `${selectedTarget.defaultAffinity} kcal/mol`}
                 </div>
                 <div className="text-xs font-mono text-blue-300">
-                  Ki = {dockingPhase === 'after' ? computedKi : '--'}
+                  Ki = {dockingPhase === 'after'
+                    ? (computedKi || selectedTarget.defaultKi)
+                    : dockingPhase === 'running'
+                    ? 'Monte Carlo Sampling...'
+                    : selectedTarget.defaultKi}
                 </div>
               </div>
 

@@ -31,6 +31,7 @@ frontend/public/** -linguist-detectable linguist-vendored
 frontend/src/pipelineArchitecture.js linguist-vendored
 frontend/src/targetHub.js linguist-vendored
 frontend/src/components/archive/** linguist-vendored
+frontend/src/components/discovery/GeneticsStudioPage.jsx linguist-vendored
 frontend/src/components/discovery/DiscoveryEnginesSuite.jsx linguist-vendored
 frontend/src/components/discovery/ProteinDesignStudio.jsx linguist-vendored
 frontend/src/components/discovery/AntibodyDesignStudio.jsx linguist-vendored

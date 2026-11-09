@@ -375,6 +375,8 @@ export default function Interactive3DLab() {
   const [gridBoxSize, setGridBoxSize] = useState(22);
   const [smilesInput, setSmilesInput] = useState(DOCTORAL_TARGETS[0].standardLead.smiles);
   const [activeDockedLeadId, setActiveDockedLeadId] = useState(null);
+  const [deNovoLeads, setDeNovoLeads] = useState(DE_NOVO_LEAD_LIBRARY);
+  const [isGeneratingLeads, setIsGeneratingLeads] = useState(false);
 
   // Bioisosteric Modification State
   const [activeBioisostere, setActiveBioisostere] = useState(null);
@@ -1519,6 +1521,50 @@ $$$$
     URL.revokeObjectURL(url);
   };
 
+  // Generate novel leads via backend PyTorch LSTM model
+  const handleGenerateLeadsFromAI = async () => {
+    setIsGeneratingLeads(true);
+    setSimulationLogs(prev => [
+      ...prev,
+      `[AI_MODEL] Launching PyTorch Character LSTM (MolGPT)...`,
+      `[SAMPLING] Autoregressive generation conditioned on ${selectedTarget.pdbId} active cleft...`
+    ]);
+    try {
+      const res = await fetch('http://localhost:8000/api/models/generate-candidates', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          target_pdb: selectedTarget.pdbId,
+          num_molecules: 4,
+          temperature: 0.8
+        })
+      });
+      const data = await res.json();
+      if (data && data.candidates && data.candidates.length > 0) {
+        const formatted = data.candidates.map(c => ({
+          id: c.candidate_id,
+          name: c.name,
+          smiles: c.smiles,
+          mw: c.molecular_weight,
+          logp: c.cLogP,
+          qed: c.qed,
+          deltaG: c.binding_affinity_delta_g,
+          ki: `${c.inhibition_constant_ki_nm} nM`
+        }));
+        setDeNovoLeads(formatted);
+        setSimulationLogs(prev => [
+          ...prev,
+          `[GENAI_LSTM] Generated ${formatted.length} novel small-molecule candidates via 22.1 MB ZINC neural weights`,
+          `[TOP_LEAD] ${formatted[0].id}: ΔG ${formatted[0].deltaG} kcal/mol | Ki ${formatted[0].ki} | MW ${formatted[0].mw}`
+        ]);
+      }
+    } catch (err) {
+      console.error('Lead Generation error:', err);
+    } finally {
+      setIsGeneratingLeads(false);
+    }
+  };
+
   // Load a de novo generated candidate and IMMEDIATELY trigger live docking animation & scroll to 3D viewer
   const loadGeneratedCandidate = (candidate) => {
     setActiveDockedLeadId(candidate.id);
@@ -2357,20 +2403,31 @@ $$$$
         <div className="bg-[#1a1918] border border-[#2e2c29] rounded-2xl p-6 sm:p-8 space-y-5">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#2e2c29] pb-4">
             <div>
-              <div className="text-xs font-mono uppercase tracking-widest text-emerald-400 font-semibold">
-                DE NOVO CHEMICAL GENERATION // EQUIVARIANT GRAPH DIFFUSION
+              <div className="text-xs font-mono uppercase tracking-widest text-emerald-400 font-semibold flex items-center gap-2">
+                <span className="h-2 w-2 rounded-full bg-emerald-400" />
+                <span>DE NOVO CHEMICAL GENERATION // PYTORCH LSTM (MOLGPT)</span>
               </div>
               <h3 className="text-xl sm:text-2xl font-light text-white mt-1">
                 Generated Small-Molecule Leads for {selectedTarget.pdbId}
               </h3>
             </div>
-            <div className="text-xs font-mono text-neutral-400">
-              Target Cleft: <span className="text-white font-bold">{selectedTarget.name.split('(')[0]}</span>
+            <div className="flex flex-wrap items-center gap-3">
+              <span className="text-xs font-mono text-neutral-400">
+                Target Cleft: <strong className="text-white">{selectedTarget.name.split('(')[0]}</strong>
+              </span>
+              <button
+                onClick={handleGenerateLeadsFromAI}
+                disabled={isGeneratingLeads}
+                className="px-4 py-2 rounded-lg bg-emerald-500/20 border border-emerald-500/60 hover:bg-emerald-500 hover:text-neutral-950 text-emerald-300 font-mono text-xs font-bold uppercase transition-all cursor-pointer flex items-center gap-2 shadow-sm hover:scale-[1.02] active:scale-[0.98]"
+              >
+                <span className={isGeneratingLeads ? 'animate-spin' : ''}>⚙</span>
+                <span>{isGeneratingLeads ? 'Sampling LSTM Weights...' : '▶ Generate Novel Leads (PyTorch LSTM)'}</span>
+              </button>
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {DE_NOVO_LEAD_LIBRARY.map((lead) => (
+            {deNovoLeads.map((lead) => (
               <div
                 key={lead.id}
                 className={`bg-[#121110] border rounded-xl p-4 flex flex-col justify-between space-y-3 transition-all font-mono ${

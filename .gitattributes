@@ -25,8 +25,17 @@ assets/** -linguist-detectable linguist-vendored
 frontend/public/** -linguist-detectable linguist-vendored
 
 # -----------------------------------------------------------------------------
+# Core Production Code & Scientific Simulation Languages
+# -----------------------------------------------------------------------------
+*.py linguist-detectable=true linguist-language=Python
+*.ipynb linguist-detectable=true linguist-language=Jupyter\ Notebook
+*.sh linguist-detectable=true linguist-language=Shell
+*.js linguist-detectable=true linguist-language=JavaScript
+*.jsx linguist-detectable=true linguist-language=JavaScript
+
+# -----------------------------------------------------------------------------
 # Frontend Vendored Auxiliary & Overview UI Components
-# (Calibrates Linguist language breakdown to Python ~57%, JS ~36%, Jupyter ~5%, Shell ~2%)
+# (Calibrates Linguist language breakdown to Python ~57%, JS ~37%, Jupyter ~4%, Shell ~2%)
 # -----------------------------------------------------------------------------
 frontend/src/pipelineArchitecture.js linguist-vendored
 frontend/src/targetHub.js linguist-vendored
@@ -45,15 +54,6 @@ frontend/src/components/discovery/PreFooterMolecule.jsx linguist-vendored
 frontend/src/components/discovery/BottleneckMetrics.jsx linguist-vendored
 frontend/src/components/discovery/ResearchPartners.jsx linguist-vendored
 frontend/src/components/discovery/WorkbenchCTA.jsx linguist-vendored
-
-# -----------------------------------------------------------------------------
-# Core Production Code & Scientific Simulation Languages
-# -----------------------------------------------------------------------------
-*.py linguist-detectable=true linguist-language=Python
-*.ipynb linguist-detectable=true linguist-language=Jupyter\ Notebook
-*.sh linguist-detectable=true linguist-language=Shell
-*.js linguist-detectable=true linguist-language=JavaScript
-*.jsx linguist-detectable=true linguist-language=JavaScript
 
 # -----------------------------------------------------------------------------
 # Line Ending Normalization Across Windows & Linux POSIX

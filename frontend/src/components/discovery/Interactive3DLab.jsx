@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import * as $3Dmol from '3dmol';
 
 /**
  * EUREKA 3D Biophysics Lab & Medicinal Chemistry Discovery Workbench
@@ -422,6 +423,8 @@ export default function Interactive3DLab() {
 
   // 3D Canvas Interaction States (Ref-backed for zero-lag 120fps hardware rendering)
   const canvasRef = useRef(null);
+  const viewerRef = useRef(null);
+  const viewerDivRef = useRef(null);
   const rotRef = useRef({ x: 0.25, y: 0.45 });
   const isDraggingRef = useRef(false);
   const lastMousePos = useRef({ x: 0, y: 0 });
@@ -609,487 +612,276 @@ export default function Interactive3DLab() {
     reader.readAsText(file);
   };
 
-  // High-Fidelity 3D Canvas Rendering (Ribbons, Connolly Pocket Mesh, Multi-Atom Ligand)
+  // High-Fidelity 3D Molecular Viewer (3Dmol.js WebGL — Real PDB Ribbon + Ligand Ball-and-Stick)
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+    const container = viewerDivRef.current;
+    if (!container) return;
 
-    let localAngle = 0;
+    // Dispose previous viewer
+    if (viewerRef.current) {
+      try { viewerRef.current.clear(); } catch (_) {}
+      viewerRef.current = null;
+      container.innerHTML = '';
+    }
 
-    const render = () => {
-      const dpr = window.devicePixelRatio || 1;
-      const width = canvas.clientWidth;
-      const height = canvas.clientHeight;
+    // Create 3Dmol viewer with dark background
+    const viewer = $3Dmol.createViewer(container, {
+      backgroundColor: '#0a0a0a',
+      antialias: true,
+      cartoonQuality: 10,
+    });
+    viewerRef.current = viewer;
 
-      if (canvas.width !== width * dpr || canvas.height !== height * dpr) {
-        canvas.width = width * dpr;
-        canvas.height = height * dpr;
-      }
+    const pdbId = selectedTarget.pdbId;
+    const gc = selectedTarget.gridCenter;
+    const gs = gridBoxSize;
 
-      ctx.save();
-      ctx.scale(dpr, dpr);
-      ctx.clearRect(0, 0, width, height);
+    // Helper: Apply view style based on current mode
+    const applyStyle = (vr) => {
+      viewer.removeAllShapes();
 
-      const cx = width / 2;
-      const cy = height / 2;
-      const fov = 450 * zoomLevel;
+      // Get all models
+      const allModels = viewer.getModel();
 
-      // Auto-orbit when idle
-      if (!isDraggingRef.current && dockingPhase !== 'running') {
-        localAngle += 0.002;
-      }
-
-      const curRotY = rotRef.current.y + localAngle;
-      const curRotX = rotRef.current.x;
-
-      const cosY = Math.cos(curRotY);
-      const sinY = Math.sin(curRotY);
-      const cosX = Math.cos(curRotX);
-      const sinX = Math.sin(curRotX);
-
-      // 3D Transformation Helper
-      const transform3D = (pt) => {
-        const x1 = pt.x * cosY + pt.z * sinY;
-        const z1 = -pt.x * sinY + pt.z * cosY;
-        const y2 = pt.y * cosX - z1 * sinX;
-        const z2 = pt.y * sinX + z1 * cosX;
-        const scale = fov / (fov + z2 + 250);
-        return {
-          sx: cx + x1 * scale,
-          sy: cy + y2 * scale,
-          depth: z2,
-          scale: Math.max(0.15, scale)
-        };
-      };
-
-      // -------------------------------------------------------------
-      // VIEW MODE: 2D Maestro / MOE Interaction Map
-      // -------------------------------------------------------------
-      if (viewRenderMode === '2d_interaction') {
-        // Background Radial Gradient
-        const bgGrad = ctx.createRadialGradient(cx, cy, 20, cx, cy, width * 0.55);
-        bgGrad.addColorStop(0, 'rgba(16, 185, 129, 0.08)');
-        bgGrad.addColorStop(0.65, 'rgba(15, 23, 42, 0.45)');
-        bgGrad.addColorStop(1, 'rgba(10, 9, 8, 0.96)');
-        ctx.fillStyle = bgGrad;
-        ctx.fillRect(0, 0, width, height);
-
-        // Active Cleft Solvation Contour (Soft Green Ellipse)
-        ctx.beginPath();
-        ctx.ellipse(cx, cy, 145 * zoomLevel, 105 * zoomLevel, 0.12, 0, Math.PI * 2);
-        ctx.strokeStyle = 'rgba(16, 185, 129, 0.4)';
-        ctx.setLineDash([6, 6]);
-        ctx.lineWidth = 2;
-        ctx.stroke();
-        ctx.setLineDash([]);
-        ctx.fillStyle = 'rgba(16, 185, 129, 0.04)';
-        ctx.fill();
-
-        // Central Scaffold 2D Ring System
-        ctx.save();
-        ctx.translate(cx, cy);
-        ctx.scale(zoomLevel, zoomLevel);
-
-        // Quinazoline Fused Bicycle Core
-        ctx.beginPath();
-        const coreRing = [
-          { x: -55, y: -26 }, { x: -20, y: -46 }, { x: 15, y: -26 },
-          { x: 15, y: 26 }, { x: -20, y: 46 }, { x: -55, y: 26 }
-        ];
-        coreRing.forEach((p, i) => {
-          if (i === 0) ctx.moveTo(p.x, p.y);
-          else ctx.lineTo(p.x, p.y);
-        });
-        ctx.closePath();
-        ctx.strokeStyle = '#10b981';
-        ctx.lineWidth = 3;
-        ctx.stroke();
-
-        // Inner Aromatic Stacking Circle
-        ctx.beginPath();
-        ctx.arc(-20, 0, 22, 0, Math.PI * 2);
-        ctx.strokeStyle = 'rgba(16, 185, 129, 0.45)';
-        ctx.setLineDash([3, 3]);
-        ctx.stroke();
-        ctx.setLineDash([]);
-
-        // Nitrogen heteroatoms
-        ctx.fillStyle = '#38bdf8';
-        ctx.font = 'bold 12px sans-serif';
-        ctx.fillText('N', 20, -18);
-        ctx.fillText('N', 20, 26);
-        ctx.fillStyle = '#f8fafc';
-        ctx.fillText('NH', 55, 4);
-        ctx.fillStyle = '#a3e635';
-        ctx.fillText('Cl', 115, 5);
-
-        // Bonds to substituents
-        ctx.beginPath();
-        ctx.moveTo(15, 0); ctx.lineTo(50, 0);
-        ctx.moveTo(76, 0); ctx.lineTo(110, 0);
-        ctx.moveTo(-55, 0); ctx.lineTo(-90, -16);
-        ctx.strokeStyle = '#10b981';
-        ctx.lineWidth = 2.5;
-        ctx.stroke();
-
-        ctx.restore();
-
-        // Surrounding 2D Pocket Residue Badges
-        const residues2D = [
-          { label: 'Met793', type: 'donor', x: cx + 120 * zoomLevel, y: cy - 75 * zoomLevel, color: '#10b981', hbond: true, targetX: cx + 55 * zoomLevel, targetY: cy, distText: '2.13 Å (O···H-N)' },
-          { label: 'Thr790', type: 'polar', x: cx - 115 * zoomLevel, y: cy - 85 * zoomLevel, color: '#f59e0b', hbond: false },
-          { label: 'Lys745', type: 'acceptor', x: cx + 45 * zoomLevel, y: cy + 110 * zoomLevel, color: '#3b82f6', hbond: true, targetX: cx + 22 * zoomLevel, targetY: cy + 28 * zoomLevel, distText: '2.78 Å (N-H···O)' },
-          { label: 'Leu718', type: 'hydrophobic', x: cx - 140 * zoomLevel, y: cy + 45 * zoomLevel, color: '#64748b', hbond: false },
-          { label: 'Asp855', type: 'acidic', x: cx - 45 * zoomLevel, y: cy + 115 * zoomLevel, color: '#ef4444', hbond: false },
-          { label: 'Cys797', type: 'covalent', x: cx + 130 * zoomLevel, y: cy + 70 * zoomLevel, color: '#ec4899', hbond: false }
-        ];
-
-        residues2D.forEach((res) => {
-          ctx.beginPath();
-          ctx.arc(res.x, res.y, 18 * zoomLevel, 0, Math.PI * 2);
-          ctx.fillStyle = '#1c1b19';
-          ctx.strokeStyle = res.color;
-          ctx.lineWidth = 2.2;
-          ctx.fill();
-          ctx.stroke();
-
-          ctx.fillStyle = '#ffffff';
-          ctx.font = `bold ${Math.max(9, Math.round(10 * zoomLevel))}px monospace`;
-          ctx.textAlign = 'center';
-          ctx.fillText(res.label, res.x, res.y + 3);
-          ctx.textAlign = 'left';
-
-          if (res.hbond && res.targetX) {
-            ctx.beginPath();
-            ctx.setLineDash([4, 4]);
-            ctx.moveTo(res.x, res.y);
-            ctx.lineTo(res.targetX, res.targetY);
-            ctx.strokeStyle = res.color;
-            ctx.lineWidth = 2.2;
-            ctx.stroke();
-            ctx.setLineDash([]);
-
-            const mx = (res.x + res.targetX) / 2;
-            const my = (res.y + res.targetY) / 2;
-            ctx.fillStyle = '#34d399';
-            ctx.font = 'bold 9px monospace';
-            ctx.fillText(res.distText, mx + 4, my - 4);
+      if (vr === 'ribbon_ligand') {
+        // Protein in cartoon ribbon — light gray with spectrum coloring
+        viewer.setStyle({ hetflag: false }, {
+          cartoon: {
+            color: 'spectrum',
+            opacity: 0.92,
+            thickness: 0.4,
+            arrows: true,
           }
         });
-
-        // 2D Interaction Legend Box
-        ctx.fillStyle = 'rgba(20, 19, 18, 0.92)';
-        ctx.fillRect(16, height - 85, 230, 72);
-        ctx.strokeStyle = '#2e2c29';
-        ctx.lineWidth = 1;
-        ctx.strokeRect(16, height - 85, 230, 72);
-
-        ctx.font = '9px monospace';
-        ctx.fillStyle = '#10b981';
-        ctx.fillText('--- Hydrogen Bond Vector (≤ 2.8 Å)', 24, height - 67);
-        ctx.fillStyle = '#3b82f6';
-        ctx.fillText('● Basic / Catalytic Residue (Lys/Arg)', 24, height - 51);
-        ctx.fillStyle = '#f59e0b';
-        ctx.fillText('● Polar Gatekeeper / π-π Aromatic (Thr/Tyr)', 24, height - 35);
-        ctx.fillStyle = '#ec4899';
-        ctx.fillText('● Solvent-Exposed Covalent Locus (Cys)', 24, height - 19);
-
-        ctx.restore();
-        animFrameRef.current = requestAnimationFrame(render);
-        return;
+        // Ligand / heteroatoms in stick
+        viewer.setStyle({ hetflag: true, not: { resn: 'HOH' } }, {
+          stick: { radius: 0.22, colorscheme: 'yellowCarbon' },
+          sphere: { radius: 0.4, colorscheme: 'yellowCarbon' }
+        });
+        // Hide water
+        viewer.setStyle({ resn: 'HOH' }, {});
+      } else if (vr === 'surface') {
+        // Protein surface with cartoon underneath
+        viewer.setStyle({ hetflag: false }, {
+          cartoon: { color: 'white', opacity: 0.35 }
+        });
+        viewer.addSurface($3Dmol.SurfaceType.VDW, {
+          opacity: 0.55,
+          color: 'white',
+          map: { prop: 'partialCharge', scheme: new $3Dmol.Gradient.RWB(-0.6, 0.6) }
+        }, { hetflag: false });
+        // Ligand in stick on top
+        viewer.setStyle({ hetflag: true, not: { resn: 'HOH' } }, {
+          stick: { radius: 0.2, colorscheme: 'yellowCarbon' },
+          sphere: { radius: 0.35, colorscheme: 'yellowCarbon' }
+        });
+        viewer.setStyle({ resn: 'HOH' }, {});
+      } else if (vr === 'pocket_only') {
+        // Only show residues within 8 Å of heteroatom ligand, rest hidden
+        viewer.setStyle({}, {});
+        viewer.setStyle({ hetflag: true, not: { resn: 'HOH' } }, {
+          stick: { radius: 0.22, colorscheme: 'yellowCarbon' },
+          sphere: { radius: 0.4, colorscheme: 'yellowCarbon' }
+        });
+        viewer.setStyle({ within: { distance: 8, sel: { hetflag: true, not: { resn: 'HOH' } } }, hetflag: false }, {
+          stick: { radius: 0.15, colorscheme: 'whiteCarbon' },
+          cartoon: { color: 'white', opacity: 0.3, style: 'trace' }
+        });
+      } else {
+        // Default fallback / 2d_interaction — just show cartoon + sticks
+        viewer.setStyle({ hetflag: false }, {
+          cartoon: { color: 'spectrum', opacity: 0.85, thickness: 0.35 }
+        });
+        viewer.setStyle({ hetflag: true, not: { resn: 'HOH' } }, {
+          stick: { radius: 0.22, colorscheme: 'yellowCarbon' },
+          sphere: { radius: 0.4, colorscheme: 'yellowCarbon' }
+        });
+        viewer.setStyle({ resn: 'HOH' }, {});
       }
 
-      // -------------------------------------------------------------
-      // VIEW MODE: 3D Connolly Solvent-Accessible Surface Lobes
-      // -------------------------------------------------------------
-      if (viewRenderMode === 'surface') {
-        selectedTarget.pocketResidues.forEach((res) => {
-          const proj = transform3D(res);
-          const rad = (res.r + 32) * proj.scale * zoomLevel;
-          const grad = ctx.createRadialGradient(proj.sx, proj.sy, 6, proj.sx, proj.sy, rad);
-          if (res.type === 'donor') {
-            grad.addColorStop(0, 'rgba(59, 130, 246, 0.45)');
-            grad.addColorStop(0.5, 'rgba(59, 130, 246, 0.16)');
-            grad.addColorStop(1, 'rgba(59, 130, 246, 0)');
-          } else if (res.type === 'acceptor') {
-            grad.addColorStop(0, 'rgba(239, 68, 68, 0.45)');
-            grad.addColorStop(0.5, 'rgba(239, 68, 68, 0.16)');
-            grad.addColorStop(1, 'rgba(239, 68, 68, 0)');
-          } else {
-            grad.addColorStop(0, 'rgba(16, 185, 129, 0.35)');
-            grad.addColorStop(0.6, 'rgba(16, 185, 129, 0.12)');
-            grad.addColorStop(1, 'rgba(16, 185, 129, 0)');
-          }
-          ctx.beginPath();
-          ctx.arc(proj.sx, proj.sy, rad, 0, Math.PI * 2);
-          ctx.fillStyle = grad;
-          ctx.fill();
+      // Docking Box Wireframe (yellow like AutoDock Vina reference image)
+      if (vr !== '2d_interaction') {
+        const halfX = gs / 2;
+        const halfY = gs / 2;
+        const halfZ = gs / 2;
+        const boxColor = dockingPhase === 'after' ? '#10b981' : '#e2c344';
+        const corners = [
+          { x: gc.x - halfX, y: gc.y - halfY, z: gc.z - halfZ },
+          { x: gc.x + halfX, y: gc.y - halfY, z: gc.z - halfZ },
+          { x: gc.x + halfX, y: gc.y + halfY, z: gc.z - halfZ },
+          { x: gc.x - halfX, y: gc.y + halfY, z: gc.z - halfZ },
+          { x: gc.x - halfX, y: gc.y - halfY, z: gc.z + halfZ },
+          { x: gc.x + halfX, y: gc.y - halfY, z: gc.z + halfZ },
+          { x: gc.x + halfX, y: gc.y + halfY, z: gc.z + halfZ },
+          { x: gc.x - halfX, y: gc.y + halfY, z: gc.z + halfZ },
+        ];
+        const edges = [
+          [0,1],[1,2],[2,3],[3,0],
+          [4,5],[5,6],[6,7],[7,4],
+          [0,4],[1,5],[2,6],[3,7]
+        ];
+        edges.forEach(([a, b]) => {
+          viewer.addLine({
+            start: corners[a],
+            end: corners[b],
+            color: boxColor,
+            dashed: true,
+            dashLength: 0.3,
+            gapLength: 0.2
+          });
         });
       }
 
-      // 1. Draw Bounding Search Box Wireframe
-      const halfB = gridBoxSize * 3.8;
-      const boxCorners = [
-        { x: -halfB, y: -halfB, z: -halfB },
-        { x: halfB, y: -halfB, z: -halfB },
-        { x: halfB, y: halfB, z: -halfB },
-        { x: -halfB, y: halfB, z: -halfB },
-        { x: -halfB, y: -halfB, z: halfB },
-        { x: halfB, y: -halfB, z: halfB },
-        { x: halfB, y: halfB, z: halfB },
-        { x: -halfB, y: halfB, z: halfB }
-      ].map(transform3D);
-
-      const boxEdges = [
-        [0, 1], [1, 2], [2, 3], [3, 0],
-        [4, 5], [5, 6], [6, 7], [7, 4],
-        [0, 4], [1, 5], [2, 6], [3, 7]
-      ];
-
-      ctx.strokeStyle = dockingPhase === 'after' ? 'rgba(16, 185, 129, 0.45)' : 'rgba(148, 163, 184, 0.22)';
-      ctx.lineWidth = 1;
-      ctx.setLineDash([3, 4]);
-      boxEdges.forEach(([i, j]) => {
-        ctx.beginPath();
-        ctx.moveTo(boxCorners[i].sx, boxCorners[i].sy);
-        ctx.lineTo(boxCorners[j].sx, boxCorners[j].sy);
-        ctx.stroke();
-      });
-      ctx.setLineDash([]);
-
-      // 2. Draw Protein Ribbon Backbone (Alpha-Helices & Loops)
-      if (viewRenderMode !== 'pocket_only') {
-        const ribbonSegments = [];
-        const helixTurns = 32;
-        const rHelix = 36;
-        for (let t = 0; t <= helixTurns; t++) {
-          const theta = (t / helixTurns) * Math.PI * 4;
-          const px = Math.cos(theta) * rHelix - 35;
-          const py = (t - helixTurns / 2) * 5.2 - 10;
-          const pz = Math.sin(theta) * rHelix + 15;
-          ribbonSegments.push(transform3D({ x: px, y: py, z: pz }));
-        }
-
-        ctx.beginPath();
-        ctx.strokeStyle = 'rgba(56, 189, 248, 0.35)';
-        ctx.lineWidth = 4 * zoomLevel;
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
-        ribbonSegments.forEach((pt, i) => {
-          if (i === 0) ctx.moveTo(pt.sx, pt.sy);
-          else ctx.lineTo(pt.sx, pt.sy);
-        });
-        ctx.stroke();
-
-        // Second Counter-Helix (Hinge Loop)
-        const loopSegments = [];
-        for (let t = 0; t <= 24; t++) {
-          const theta = (t / 24) * Math.PI * 3;
-          const px = Math.cos(theta) * (rHelix * 0.8) + 40;
-          const py = (t - 12) * 5.8 + 15;
-          const pz = Math.sin(theta) * (rHelix * 0.8) - 20;
-          loopSegments.push(transform3D({ x: px, y: py, z: pz }));
-        }
-        ctx.beginPath();
-        ctx.strokeStyle = 'rgba(168, 85, 247, 0.3)';
-        ctx.lineWidth = 3.5 * zoomLevel;
-        loopSegments.forEach((pt, i) => {
-          if (i === 0) ctx.moveTo(pt.sx, pt.sy);
-          else ctx.lineTo(pt.sx, pt.sy);
-        });
-        ctx.stroke();
-      }
-
-      // 3. Collect 3D Render Objects (Pocket Residues + Full Ball-and-Stick Ligand Atoms)
-      const renderList = [];
-
-      // Add Active Pocket Residues
-      selectedTarget.pocketResidues.forEach((res) => {
-        const proj = transform3D(res);
-        renderList.push({
-          kind: 'pocket_residue',
-          ...res,
-          ...proj
-        });
-      });
-
-      // Full Multi-Atom Ligand Graph (Dynamic RDKit conformer or benchmark default)
-      const lp = ligandPos.current;
-      const ligColor = dockingPhase === 'after' ? '#10b981' : '#38bdf8';
-      
-      // Default 14 Skeletal Ligand Atoms (Quinazoline core + Aniline + Morpholine)
-      const defaultLigandGraphAtoms = [
-        { id: 'L0', elem: 'C', x: lp.x - 14, y: lp.y - 8, z: lp.z + 4, color: ligColor, r: 7 },
-        { id: 'L1', elem: 'C', x: lp.x, y: lp.y - 12, z: lp.z + 2, color: ligColor, r: 7 },
-        { id: 'L2', elem: 'N', x: lp.x + 12, y: lp.y - 6, z: lp.z - 4, color: '#3b82f6', r: 7.5 },
-        { id: 'L3', elem: 'C', x: lp.x + 10, y: lp.y + 6, z: lp.z - 6, color: ligColor, r: 7 },
-        { id: 'L4', elem: 'N', x: lp.x - 2, y: lp.y + 10, z: lp.z - 2, color: '#3b82f6', r: 7.5 },
-        { id: 'L5', elem: 'C', x: lp.x - 16, y: lp.y + 4, z: lp.z + 3, color: ligColor, r: 7 },
-        { id: 'L6', elem: 'N', x: lp.x + 22, y: lp.y + 12, z: lp.z - 10, color: '#3b82f6', r: 7.5 },
-        { id: 'L7', elem: 'C', x: lp.x + 34, y: lp.y + 8, z: lp.z - 14, color: ligColor, r: 7 },
-        { id: 'L8', elem: 'C', x: lp.x + 44, y: lp.y + 16, z: lp.z - 18, color: ligColor, r: 7 },
-        { id: 'L9', elem: 'Cl', x: lp.x + 58, y: lp.y + 12, z: lp.z - 24, color: '#a3e635', r: 9 },
-        { id: 'L10', elem: 'F', x: lp.x + 40, y: lp.y + 30, z: lp.z - 16, color: '#06b6d4', r: 6.5 },
-        { id: 'L11', elem: 'O', x: lp.x - 26, y: lp.y - 14, z: lp.z + 8, color: '#ef4444', r: 7 },
-        { id: 'L12', elem: 'C', x: lp.x - 38, y: lp.y - 8, z: lp.z + 12, color: ligColor, r: 7 },
-        { id: 'L13', elem: 'O', x: lp.x - 50, y: lp.y - 16, z: lp.z + 18, color: '#ef4444', r: 7 }
-      ];
-
-      const defaultLigandBonds = [
-        ['L0', 'L1'], ['L1', 'L2'], ['L2', 'L3'], ['L3', 'L4'], ['L4', 'L5'], ['L5', 'L0'],
-        ['L3', 'L6'], ['L6', 'L7'], ['L7', 'L8'], ['L8', 'L9'], ['L8', 'L10'],
-        ['L0', 'L11'], ['L11', 'L12'], ['L12', 'L13']
-      ];
-
-      // Use dynamically calculated RDKit 3D atoms when available
-      const ligandGraphAtoms = (dynamicLigandAtoms && dynamicLigandAtoms.length > 0)
-        ? dynamicLigandAtoms.map(a => ({
-            id: `D_${a.id}`,
-            elem: a.elem,
-            x: lp.x + a.x,
-            y: lp.y + a.y,
-            z: lp.z + a.z,
-            color: a.color || (dockingPhase === 'after' ? '#10b981' : '#38bdf8'),
-            r: a.r || 6.5
-          }))
-        : defaultLigandGraphAtoms;
-
-      const ligandBonds = (dynamicLigandBonds && dynamicLigandBonds.length > 0)
-        ? dynamicLigandBonds.map(([i, j]) => [`D_${i}`, `D_${j}`])
-        : defaultLigandBonds;
-
-      // Project Ligand Atoms
-      const projectedLigandMap = {};
-      ligandGraphAtoms.forEach((la) => {
-        const proj = transform3D(la);
-        projectedLigandMap[la.id] = proj;
-        renderList.push({
-          kind: 'ligand_atom',
-          ...la,
-          ...proj
-        });
-      });
-
-      // 4. Draw Chemical Bonds Between Ligand Atoms
-      ctx.lineWidth = 2.5 * zoomLevel;
-      ctx.strokeStyle = dockingPhase === 'after' ? 'rgba(16, 185, 129, 0.75)' : 'rgba(56, 189, 248, 0.65)';
-      ligandBonds.forEach(([idA, idB]) => {
-        const pA = projectedLigandMap[idA];
-        const pB = projectedLigandMap[idB];
-        if (pA && pB) {
-          ctx.beginPath();
-          ctx.moveTo(pA.sx, pA.sy);
-          ctx.lineTo(pB.sx, pB.sy);
-          ctx.stroke();
-        }
-      });
-
-      // 5. Depth Sort Render List (Back-to-Front Painter's Algorithm)
-      renderList.sort((a, b) => b.depth - a.depth);
-
-      // Render Atoms & Residues
-      renderList.forEach((item) => {
-        const radius = item.r * item.scale * zoomLevel;
-
-        if (item.kind === 'pocket_residue') {
-          // Pocket Amino Acid Sphere
-          ctx.beginPath();
-          ctx.arc(item.sx, item.sy, radius, 0, Math.PI * 2);
-          ctx.fillStyle = item.color;
-          ctx.shadowColor = item.color;
-          ctx.shadowBlur = 8;
-          ctx.fill();
-          ctx.shadowBlur = 0;
-
-          // Residue Label
-          ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
-          ctx.font = '10px monospace';
-          ctx.fillText(item.label, item.sx + radius + 4, item.sy + 3);
-        } else {
-          // Ligand Atom with Specular Highlight
-          ctx.beginPath();
-          ctx.arc(item.sx, item.sy, radius, 0, Math.PI * 2);
-          ctx.fillStyle = item.color;
-          ctx.shadowColor = item.color;
-          ctx.shadowBlur = dockingPhase === 'after' ? 12 : 6;
-          ctx.fill();
-          ctx.shadowBlur = 0;
-
-          // Inner Specular Dot
-          ctx.beginPath();
-          ctx.arc(item.sx - radius * 0.3, item.sy - radius * 0.3, radius * 0.28, 0, Math.PI * 2);
-          ctx.fillStyle = 'rgba(255, 255, 255, 0.65)';
-          ctx.fill();
-        }
-      });
-
-      // 6. Draw Directional Hydrogen-Bond Vectors (in 'after' docked state)
-      if (dockingPhase === 'after') {
-        const hinge = renderList.find((i) => i.id === 'Met793-N' || i.id === 'Asp189-OD' || i.id === 'Glu353-OE' || i.id === 'Asn140-ND');
-        const ligHingeDonor = renderList.find((i) => i.id === 'L2' || i.id === 'L6');
-
-        if (hinge && ligHingeDonor) {
-          ctx.beginPath();
-          ctx.setLineDash([4, 4]);
-          ctx.moveTo(hinge.sx, hinge.sy);
-          ctx.lineTo(ligHingeDonor.sx, ligHingeDonor.sy);
-          ctx.strokeStyle = '#10b981';
-          ctx.lineWidth = 2.5;
-          ctx.stroke();
-          ctx.setLineDash([]);
-
-          // Label Distance Vector
-          const midX = (hinge.sx + ligHingeDonor.sx) / 2;
-          const midY = (hinge.sy + ligHingeDonor.sy) / 2;
-          ctx.fillStyle = '#34d399';
-          ctx.font = 'bold 11px monospace';
-          ctx.fillText('H-Bond: 2.1 Å (Locked)', midX + 8, midY - 6);
-        }
-      }
-
-      ctx.restore();
-      animFrameRef.current = requestAnimationFrame(render);
+      viewer.render();
     };
 
-    render();
+    // Fetch real PDB structure from RCSB
+    const pdbUrl = `https://files.rcsb.org/download/${pdbId}.pdb`;
+
+    fetch(pdbUrl)
+      .then((res) => {
+        if (!res.ok) throw new Error('PDB fetch failed');
+        return res.text();
+      })
+      .then((pdbData) => {
+        if (!viewerRef.current) return;
+        viewer.addModel(pdbData, 'pdb');
+        applyStyle(viewRenderMode);
+        viewer.zoomTo();
+        viewer.zoom(1.2, 800);
+        viewer.spin('y', 0.4);
+        viewer.render();
+
+        setSimulationLogs((prev) => [
+          ...prev.filter(l => !l.includes('[3DMOL_LOAD]')),
+          `[3DMOL_LOAD] Loaded ${pdbId} crystallographic coordinates via RCSB PDB. WebGL cartoon+stick renderer active.`
+        ]);
+      })
+      .catch(() => {
+        // Offline fallback — render a synthetic helical backbone
+        if (!viewerRef.current) return;
+        let fakePdb = 'HEADER EUREKA SYNTHETIC PLACEHOLDER\n';
+        for (let i = 0; i < 120; i++) {
+          const theta = (i / 120) * Math.PI * 8;
+          const x = (Math.cos(theta) * 18 + gc.x).toFixed(3);
+          const y = ((i - 60) * 1.3 + gc.y).toFixed(3);
+          const z = (Math.sin(theta) * 18 + gc.z).toFixed(3);
+          const resSeq = String(i + 1).padStart(4);
+          const atomSerial = String(i + 1).padStart(5);
+          fakePdb += `ATOM  ${atomSerial}  CA  ALA A${resSeq}    ${x.padStart(8)}${y.padStart(8)}${z.padStart(8)}  1.00  0.00           C\n`;
+        }
+        fakePdb += 'END\n';
+        viewer.addModel(fakePdb, 'pdb');
+        applyStyle(viewRenderMode);
+        viewer.zoomTo();
+        viewer.spin('y', 0.4);
+        viewer.render();
+
+        setSimulationLogs((prev) => [
+          ...prev.filter(l => !l.includes('[3DMOL_LOAD]')),
+          `[3DMOL_LOAD] Offline mode: rendered synthetic helix for ${pdbId}. Connect to network for full RCSB crystal coordinates.`
+        ]);
+      });
 
     return () => {
-      if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
+      if (viewerRef.current) {
+        try { viewerRef.current.clear(); } catch (_) {}
+        viewerRef.current = null;
+      }
     };
-  }, [selectedTarget, dockingPhase, gridBoxSize, viewRenderMode, zoomLevel, dynamicLigandAtoms, dynamicLigandBonds]);
+  }, [selectedTarget, dockingPhase, gridBoxSize]);
 
-  // Mouse drag handlers for 3D rotation (Zero React re-render, 120fps hardware smooth)
-  const handleMouseDown = (e) => {
-    isDraggingRef.current = true;
-    lastMousePos.current = { x: e.clientX, y: e.clientY };
-  };
-
-  const handleMouseMove = (e) => {
-    if (!isDraggingRef.current) return;
-    const dx = e.clientX - lastMousePos.current.x;
-    const dy = e.clientY - lastMousePos.current.y;
-    lastMousePos.current = { x: e.clientX, y: e.clientY };
-    rotRef.current.y += dx * 0.008;
-    rotRef.current.x = Math.max(-1.2, Math.min(1.2, rotRef.current.x + dy * 0.008));
-  };
-
-  const handleMouseUp = () => {
-    isDraggingRef.current = false;
-  };
-
-  // Wheel zoom handler with non-passive event listener
+  // Update view style when viewRenderMode changes (without re-fetching PDB)
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const onWheel = (e) => {
-      e.preventDefault();
-      setZoomLevel((prev) => Math.max(0.6, Math.min(2.0, prev - e.deltaY * 0.001)));
-    };
-    canvas.addEventListener('wheel', onWheel, { passive: false });
-    return () => canvas.removeEventListener('wheel', onWheel);
-  }, []);
+    const viewer = viewerRef.current;
+    if (!viewer) return;
+    try {
+      viewer.removeAllShapes();
+
+      const gc = selectedTarget.gridCenter;
+      const gs = gridBoxSize;
+
+      if (viewRenderMode === 'ribbon_ligand') {
+        viewer.setStyle({ hetflag: false }, {
+          cartoon: { color: 'spectrum', opacity: 0.92, thickness: 0.4, arrows: true }
+        });
+        viewer.setStyle({ hetflag: true, not: { resn: 'HOH' } }, {
+          stick: { radius: 0.22, colorscheme: 'yellowCarbon' },
+          sphere: { radius: 0.4, colorscheme: 'yellowCarbon' }
+        });
+        viewer.setStyle({ resn: 'HOH' }, {});
+      } else if (viewRenderMode === 'surface') {
+        viewer.setStyle({ hetflag: false }, {
+          cartoon: { color: 'white', opacity: 0.35 }
+        });
+        viewer.addSurface($3Dmol.SurfaceType.VDW, {
+          opacity: 0.55,
+          color: 'white',
+        }, { hetflag: false });
+        viewer.setStyle({ hetflag: true, not: { resn: 'HOH' } }, {
+          stick: { radius: 0.2, colorscheme: 'yellowCarbon' },
+          sphere: { radius: 0.35, colorscheme: 'yellowCarbon' }
+        });
+        viewer.setStyle({ resn: 'HOH' }, {});
+      } else if (viewRenderMode === 'pocket_only') {
+        viewer.setStyle({}, {});
+        viewer.setStyle({ hetflag: true, not: { resn: 'HOH' } }, {
+          stick: { radius: 0.22, colorscheme: 'yellowCarbon' },
+          sphere: { radius: 0.4, colorscheme: 'yellowCarbon' }
+        });
+        viewer.setStyle({ within: { distance: 8, sel: { hetflag: true, not: { resn: 'HOH' } } }, hetflag: false }, {
+          stick: { radius: 0.15, colorscheme: 'whiteCarbon' },
+          cartoon: { color: 'white', opacity: 0.3, style: 'trace' }
+        });
+      } else {
+        viewer.setStyle({ hetflag: false }, {
+          cartoon: { color: 'spectrum', opacity: 0.85, thickness: 0.35 }
+        });
+        viewer.setStyle({ hetflag: true, not: { resn: 'HOH' } }, {
+          stick: { radius: 0.22, colorscheme: 'yellowCarbon' },
+          sphere: { radius: 0.4, colorscheme: 'yellowCarbon' }
+        });
+        viewer.setStyle({ resn: 'HOH' }, {});
+      }
+
+      // Re-add docking box
+      if (viewRenderMode !== '2d_interaction') {
+        const halfX = gs / 2;
+        const halfY = gs / 2;
+        const halfZ = gs / 2;
+        const boxColor = dockingPhase === 'after' ? '#10b981' : '#e2c344';
+        const corners = [
+          { x: gc.x - halfX, y: gc.y - halfY, z: gc.z - halfZ },
+          { x: gc.x + halfX, y: gc.y - halfY, z: gc.z - halfZ },
+          { x: gc.x + halfX, y: gc.y + halfY, z: gc.z - halfZ },
+          { x: gc.x - halfX, y: gc.y + halfY, z: gc.z - halfZ },
+          { x: gc.x - halfX, y: gc.y - halfY, z: gc.z + halfZ },
+          { x: gc.x + halfX, y: gc.y - halfY, z: gc.z + halfZ },
+          { x: gc.x + halfX, y: gc.y + halfY, z: gc.z + halfZ },
+          { x: gc.x - halfX, y: gc.y + halfY, z: gc.z + halfZ },
+        ];
+        const edges = [
+          [0,1],[1,2],[2,3],[3,0],
+          [4,5],[5,6],[6,7],[7,4],
+          [0,4],[1,5],[2,6],[3,7]
+        ];
+        edges.forEach(([a, b]) => {
+          viewer.addLine({
+            start: corners[a],
+            end: corners[b],
+            color: boxColor,
+            dashed: true,
+            dashLength: 0.3,
+            gapLength: 0.2
+          });
+        });
+      }
+
+      viewer.render();
+    } catch (_) {}
+  }, [viewRenderMode]);
+
+  // 3Dmol.js handles its own mouse/wheel interaction natively (rotate, zoom, pan)
 
   // Run AutoDock Vina In-Silico Docking Simulation
   const executeDocking = () => {
@@ -1935,14 +1727,11 @@ $$$$
             {/* Viewport Card */}
             <div className="relative w-full aspect-[4/3] min-h-[460px] bg-[#0c0b0a] border border-[#2e2c29] rounded-2xl overflow-hidden shadow-2xl flex items-center justify-center">
               
-              {/* Interactive 3D Canvas */}
-              <canvas
-                ref={canvasRef}
-                onMouseDown={handleMouseDown}
-                onMouseMove={handleMouseMove}
-                onMouseUp={handleMouseUp}
-                onMouseLeave={handleMouseUp}
-                className="w-full h-full cursor-grab active:cursor-grabbing block"
+              {/* Interactive 3D Molecular Viewer (3Dmol.js WebGL) */}
+              <div
+                ref={viewerDivRef}
+                className="w-full h-full block"
+                style={{ position: 'relative', minHeight: '460px' }}
               />
 
               {/* Top Viewport Status HUD */}

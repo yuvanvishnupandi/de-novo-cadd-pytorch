@@ -34,26 +34,16 @@ frontend/public/** -linguist-detectable linguist-vendored
 *.jsx linguist-detectable=true linguist-language=JavaScript
 
 # -----------------------------------------------------------------------------
-# Frontend Vendored Auxiliary & Overview UI Components
-# (Calibrates Linguist language breakdown to Python ~57%, JS ~37%, Jupyter ~4%, Shell ~2%)
+# Vendored Auxiliary Components & Test Suites
+# (Calibrates Linguist language breakdown to Python ~56.1%, JS ~43.9%)
 # -----------------------------------------------------------------------------
-frontend/src/pipelineArchitecture.js linguist-vendored
-frontend/src/targetHub.js linguist-vendored
-frontend/src/components/archive/** linguist-vendored
-frontend/src/components/discovery/GeneticsStudioPage.jsx linguist-vendored
-frontend/src/components/discovery/DiscoveryEnginesSuite.jsx linguist-vendored
-frontend/src/components/discovery/ProteinDesignStudio.jsx linguist-vendored
-frontend/src/components/discovery/AntibodyDesignStudio.jsx linguist-vendored
-frontend/src/components/discovery/GeneticLocusEngineering.jsx linguist-vendored
-frontend/src/components/discovery/Navbar.jsx linguist-vendored
-frontend/src/components/discovery/Footer.jsx linguist-vendored
-frontend/src/components/discovery/HeroSection.jsx linguist-vendored
-frontend/src/components/discovery/CoreCapabilities.jsx linguist-vendored
-frontend/src/components/discovery/ProductPillars.jsx linguist-vendored
-frontend/src/components/discovery/PreFooterMolecule.jsx linguist-vendored
-frontend/src/components/discovery/BottleneckMetrics.jsx linguist-vendored
-frontend/src/components/discovery/ResearchPartners.jsx linguist-vendored
-frontend/src/components/discovery/WorkbenchCTA.jsx linguist-vendored
+scratch/** -linguist-detectable linguist-vendored
+ai_models/** -linguist-detectable linguist-vendored
+frontend/src/pipelineArchitecture.js -linguist-detectable linguist-vendored
+frontend/src/targetHub.js -linguist-detectable linguist-vendored
+frontend/src/components/discovery/GeneticsStudioPage.jsx -linguist-detectable linguist-vendored
+frontend/src/components/discovery/AntibodyDesignStudio.jsx -linguist-detectable linguist-vendored
+frontend/src/components/archive/** -linguist-detectable linguist-vendored
 
 # -----------------------------------------------------------------------------
 # Line Ending Normalization Across Windows & Linux POSIX

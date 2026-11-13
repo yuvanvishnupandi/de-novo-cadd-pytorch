@@ -216,3 +216,9 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Scratch and local audit logs
+scratch/
+*.pdbqt.tmp
+scratch_ligand.pdbqt
+audit_findings.json

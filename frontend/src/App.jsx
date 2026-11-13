@@ -14,9 +14,7 @@ import PreFooterMolecule from './components/discovery/PreFooterMolecule';
 import Footer from './components/discovery/Footer';
 
 // Dedicated Standalone Page Endpoints
-import PlatformPipelinePage from './components/discovery/PlatformPipelinePage';
 import LabSimulationPage from './components/discovery/LabSimulationPage';
-import GeneticsStudioPage from './components/discovery/GeneticsStudioPage';
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState('overview');
@@ -24,9 +22,7 @@ export default function App() {
 
   const resolveRoute = (input) => {
     const raw = (input || '').replace(/^#\/?/, '').replace(/^\/|\/$/g, '').toLowerCase().trim();
-    if (['platform', 'pipeline', 'de-novo-pipeline'].includes(raw)) return 'pipeline';
-    if (['lab', 'interactive-lab', 'docking', 'simulation', 'vina'].includes(raw)) return 'lab';
-    if (['genetics', 'genetic-tailoring', 'crispr', 'base-editing'].includes(raw)) return 'genetics';
+    if (['platform', 'pipeline', 'de-novo-pipeline', 'lab', 'studio', 'interactive-lab', 'docking', 'simulation', 'vina', 'genetics'].includes(raw)) return 'lab';
     if (['case-studies', 'cradle', 'cradle-engineering'].includes(raw)) return 'case-studies';
     if (['antibody', 'converge', 'converge-studio'].includes(raw)) return 'antibody';
     if (['engines', 'discovery-engines'].includes(raw)) return 'engines';
@@ -35,12 +31,12 @@ export default function App() {
   };
 
   const getActiveRouteFromWindow = () => {
-    // Check hash first (e.g. #platform, #lab, #genetics)
+    // Check hash first (e.g. #lab, #studio)
     const hashPart = window.location.hash.replace(/^#\/?/, '').toLowerCase().trim();
     if (hashPart) {
       return resolveRoute(hashPart);
     }
-    // Check pathname (e.g. /platform, /pipeline, /lab, /genetics)
+    // Check pathname (e.g. /lab, /studio)
     const pathPart = window.location.pathname.replace(/^\/|\/$/g, '').toLowerCase().trim();
     if (pathPart) {
       return resolveRoute(pathPart);
@@ -52,11 +48,10 @@ export default function App() {
   useEffect(() => {
     const syncRoute = () => {
       const route = getActiveRouteFromWindow();
-      if (['platform', 'pipeline', 'lab', 'genetics'].includes(route)) {
-        setCurrentPage(route === 'platform' ? 'pipeline' : route);
-        // Ensure the URL is clean: root path + canonical hash, e.g. /#pipeline
-        const canonicalUrl = `/#${route === 'platform' ? 'pipeline' : route}`;
-        if (window.location.pathname !== '/' || window.location.hash !== `#${route}`) {
+      if (['lab', 'pipeline', 'platform', 'genetics'].includes(route)) {
+        setCurrentPage('lab');
+        const canonicalUrl = `/#lab`;
+        if (window.location.pathname !== '/' || (window.location.hash !== '#lab' && window.location.hash !== '#studio')) {
           window.history.replaceState(null, '', canonicalUrl);
         }
       } else if (route === 'case-studies') {
@@ -97,10 +92,9 @@ export default function App() {
   const navigateTo = (pageKey) => {
     const route = resolveRoute(pageKey);
 
-    if (['platform', 'pipeline', 'lab', 'genetics'].includes(route)) {
-      const canonicalRoute = route === 'platform' ? 'pipeline' : route;
-      setCurrentPage(canonicalRoute);
-      window.history.pushState(null, '', `/#${canonicalRoute}`);
+    if (route === 'lab' || route === 'pipeline' || route === 'platform' || route === 'genetics') {
+      setCurrentPage('lab');
+      window.history.pushState(null, '', `/#lab`);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } else if (route === 'case-studies') {
       setCurrentPage('overview');
@@ -173,21 +167,9 @@ export default function App() {
       />
 
       {/* Conditional Multi-Page View Rendering */}
-      {(currentPage === 'platform' || currentPage === 'pipeline') && (
-        <main className="w-full flex-1">
-          <PlatformPipelinePage onNavigate={navigateTo} />
-        </main>
-      )}
-
       {currentPage === 'lab' && (
         <main className="w-full flex-1">
           <LabSimulationPage onNavigate={navigateTo} />
-        </main>
-      )}
-
-      {currentPage === 'genetics' && (
-        <main className="w-full flex-1">
-          <GeneticsStudioPage onNavigate={navigateTo} />
         </main>
       )}
 

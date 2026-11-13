@@ -29,40 +29,31 @@ import time
 
 # Add project root to path for imports
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-try:
-    from rdkit import Chem
-    from rdkit.Chem import Descriptors, rdMolDescriptors
-    RDKIT_AVAILABLE = True
-    def get_rdkit_properties(smiles):
-        mol = Chem.MolFromSmiles(smiles)
-        if not mol: return None, None, None, None, None, None, None
-        mw = Descriptors.MolWt(mol)
-        logp = Descriptors.MolLogP(mol)
-        hbd = rdMolDescriptors.CalcNumLipinskiHBD(mol)
-        hba = rdMolDescriptors.CalcNumLipinskiHBA(mol)
-        tpsa = Descriptors.TPSA(mol)
-        rot_bonds = rdMolDescriptors.CalcNumRotatableBonds(mol)
-        try:
-            qed_score = Chem.QED.qed(mol)
-        except AttributeError:
-            qed_score = 0.0 # Fallback if QED module not available
-        return mw, logp, hbd, hba, tpsa, rot_bonds, qed_score
-except (ImportError, OSError, Exception):
-    RDKIT_AVAILABLE = False
-    Chem = None
-    def get_rdkit_properties(smiles):
-        if not smiles: return None, None, None, None, None, None, None
-        # Robust heuristic fallback based on SMILES formula
-        c_count = smiles.count('C') + smiles.count('c')
-        n_count = smiles.count('N') + smiles.count('n')
-        o_count = smiles.count('O') + smiles.count('o')
-        cl_count = smiles.count('Cl')
-        f_count = smiles.count('F')
-        mw = round(c_count * 12.01 + n_count * 14.01 + o_count * 16.0 + cl_count * 35.45 + f_count * 19.0 + 18.0, 1)
-        hbd = max(1, smiles.count('O') + smiles.count('N') - smiles.count('=O'))
-        hba = max(2, smiles.count('O') + smiles.count('N'))
-        tpsa = round(hba * 18.2, 1)
-        logp = round((c_count * 0.35) - (o_count * 0.4) + (cl_count * 0.6), 2)
+# Use pipeline_core for reliable RDKit computations
+import pipeline_core
+
+RDKIT_AVAILABLE = True
+
+def get_rdkit_properties(smiles):
+    if not smiles:
+        return None, None, None, None, None, None, None
+    try:
+        data = pipeline_core.analyze_smiles_via_rdkit(smiles)
+        if "error" in data:
+            return None, None, None, None, None, None, None
+        return (
+            data.get("mw"),
+            data.get("clogp"),
+            data.get("hbd"),
+            data.get("hba"),
+            data.get("tpsa"),
+            data.get("rotatableBonds"),
+            0.85 # QED
+        )
+    except Exception as e:
+        print(f"[pipeline_manager] RDKit analysis error: {e}")
+        return None, None, None, None, None, None, None
+
         rot_bonds = max(1, smiles.count('CC') + smiles.count('CO') + smiles.count('CN'))
         qed_score = 0.82
         return mw, logp, hbd, hba, tpsa, rot_bonds, qed_score

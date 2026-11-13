@@ -56,15 +56,15 @@ export default function HeroSection({ onLaunchLab, onAcademicSignup }) {
                 onClick={onLaunchLab}
                 className="inline-flex items-center justify-center rounded bg-white text-black hover:bg-[#e8e5e0] h-11 px-6 text-[15px] font-semibold transition-all shadow-xl hover:scale-[1.02] active:scale-[0.98] cursor-pointer gap-2 font-sans"
               >
-                <span>Launch 3D Biophysics Lab</span>
+                <span>Launch Molecular Discovery Studio</span>
                 <span className="text-xs">→</span>
               </button>
 
               <button
-                onClick={onAcademicSignup}
+                onClick={onLaunchLab}
                 className="inline-flex items-center justify-center rounded border border-white/40 bg-transparent text-white hover:border-white/70 hover:bg-white/5 h-11 px-6 text-[15px] font-medium transition-all cursor-pointer font-sans"
               >
-                Explore De Novo Pipeline
+                AutoDock Vina &amp; PyMOL Workbench
               </button>
             </div>
 

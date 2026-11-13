@@ -98,25 +98,11 @@ export default function Navbar({ onNavigate, activeTab = 'overview' }) {
             {openDropdown === 'platform' && (
               <div className="absolute top-full left-0 mt-2 w-80 bg-[#1e1d1b] border border-[#363534] rounded-lg shadow-2xl p-3 space-y-1.5 z-50 animate-fadeIn">
                 <button
-                  onClick={() => handlePageSelect('pipeline')}
-                  className="block w-full text-left p-2.5 rounded hover:bg-white/5 transition-colors cursor-pointer"
-                >
-                  <div className="font-medium text-white text-xs">Pipeline &amp; De Novo Discovery</div>
-                  <div className="text-[11px] text-neutral-400">5-stage Cryo-EM and SE(3) diffusion pipeline with 3D macromolecule</div>
-                </button>
-                <button
                   onClick={() => handlePageSelect('lab')}
                   className="block w-full text-left p-2.5 rounded hover:bg-white/5 transition-colors cursor-pointer"
                 >
-                  <div className="font-medium text-white text-xs">AutoDock Vina 3D Simulation</div>
-                  <div className="text-[11px] text-neutral-400">Real-time force fields, PDB coordinates &amp; binding affinity</div>
-                </button>
-                <button
-                  onClick={() => handlePageSelect('genetics')}
-                  className="block w-full text-left p-2.5 rounded hover:bg-white/5 transition-colors cursor-pointer"
-                >
-                  <div className="font-medium text-white text-xs">Genomic &amp; Base Editing Studio</div>
-                  <div className="text-[11px] text-neutral-400">Base-editor loci, PAM scanning &amp; CFD specificity scoring</div>
+                  <div className="font-medium text-white text-xs">3D Molecular Biophysics Studio</div>
+                  <div className="text-[11px] text-neutral-400">AutoDock Vina v1.2.5 · PyMOL 3D WebGL · De Novo MPO Chemistry</div>
                 </button>
                 <button
                   onClick={() => handlePageSelect('antibody')}
@@ -136,34 +122,14 @@ export default function Navbar({ onNavigate, activeTab = 'overview' }) {
             )}
           </div>
 
-          {/* Pipeline Direct Page Link */}
-          <button
-            onClick={() => handlePageSelect('pipeline')}
-            className={`py-2 transition-colors duration-150 hover:text-white cursor-pointer ${
-              activeTab === 'platform' || activeTab === 'pipeline' ? 'text-white font-semibold' : 'text-[#d4d4d4]'
-            }`}
-          >
-            Pipeline
-          </button>
-
-          {/* Interactive Lab Link */}
+          {/* 3D Molecular Biophysics Studio Link */}
           <button
             onClick={() => handlePageSelect('lab')}
             className={`py-2 transition-colors duration-150 hover:text-white cursor-pointer ${
-              activeTab === 'lab' ? 'text-white font-semibold' : 'text-[#d4d4d4]'
+              activeTab === 'lab' || activeTab === 'studio' ? 'text-white font-semibold' : 'text-[#d4d4d4]'
             }`}
           >
-            3D Biophysics Lab
-          </button>
-
-          {/* Genetics Studio Link */}
-          <button
-            onClick={() => handlePageSelect('genetics')}
-            className={`py-2 transition-colors duration-150 hover:text-white cursor-pointer ${
-              activeTab === 'genetics' ? 'text-white font-semibold' : 'text-[#d4d4d4]'
-            }`}
-          >
-            Genetics Studio
+            3D Molecular Biophysics Studio
           </button>
 
           {/* Case Studies Link */}
@@ -180,24 +146,17 @@ export default function Navbar({ onNavigate, activeTab = 'overview' }) {
         {/* Right CTA Actions */}
         <div className="hidden md:flex items-center gap-5">
           <button
-            onClick={() => handlePageSelect('pipeline')}
+            onClick={() => handlePageSelect('lab')}
             className="text-[14px] text-neutral-300 hover:text-white transition-colors cursor-pointer"
           >
-            Architecture
-          </button>
-
-          <button
-            onClick={() => handlePageSelect('pipeline')}
-            className="text-[14px] text-neutral-300 hover:text-white transition-colors cursor-pointer"
-          >
-            Specifications
+            Workbench
           </button>
 
           <button
             onClick={() => handlePageSelect('lab')}
             className="rounded bg-white px-5 py-2 text-[14px] font-sans font-medium text-neutral-900 transition-all hover:bg-neutral-100 shadow-sm cursor-pointer hover:scale-[1.02] active:scale-[0.98]"
           >
-            Launch Workbench
+            Launch Studio
           </button>
         </div>
 
@@ -232,22 +191,10 @@ export default function Navbar({ onNavigate, activeTab = 'overview' }) {
             Overview
           </button>
           <button
-            onClick={() => handlePageSelect('platform')}
-            className="block w-full text-left text-base text-neutral-200 py-2 border-b border-neutral-800"
-          >
-            Pipeline &amp; De Novo Discovery
-          </button>
-          <button
             onClick={() => handlePageSelect('lab')}
-            className="block w-full text-left text-base text-neutral-200 py-2 border-b border-neutral-800"
+            className="block w-full text-left text-base text-white font-medium py-2 border-b border-neutral-800"
           >
-            3D Biophysics Lab
-          </button>
-          <button
-            onClick={() => handlePageSelect('genetics')}
-            className="block w-full text-left text-base text-neutral-200 py-2 border-b border-neutral-800"
-          >
-            Genetics Studio
+            Molecular Discovery Studio
           </button>
           <button
             onClick={() => handlePageSelect('antibody')}

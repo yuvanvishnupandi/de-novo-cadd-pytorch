@@ -56,22 +56,16 @@ export default function Footer({ onNavigate }) {
                 <span>Overview &amp; Architecture</span>
               </button>
               <button
-                onClick={() => handleNav('pipeline')}
-                className="text-left hover:text-[#f8a881] transition-colors cursor-pointer flex items-center gap-2"
-              >
-                <span>5-Stage De Novo Discovery Pipeline</span>
-              </button>
-              <button
                 onClick={() => handleNav('lab')}
                 className="text-left hover:text-[#f8a881] transition-colors cursor-pointer flex items-center gap-2"
               >
-                <span>AutoDock Vina 3D Biophysics Lab</span>
+                <span>Molecular Discovery Studio (AutoDock Vina &amp; PyMOL)</span>
               </button>
               <button
-                onClick={() => handleNav('genetics')}
+                onClick={() => handleNav('antibody')}
                 className="text-left hover:text-[#f8a881] transition-colors cursor-pointer flex items-center gap-2"
               >
-                <span>Deterministic Genetics &amp; Base Editing Studio</span>
+                <span>Antibody Design Studio &amp; CDR Optimizer</span>
               </button>
               <button
                 onClick={() => handleNav('case-studies')}

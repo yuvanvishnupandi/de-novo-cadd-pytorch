@@ -34,9 +34,9 @@ export default function CoreCapabilities({ onSelectFeature }) {
       num: '0 3',
       title: 'Physics-based molecular modeling & docking',
       subtitle: 'Deterministic AutoDock Vina force-fields & energetics',
-      desc: 'Generative chemistry is coupled directly to biophysical force-fields. EUREKA integrates deep generative molecular design with AutoDock Vina 3D grid force fields, calculating spatial binding poses, Ramachandran compliance, and exact thermodynamic binding free energies (ΔG = -9.84 kcal/mol, Ki = 58.4 nM) against validated catalytic target pockets.',
+      desc: 'Generative chemistry is coupled directly to biophysical force-fields. EUREKA integrates deep generative molecular design with AutoDock Vina 3D grid force fields, calculating spatial binding poses, Ramachandran compliance, and exact thermodynamic binding free energies (ΔG, Ki) against validated catalytic target pockets.',
       video: '/videos/use-cases/science-green-halftone.mp4',
-      stats: 'AutoDock Vina · LGA Search · Grid Force-Fields'
+      stats: 'AutoDock Vina · Monte Carlo / BFGS · Grid Force-Fields'
     },
     {
       num: '0 4',

@@ -134,7 +134,7 @@ export default function ProvenanceInspectorModal({ isOpen, onClose, activeTarget
                 <tbody className="divide-y divide-neutral-800 text-neutral-300">
                   <tr>
                     <td className="p-2">Ligand Docking & Free Energy (ΔG)</td>
-                    <td className="p-2 text-emerald-400">AutoDock Vina LGA Binary</td>
+                    <td className="p-2 text-emerald-400">AutoDock Vina Binary (ILS/BFGS)</td>
                     <td className="p-2">v1.2.7</td>
                     <td className="p-2"><span className="bg-emerald-950 text-emerald-400 px-1.5 py-0.5 rounded text-[10px]">COMPUTED</span></td>
                   </tr>

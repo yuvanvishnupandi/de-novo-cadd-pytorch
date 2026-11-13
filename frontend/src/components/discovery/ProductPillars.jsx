@@ -62,7 +62,7 @@ export default function ProductPillars({ onExplorePlatform }) {
               METHODOLOGY &amp; FORCE FIELDS
             </div>
             <p className="text-sm text-neutral-300 leading-relaxed font-light">
-              Couples Lamarckian Genetic Algorithm (LGA) global search with empirical scoring functions to calculate thermodynamic binding affinities (ΔG, Ki) and steric pocket compliance against validated PDB targets.
+              Couples AutoDock Vina Iterated Local Search (ILS/BFGS) global search with empirical scoring functions to calculate thermodynamic binding affinities (ΔG, Ki) and steric pocket compliance against validated PDB targets.
             </p>
           </div>
 

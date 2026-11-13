@@ -6,7 +6,7 @@ import React, { useState } from 'react';
  * 1. EUREKA Sequence & Generative Biology Suite (Antibody Design, Codon Optimization, Multi-Tissue Regulation)
  * 2. EUREKA Multi-Omics & De Novo Chemistry Suite (Target Prioritization, Pocket Generative Chemistry, ADMET)
  * 3. EUREKA High-Throughput Cellular Phenomics Suite (Phenomics, High-Content Cellular Imaging, Closed-Loop Lab)
- * 4. EUREKA Macromolecular Biophysics Suite (Multimodal Co-Folding, Allosteric Pockets, AutoDock Vina LGA)
+ * 4. EUREKA Macromolecular Biophysics Suite (Multimodal Co-Folding, Allosteric Pockets, AutoDock Vina v1.2.7)
  *
  * PURE IN-SILICO METHODOLOGIES (COMPREHENSIVE OPEN RESEARCH ARCHITECTURE)
  */
@@ -126,13 +126,13 @@ const ENGINES = [
       },
       {
         title: 'AutoDock Vina Grid Coupling',
-        desc: 'Direct integration with AutoDock Vina v1.2.5 Lamarckian Genetic Algorithm (LGA) force fields to validate free energy of binding (ΔG) across computed crystal geometries.'
+        desc: 'Direct integration with AutoDock Vina v1.2.7 Iterated Local Search (ILS/BFGS) force fields to validate free energy of binding (ΔG) across computed crystal geometries.'
       }
     ],
     metrics: [
       { label: 'Coordinate Precision', val: '< 1.2 Å Backbone RMSD' },
       { label: 'Target Modalities', val: 'Protein · Nucleic Acid · Ligand' },
-      { label: 'Force Field Core', val: 'Vina LGA + Empirical Grid' },
+      { label: 'Force Field Core', val: 'Vina v1.2.7 + Empirical Grid' },
       { label: 'Structural Source', val: 'Primary PDB Coordinates' }
     ]
   }

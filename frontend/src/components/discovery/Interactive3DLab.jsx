@@ -94,21 +94,38 @@ const SAMPLE_BENCHMARKS = [
   }
 ];
 
-const renderSkeletalDiagram = (target, smiles, activeLead) => {
-  if (activeLead && activeLead.svg) {
+const renderSkeletalDiagram = (target, smiles, activeLead, dynamicSvg, dynamicError, isSvgLoading) => {
+  const svgContent = activeLead?.svg || dynamicSvg;
+  if (isSvgLoading) {
+    return (
+      <div className="w-full h-full flex flex-col items-center justify-center text-center p-3 font-mono">
+        <div className="h-4 w-4 border-2 border-emerald-400 border-t-transparent rounded-full animate-spin mb-2" />
+        <div className="text-[11px] text-emerald-400 font-bold">Rendering RDKit 2D Structure...</div>
+        <div className="text-[9px] text-neutral-500 mt-1">[Auto-computing vector coordinates]</div>
+      </div>
+    );
+  }
+  if (dynamicError) {
+    return (
+      <div className="w-full h-full flex flex-col items-center justify-center text-center p-3 font-mono text-rose-400">
+        <div className="text-[11px] font-bold mb-1">RDKit SMILES Parse Error</div>
+        <div className="text-[10px] text-rose-300/80 px-2 break-all">{dynamicError}</div>
+      </div>
+    );
+  }
+  if (svgContent) {
     return (
       <div 
-        className="w-full h-full flex items-center justify-center [&>svg]:max-h-full [&>svg]:max-w-full"
-        dangerouslySetInnerHTML={{ __html: activeLead.svg }}
+        className="w-full h-full flex items-center justify-center p-2 [&>svg]:max-h-full [&>svg]:max-w-full [&>svg]:w-auto [&>svg]:h-auto"
+        dangerouslySetInnerHTML={{ __html: svgContent }}
       />
     );
   }
-  const smi = smiles || activeLead?.smiles || target?.smiles || '';
   return (
-    <div className="w-full h-full flex flex-col items-center justify-center text-center p-3 font-mono">
-      <div className="text-[11px] text-emerald-400 font-bold mb-1">2D Chemical Representation</div>
-      <div className="text-[10px] text-neutral-400 truncate max-w-full px-2">{smi || 'No ligand loaded'}</div>
-      <div className="text-[9px] text-neutral-500 mt-1">[Computed via RDKit WASM]</div>
+    <div className="w-full h-full flex flex-col items-center justify-center text-center p-4 font-mono text-neutral-500">
+      <div className="text-[11px] text-neutral-400 font-semibold mb-1">No Ligand Loaded</div>
+      <div className="text-[10px] text-neutral-500">Supply a valid SMILES string or load a candidate molecule to render publication-grade 2D vector geometry.</div>
+      <div className="text-[9px] text-neutral-600 mt-2">[Powered by RDKit WASM · 0 Presets]</div>
     </div>
   );
 };
@@ -209,6 +226,12 @@ function Interactive3DLabContent() {
   const [dynamicLigandBonds, setDynamicLigandBonds] = useState(null);
   const [dynamicFormula, setDynamicFormula] = useState(null);
   const [dynamicDescriptors, setDynamicDescriptors] = useState(null);
+  const [dynamicSvg, setDynamicSvg] = useState(null);
+  const [dynamicError, setDynamicError] = useState(null);
+  const [isSvgLoading, setIsSvgLoading] = useState(false);
+  const [bioisostereEligibility, setBioisostereEligibility] = useState(null);
+  const [candidateSummary, setCandidateSummary] = useState(null);
+  const [rejectedLeads, setRejectedLeads] = useState([]);
 
   const [showRejectedCandidates, setShowRejectedCandidates] = useState(false);
   const [isGeneratingLeads, setIsGeneratingLeads] = useState(false);
@@ -226,7 +249,7 @@ function Interactive3DLabContent() {
   const [isPlaygroundModalOpen, setIsPlaygroundModalOpen] = useState(false);
   const [isValidationModalOpen, setIsValidationModalOpen] = useState(false);
   const [playgroundPdbInput, setPlaygroundPdbInput] = useState('6LU7');
-  const [playgroundSmilesInput, setPlaygroundSmilesInput] = useState('CC(=O)Oc1ccccc1C(=O)O');
+  const [playgroundSmilesInput, setPlaygroundSmilesInput] = useState('');
   const [playgroundRunning, setPlaygroundRunning] = useState(false);
   const [playgroundProgress, setPlaygroundProgress] = useState(0);
   const [playgroundModes, setPlaygroundModes] = useState([]);
@@ -246,32 +269,97 @@ function Interactive3DLabContent() {
   const currentLead = activeCandidateLead || (selectedTarget ? {
     id: selectedTarget.pdbId || 'active-ligand',
     name: selectedTarget.name || 'Active Lead Scaffold',
-    formula: dynamicFormula || 'Derived from SMILES',
-    smiles: smilesInput || selectedTarget.smiles || '',
-    mw: dynamicDescriptors?.mw || 'Computed',
-    logp: dynamicDescriptors?.logp || 'Computed',
-    hbd: dynamicDescriptors?.hbd || 1,
-    hba: dynamicDescriptors?.hba || 5,
-    tpsa: dynamicDescriptors?.tpsa || 60.0,
-    qed: 0.85,
-    deltaG: computedAffinity || -8.5,
-    ki: computedKi || 'N/A',
-    svg: null
-  } : {
-    id: 'placeholder',
-    name: 'No Target Selected',
-    formula: 'N/A',
+    formula: dynamicFormula || (smilesInput ? 'Calculating...' : '—'),
     smiles: smilesInput || '',
-    mw: 'N/A',
-    logp: 'N/A',
-    hbd: 0,
-    hba: 0,
-    tpsa: 'N/A',
-    qed: 0,
-    deltaG: 'N/A',
-    ki: 'N/A',
-    svg: null
+    mw: dynamicDescriptors?.mw ?? (smilesInput ? 'Calculating...' : '—'),
+    logp: dynamicDescriptors?.logp ?? (smilesInput ? 'Calculating...' : '—'),
+    hbd: dynamicDescriptors?.hbd ?? (smilesInput ? 0 : '—'),
+    hba: dynamicDescriptors?.hba ?? (smilesInput ? 0 : '—'),
+    tpsa: dynamicDescriptors?.tpsa ?? (smilesInput ? 'Calculating...' : '—'),
+    rotatableBonds: dynamicDescriptors?.rotatableBonds ?? (smilesInput ? 0 : '—'),
+    heavyAtoms: dynamicDescriptors?.heavyAtoms ?? (smilesInput ? 0 : '—'),
+    qed: dynamicDescriptors?.qed ?? (smilesInput ? 0.75 : '—'),
+    deltaG: computedAffinity !== null ? computedAffinity : (selectedTarget.standard_delta_g || -8.5),
+    ki: computedKi || '—',
+    svg: dynamicSvg || null
+  } : {
+    id: 'empty-state',
+    name: 'No Target Selected',
+    formula: dynamicFormula || (smilesInput ? 'Calculating...' : '—'),
+    smiles: smilesInput || '',
+    mw: dynamicDescriptors?.mw ?? '—',
+    logp: dynamicDescriptors?.logp ?? '—',
+    hbd: dynamicDescriptors?.hbd ?? '—',
+    hba: dynamicDescriptors?.hba ?? '—',
+    tpsa: dynamicDescriptors?.tpsa ?? '—',
+    rotatableBonds: dynamicDescriptors?.rotatableBonds ?? '—',
+    heavyAtoms: dynamicDescriptors?.heavyAtoms ?? '—',
+    qed: dynamicDescriptors?.qed ?? '—',
+    deltaG: computedAffinity !== null ? computedAffinity : '—',
+    ki: computedKi || '—',
+    svg: dynamicSvg || null
   });
+
+  // Dynamic RDKit property fetching & 2D SVG generation
+  useEffect(() => {
+    if (!smilesInput || !smilesInput.trim()) {
+      setDynamicSvg(null);
+      setDynamicFormula(null);
+      setDynamicDescriptors(null);
+      setDynamicError(null);
+      setBioisostereEligibility(null);
+      return;
+    }
+    let isMounted = true;
+    setIsSvgLoading(true);
+    setDynamicError(null);
+
+    const timer = setTimeout(() => {
+      fetch('/api/properties', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ smiles: smilesInput.trim() })
+      })
+        .then(async (r) => {
+          if (!r.ok) {
+            const errJson = await r.json().catch(() => ({}));
+            throw new Error(errJson.detail || `HTTP ${r.status}`);
+          }
+          return r.json();
+        })
+        .then((data) => {
+          if (!isMounted) return;
+          setDynamicSvg(data.svg || null);
+          setDynamicFormula(data.formula || data.chemical_formula || null);
+          setDynamicDescriptors({
+            mw: data.molecular_weight ?? data.mw,
+            logp: data.logp,
+            tpsa: data.tpsa,
+            hbd: data.h_bond_donors ?? data.hbd,
+            hba: data.h_bond_acceptors ?? data.hba,
+            rotatableBonds: data.rot_bonds ?? data.rotatable_bonds,
+            heavyAtoms: data.heavy_atoms,
+            qed: data.qed
+          });
+          setBioisostereEligibility(data.bioisostere_eligibility || null);
+          setIsSvgLoading(false);
+        })
+        .catch((err) => {
+          if (!isMounted) return;
+          setDynamicSvg(null);
+          setDynamicFormula(null);
+          setDynamicDescriptors(null);
+          setDynamicError(err.message);
+          setBioisostereEligibility(null);
+          setIsSvgLoading(false);
+        });
+    }, 200);
+
+    return () => {
+      isMounted = false;
+      clearTimeout(timer);
+    };
+  }, [smilesInput]);
 
   // Hidden File Input References
   const pdbFileInputRef = useRef(null);
@@ -325,7 +413,7 @@ function Interactive3DLabContent() {
   // Update target when user clicks a different target or uploads one
   useEffect(() => {
     if (!selectedTarget) return;
-    setSmilesInput(selectedTarget.smiles || 'CC(=O)Oc1ccccc1C(=O)O');
+    setSmilesInput(selectedTarget.smiles || '');
     setCustomFastaInput(selectedTarget.fastaSnippet || '');
     setFastaTelemetry(null);
     setDockingPhase('before');
@@ -333,7 +421,7 @@ function Interactive3DLabContent() {
     setActiveCandidateLead(null);
     setActiveBioisostere(null);
     setPlaygroundPdbInput(selectedTarget.pdbId);
-    setPlaygroundSmilesInput(selectedTarget.smiles || 'CC(=O)Oc1ccccc1C(=O)O');
+    setPlaygroundSmilesInput(selectedTarget.smiles || '');
     setComputedAffinity(null);
     setComputedKi(null);
     setNativeRedockResult(null);
@@ -448,7 +536,8 @@ function Interactive3DLabContent() {
         fileContent: data.pdb_text || data.clean_pdb_text || null,
         sequence: data.sequence || null,
         pocketResidues: rawRes,
-        smiles: (data.co_crystal_ligands?.[0] ? 'COc1cc2ncnc(Nc3ccc(F)c(Cl)c3)c2cc1OCCCN1CCOCC1' : 'CC(=O)Oc1ccccc1C(=O)O'),
+        catalyticVerification: data.catalytic_verification || null,
+        smiles: (data.co_crystal_ligands?.[0]?.smiles || data.co_crystal_ligand?.smiles || ''),
         provenance: data.provenance || 'ESMFold In-Silico 3D Structure & Geometric Cavity Detector'
       };
       setSelectedTarget(newTarget);
@@ -459,11 +548,14 @@ function Interactive3DLabContent() {
       setComputedKi(null);
       setNativeRedockResult(null);
       setDeNovoLeads([]);
+      setRejectedLeads([]);
+      setCandidateSummary(null);
       setLandingError('');
       setSimulationLogs(prev => [
         ...prev,
         `[STRUCTURE_LOADED] ${newTarget.pdbId} (${newTarget.residues} residues, ${newTarget.resolution})`,
         `[CENTROID] Pocket centroid: [${safeCentroid.x}, ${safeCentroid.y}, ${safeCentroid.z}] Å`,
+        ...(data.catalytic_verification?.status ? [`[CATALYTIC_AUDIT] ${data.catalytic_verification.status}`] : []),
         `[PROVENANCE] ${newTarget.provenance}`
       ]);
     } catch (err) {
@@ -532,7 +624,7 @@ function Interactive3DLabContent() {
     setSelectedTarget(t);
     setActiveCandidateLead(null);
     setActiveDockedLeadId(null);
-    setSmilesInput(t.smiles || 'CC(=O)Oc1ccccc1C(=O)O');
+    setSmilesInput(t.smiles || '');
     setGridCenter(t.gridCenter);
     setGridBoxSize(t.gridSize?.x || 22);
     setComputedAffinity(null);
@@ -595,6 +687,13 @@ function Interactive3DLabContent() {
           addLog(`         ↳ Tool: ${st.tool} [${st.status}]`);
           addLog(`         ↳ Details: ${st.details}`);
           await new Promise(r => setTimeout(r, 620));
+        }
+
+        if (data.summary) {
+          setCandidateSummary(data.summary);
+        }
+        if (data.rejected_candidates) {
+          setRejectedLeads(data.rejected_candidates);
         }
 
         if (data.approved_candidates && data.approved_candidates.length > 0) {
@@ -855,7 +954,7 @@ function Interactive3DLabContent() {
             stick: { radius: 0.22, colorscheme: 'yellowCarbon' },
             sphere: { radius: 0.36, colorscheme: 'yellowCarbon' }
           });
-          // 2. Docked Vina LGA Pose in Salmon/Pink Sticks (Image 5 pose0)
+          // 2. Docked AutoDock Vina Pose in Salmon/Pink Sticks (pose0)
           viewer.addStyle({ hetflag: true, not: { resn: nonSolvents } }, {
             stick: { radius: 0.28, color: '#fb7185' },
             sphere: { radius: 0.42, color: '#fb7185' }
@@ -990,116 +1089,8 @@ function Interactive3DLabContent() {
     };
   }, [workflowStep, viewRenderMode]);
 
-  // 2D Interaction Map Canvas Rendering (Active when viewRenderMode === '2d_interaction')
-  useEffect(() => {
-    if (workflowStep !== 'ready') return;
-    if (viewRenderMode !== '2d_interaction') return;
-
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    const render = () => {
-      const dpr = window.devicePixelRatio || 1;
-      const width = canvas.clientWidth || 640;
-      const height = canvas.clientHeight || 480;
-
-      if (canvas.width !== Math.round(width * dpr) || canvas.height !== Math.round(height * dpr)) {
-        canvas.width = Math.round(width * dpr);
-        canvas.height = Math.round(height * dpr);
-      }
-
-      ctx.save();
-      ctx.scale(dpr, dpr);
-      ctx.clearRect(0, 0, width, height);
-
-      const cx = width / 2;
-      const cy = height / 2;
-      const isMpro = selectedTarget?.pdbId === '6LU7' || selectedTarget?.name?.includes('SARS-CoV-2');
-
-      // Solvation boundary ellipse
-      ctx.beginPath();
-      ctx.ellipse(cx, cy, 145 * zoomLevel, 105 * zoomLevel, 0.12, 0, Math.PI * 2);
-      ctx.strokeStyle = 'rgba(16, 185, 129, 0.4)';
-      ctx.lineWidth = 2;
-      ctx.stroke();
-      ctx.fillStyle = 'rgba(16, 185, 129, 0.04)';
-      ctx.fill();
-
-      ctx.save();
-      ctx.translate(cx, cy);
-      ctx.scale(zoomLevel, zoomLevel);
-
-      if (isMpro) {
-        ctx.beginPath();
-        ctx.moveTo(-50, 0); ctx.lineTo(-20, -25); ctx.lineTo(20, -15);
-        ctx.lineTo(20, 25); ctx.lineTo(-20, 25); ctx.closePath();
-        ctx.strokeStyle = '#10b981'; ctx.lineWidth = 3; ctx.stroke();
-        ctx.fillStyle = '#38bdf8'; ctx.font = 'bold 11px sans-serif';
-        ctx.fillText('NH', -20, 0); ctx.fillText('t-Bu', 45, -15);
-        ctx.fillStyle = '#ef4444'; ctx.fillText('=O', -25, -35); ctx.fillText('=O', 25, 40);
-        ctx.fillStyle = '#06b6d4'; ctx.fillText('C≡N', -75, 5);
-      } else {
-        ctx.beginPath();
-        const coreRing = [
-          { x: -55, y: -26 }, { x: -20, y: -46 }, { x: 15, y: -26 },
-          { x: 15, y: 26 }, { x: -20, y: 46 }, { x: -55, y: 26 }
-        ];
-        coreRing.forEach((p, i) => {
-          if (i === 0) ctx.moveTo(p.x, p.y);
-          else ctx.lineTo(p.x, p.y);
-        });
-        ctx.closePath();
-        ctx.strokeStyle = '#10b981'; ctx.lineWidth = 3; ctx.stroke();
-        ctx.fillStyle = '#38bdf8'; ctx.font = 'bold 12px sans-serif';
-        ctx.fillText('N', 20, -18); ctx.fillText('N', 20, 26);
-        ctx.fillStyle = '#f8fafc'; ctx.fillText('NH', 55, 4);
-        ctx.fillStyle = '#a3e635'; ctx.fillText('Cl', 115, 5);
-      }
-
-      ctx.restore();
-      ctx.restore();
-      animFrameRef.current = requestAnimationFrame(render);
-    };
-
-    render();
-    return () => {
-      if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
-    };
-  }, [workflowStep, viewRenderMode, zoomLevel, selectedTarget]);
-
-  // Mouse drag handlers for 2D interaction canvas
-  const handleMouseDown = (e) => {
-    isDraggingRef.current = true;
-    lastMousePos.current = { x: e.clientX, y: e.clientY };
-  };
-
-  const handleMouseMove = (e) => {
-    if (!isDraggingRef.current) return;
-    const dx = e.clientX - lastMousePos.current.x;
-    const dy = e.clientY - lastMousePos.current.y;
-    lastMousePos.current = { x: e.clientX, y: e.clientY };
-    rotRef.current.y += dx * 0.008;
-    rotRef.current.x = Math.max(-1.2, Math.min(1.2, rotRef.current.x + dy * 0.008));
-  };
-
-  const handleMouseUp = () => {
-    isDraggingRef.current = false;
-  };
-
-  // Wheel zoom handler for 2D canvas
-  useEffect(() => {
-    if (viewRenderMode !== '2d_interaction') return;
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const onWheel = (e) => {
-      e.preventDefault();
-      setZoomLevel((prev) => Math.max(0.6, Math.min(2.0, prev - e.deltaY * 0.001)));
-    };
-    canvas.addEventListener('wheel', onWheel, { passive: false });
-    return () => canvas.removeEventListener('wheel', onWheel);
-  }, [workflowStep, viewRenderMode]);
+  // 2D Interaction mode is handled directly by InteractionNetworkViewer component
+  // which renders real 5.0 Å active-site residues and contacts without synthetic sketches.
 
   const executeDocking = async () => {
     if (!selectedTarget) return;
@@ -1361,7 +1352,7 @@ function Interactive3DLabContent() {
         body: JSON.stringify({
           target_pdb: selectedTarget?.pdbId || 'CUSTOM',
           lead_name: currentLead?.name || 'Preclinical Lead Candidate',
-          lead_smiles: smilesInput || currentLead?.smiles || 'CC(=O)Oc1ccccc1C(=O)O',
+          lead_smiles: smilesInput || currentLead?.smiles || '',
           affinity_kcal_mol: typeof aff === 'number' ? aff : -8.5,
           ki_nm: String(ki),
           mw: typeof currentLead?.mw === 'number' ? currentLead.mw : 450.0,
@@ -1450,6 +1441,12 @@ function Interactive3DLabContent() {
         throw new Error(err.detail || 'Candidate generation failed');
       }
       const data = await res.json();
+      if (data && data.summary) {
+        setCandidateSummary(data.summary);
+      }
+      if (data && data.rejected_candidates) {
+        setRejectedLeads(data.rejected_candidates);
+      }
       if (data && data.candidates && data.candidates.length > 0) {
         const formatted = data.candidates.map(c => ({
           id: c.candidate_id,
@@ -1746,7 +1743,7 @@ function Interactive3DLabContent() {
             </div>
             <div className="flex items-center gap-2 text-neutral-400">
               <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span>PID: 19842 · CLUSTER NODE 01 (16 LGA CORES)</span>
+              <span>AutoDock Vina v1.2.7 (ILS / BFGS)</span>
             </div>
           </div>
 
@@ -1816,15 +1813,13 @@ function Interactive3DLabContent() {
             </div>
 
             {/* Terminal Footer Status Bar */}
-            <div className="bg-[#121110] px-6 py-2.5 border-t border-[#242322] flex flex-wrap items-center justify-between text-[11px] text-neutral-400">
-              <div className="flex items-center gap-3">
-                <span className="text-emerald-400">● 16 Workers Online</span>
-                <span className="text-neutral-600">|</span>
-                <span>Memory: 1.42 GB / 32 GB</span>
-                <span className="text-neutral-600">|</span>
-                <span>OpenMP Parallelism: Enabled</span>
+            <div className="bg-[#121110] px-6 py-2.5 border-t border-[#242322] flex flex-wrap items-center justify-between text-[11px] text-neutral-400 font-mono">
+              <div className="flex items-center gap-2 text-neutral-400">
+                <span className="text-emerald-400">● Pipeline Active</span>
+                <span className="text-neutral-600">·</span>
+                <span>AutoDock Vina v1.2.7 Binary</span>
               </div>
-              <div className="text-neutral-500 font-mono">
+              <div className="text-neutral-500">
                 Press Esc or wait for automatic studio transition
               </div>
             </div>
@@ -2102,7 +2097,7 @@ function Interactive3DLabContent() {
                       <div className="border border-[#2e2c29] rounded p-2 bg-[#100f0e]/80 space-y-1.5">
                         <div className="text-[10px] uppercase font-bold text-neutral-300 flex items-center justify-between">
                           <span>Vina Parameters</span>
-                          <span className="text-[8px] text-emerald-400 font-normal">v1.2.7 LGA</span>
+                          <span className="text-[8px] text-emerald-400 font-normal">v1.2.7</span>
                         </div>
                         <div className="flex items-center justify-between text-[10px]">
                           <span className="text-neutral-400">exhaustiveness</span>
@@ -2212,17 +2207,17 @@ function Interactive3DLabContent() {
                     {activeDockTab === 'Job manager' && (
                       <div className="border border-[#2e2c29] rounded p-2 bg-[#100f0e]/80 space-y-2 text-[10px]">
                         <div className="uppercase font-bold text-neutral-300 flex items-center justify-between">
-                          <span>Cluster Threads</span>
+                          <span>Vina Engine</span>
                           <span className="text-emerald-400 font-bold">ONLINE</span>
                         </div>
                         <div className="text-neutral-400 space-y-1">
-                          <div className="flex justify-between"><span>Vina Binary:</span><span className="text-white">v1.2.7 LGA</span></div>
-                          <div className="flex justify-between"><span>Parallel Cores:</span><span className="text-white">16 OpenMP</span></div>
+                          <div className="flex justify-between"><span>Vina Binary:</span><span className="text-white">v1.2.7 (ILS / BFGS)</span></div>
+                          <div className="flex justify-between"><span>Sampling:</span><span className="text-white">Monte Carlo Annealing</span></div>
+                          <div className="flex justify-between"><span>Local Minimizer:</span><span className="text-white">BFGS Quasi-Newton</span></div>
                           <div className="flex justify-between"><span>Task Queue:</span><span className="text-white">0 pending</span></div>
-                          <div className="flex justify-between"><span>Memory Footprint:</span><span className="text-white">1.4 GB / 32 GB</span></div>
                         </div>
                         <div className="pt-1.5 border-t border-[#242322] text-[9px] text-neutral-500">
-                          Ready for Monte Carlo Lamarckian GA docking runs.
+                          AutoDock Vina Iterated Local Search (ILS) with BFGS optimization.
                         </div>
                       </div>
                     )}
@@ -2276,7 +2271,7 @@ function Interactive3DLabContent() {
                     {/* Status Line (Image 4) */}
                     <div className="pt-1 text-[9px] text-neutral-500 border-t border-[#2e2c29] flex items-center justify-between">
                       <span>Status:</span>
-                      <span className="text-emerald-400 font-semibold">READY // VINA LGA</span>
+                      <span className="text-emerald-400 font-semibold">READY // VINA v1.2.7</span>
                     </div>
                   </div>
                 )}
@@ -2447,7 +2442,7 @@ function Interactive3DLabContent() {
                         </div>
 
                         <div className="pt-2 border-t border-[#242322] flex items-center justify-between text-[10px] text-neutral-500">
-                          <span>Runs: {exhaustiveness} LGA threads</span>
+                          <span>Runs: {exhaustiveness} Monte Carlo runs</span>
                           <span>Grid: {gridBoxSize}³ Å</span>
                           <span className="text-emerald-400">Monte Carlo T=300K</span>
                         </div>
@@ -2566,24 +2561,32 @@ function Interactive3DLabContent() {
                         { key: 'methoxy_to_trifluoromethoxy', label: '-OCH3 → -OCF3', tag: 'Metabolic Shield (CYP3A4 block)' },
                         { key: 'add_acrylamide_warhead', label: '+ Acrylamide', tag: 'Covalent Trap (Irreversible warhead)' },
                         { key: 'magic_methyl', label: '+ Magic Methyl', tag: 'Potency Boost (Conformational restriction)' }
-                      ].map((mod) => (
-                        <button
-                          key={mod.key}
-                          disabled={isApplyingBioisostere}
-                          onClick={() => handleApplyBioisostere(mod.key)}
-                          className={`p-2 rounded-lg border text-left transition-all cursor-pointer flex flex-col justify-between ${
-                            activeBioisostere === mod.key
-                              ? 'bg-emerald-950/80 border-emerald-500 text-white ring-1 ring-emerald-500/50'
-                              : 'bg-[#1a1918] border-[#2e2c29] text-neutral-300 hover:border-emerald-500/40 hover:text-white'
-                          }`}
-                        >
-                          <div className="flex items-center justify-between text-[11px] font-bold">
-                            <span>{mod.label}</span>
-                            <span className="text-emerald-400 font-mono text-[9px]">[Re-dock Vina]</span>
-                          </div>
-                          <div className="text-[9px] text-neutral-400 truncate mt-0.5">{mod.tag}</div>
-                        </button>
-                      ))}
+                      ].map((mod) => {
+                        const isEligible = bioisostereEligibility ? Boolean(bioisostereEligibility[mod.key]) : Boolean(smilesInput);
+                        const isBtnDisabled = !isEligible || isApplyingBioisostere || !smilesInput;
+                        return (
+                          <button
+                            key={mod.key}
+                            disabled={isBtnDisabled}
+                            onClick={() => handleApplyBioisostere(mod.key)}
+                            className={`p-2 rounded-lg border text-left transition-all flex flex-col justify-between ${
+                              isBtnDisabled
+                                ? 'opacity-40 cursor-not-allowed bg-[#141312] border-[#222120] text-neutral-600'
+                                : activeBioisostere === mod.key
+                                ? 'bg-emerald-950/80 border-emerald-500 text-white ring-1 ring-emerald-500/50 cursor-pointer'
+                                : 'bg-[#1a1918] border-[#2e2c29] text-neutral-300 hover:border-emerald-500/40 hover:text-white cursor-pointer'
+                            }`}
+                          >
+                            <div className="flex items-center justify-between text-[11px] font-bold">
+                              <span>{mod.label}</span>
+                              <span className={!isBtnDisabled ? "text-emerald-400 font-mono text-[9px]" : "text-neutral-600 font-mono text-[9px]"}>
+                                {!smilesInput ? '[No Ligand]' : isEligible ? '[Re-dock Vina]' : '[Not applicable]'}
+                              </span>
+                            </div>
+                            <div className="text-[9px] text-neutral-400 truncate mt-0.5">{mod.tag}</div>
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
                 </div>
@@ -2593,7 +2596,7 @@ function Interactive3DLabContent() {
                   <div className="flex justify-between text-neutral-300">
                     <span className="flex items-center gap-1.5">
                       <span>Monte Carlo Exhaustiveness:</span>
-                      <span className="text-[10px] text-neutral-500 font-mono" title="Controls sampling depth in AutoDock Vina LGA force field">ⓘ</span>
+                      <span className="text-[10px] text-neutral-500 font-mono" title="Controls sampling depth and Monte Carlo runs in AutoDock Vina v1.2.7">ⓘ</span>
                     </span>
                     <span className="font-bold text-white font-mono">{exhaustiveness} runs</span>
                   </div>
@@ -2940,6 +2943,22 @@ function Interactive3DLabContent() {
             </div>
           </div>
 
+          {/* Screening Accounting Ledger Banner */}
+          {candidateSummary && (
+            <div className="mb-4 bg-[#161514] border border-[#2e2c29] rounded-xl p-3.5 flex flex-wrap items-center justify-between gap-3 font-mono text-xs">
+              <div className="flex items-center gap-2">
+                <span className="h-2 w-2 rounded-full bg-cyan-400" />
+                <span className="text-neutral-300 font-semibold">Screening Accounting Ledger:</span>
+                <span className="text-cyan-300 font-bold">
+                  {candidateSummary.total_generated} Generated = {candidateSummary.passed_filter} Passed + {candidateSummary.rejected_filter} Rejected + {candidateSummary.invalid_structures || 0} Invalid
+                </span>
+              </div>
+              <div className="text-[11px] text-neutral-400">
+                Filters: Lipinski Rule of 5 · Veber · PAINS · Brenk · Vina Affinity Cutoff (-6.0 kcal/mol)
+              </div>
+            </div>
+          )}
+
           {/* Section A: Accepted & Approved Candidates */}
           <div>
             <div className="flex items-center justify-between mb-3 font-mono text-xs">
@@ -3053,7 +3072,7 @@ function Interactive3DLabContent() {
                     {isDockingSimulationActive && activeDockedLeadId === lead.id ? (
                       <span className="flex items-center gap-1.5">
                         <span className="h-2 w-2 rounded-full bg-neutral-950 animate-ping" />
-                        Docking Vina LGA ({dockingSimulationProgress}%)...
+                        Docking AutoDock Vina ({dockingSimulationProgress}%)...
                       </span>
                     ) : activeDockedLeadId === lead.id ? (
                       '✓ Docked in 3D Pocket'
@@ -3107,35 +3126,68 @@ function Interactive3DLabContent() {
                 </span>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {[].map((rej) => (
-                  <div
-                    key={rej.id}
-                    className="bg-[#120f0e] border border-amber-900/50 rounded-xl p-4 flex flex-col justify-between space-y-2.5 font-mono text-xs"
-                  >
-                    <div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-amber-400 font-bold line-through">{rej.id}</span>
-                        <span className="px-2 py-0.5 rounded text-[9px] font-bold bg-amber-950/80 text-amber-300 border border-amber-500/30">
-                          {rej.flag || 'REJECTED'}
-                        </span>
+              {rejectedLeads.length === 0 ? (
+                <div className="py-8 px-4 rounded-xl bg-[#120f0e] border border-dashed border-[#3e2c29] text-center font-mono text-xs text-neutral-400 space-y-1">
+                  <div className="text-amber-400 font-bold">No Filtered Candidates In Memory</div>
+                  <p className="text-[11px] text-neutral-500">Click &quot;▶ Generate &amp; Dock Candidates&quot; above to screen the chemical library and inspect disqualified structures.</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {rejectedLeads.map((rej) => (
+                    <div
+                      key={rej.candidate_id || rej.id}
+                      className="bg-[#120f0e] border border-amber-900/50 rounded-xl p-4 flex flex-col justify-between space-y-3 font-mono text-xs"
+                    >
+                      <div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-amber-400 font-bold line-through">{rej.candidate_id || rej.id}</span>
+                          <span className="px-2 py-0.5 rounded text-[9px] font-bold bg-amber-950/80 text-amber-300 border border-amber-500/30">
+                            DISQUALIFIED
+                          </span>
+                        </div>
+                        <div className="text-neutral-300 font-semibold mt-1 truncate">{rej.name}</div>
+                        <div className="text-neutral-500 text-[10px] mt-0.5 truncate" title={rej.smiles}>{rej.smiles}</div>
                       </div>
-                      <div className="text-neutral-300 font-semibold mt-1">{rej.name}</div>
-                      <div className="text-neutral-500 text-[10px] mt-0.5 truncate">{rej.smiles}</div>
-                    </div>
 
-                    <div className="bg-amber-950/30 border border-amber-500/20 rounded p-2 text-[10px] text-amber-300/90 leading-relaxed">
-                      <strong>Reason:</strong> {rej.rejectionReason}
-                    </div>
+                      {rej.svg && (
+                        <div 
+                          className="w-full h-24 bg-[#181514] rounded-lg p-2 border border-[#2e2523] flex items-center justify-center [&>svg]:max-h-full [&>svg]:max-w-full opacity-70"
+                          dangerouslySetInnerHTML={{ __html: rej.svg }}
+                        />
+                      )}
 
-                    <div className="flex items-center justify-between text-[10px] text-neutral-500 pt-1 border-t border-[#2e2c29]">
-                      <span>MW: {rej.mw} Da</span>
-                      <span>cLogP: {rej.logp}</span>
-                      <span className="text-red-400 font-bold">DISQUALIFIED</span>
+                      <div className="bg-amber-950/30 border border-amber-500/20 rounded p-2 text-[10px] text-amber-300/90 leading-relaxed space-y-1">
+                        <strong className="block text-amber-400">Rejection Audit Reasons:</strong>
+                        {Array.isArray(rej.rejection_reasons) && rej.rejection_reasons.length > 0 ? (
+                          rej.rejection_reasons.map((reason, ri) => (
+                            <div key={ri} className="flex items-start gap-1">
+                              <span className="text-amber-500">•</span>
+                              <span>{reason}</span>
+                            </div>
+                          ))
+                        ) : (
+                          <div>{rej.rejectionReason || 'Violated drug-likeness criteria'}</div>
+                        )}
+                      </div>
+
+                      <div className="grid grid-cols-3 gap-1 text-[10px] text-center bg-[#181514] p-2 rounded border border-[#2e2523]">
+                        <div>
+                          <span className="text-neutral-500 block">MW</span>
+                          <span className="text-neutral-300">{rej.molecular_weight || rej.mw || 'N/A'}</span>
+                        </div>
+                        <div>
+                          <span className="text-neutral-500 block">cLogP</span>
+                          <span className="text-neutral-300">{rej.cLogP ?? rej.logp ?? 'N/A'}</span>
+                        </div>
+                        <div>
+                          <span className="text-neutral-500 block">ΔG</span>
+                          <span className="text-neutral-300">{rej.binding_affinity_delta_g ?? 'N/A'}</span>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -3156,7 +3208,7 @@ function Interactive3DLabContent() {
                       EUREKA IN-SILICO DOCKING PLAYGROUND
                     </h3>
                     <div className="text-[11px] text-neutral-400">
-                      AutoDock Vina v1.2.5 Flexible Ligand · Rigid Receptor Force Field
+                      AutoDock Vina v1.2.7 Flexible Ligand · Rigid Receptor Force Field
                     </div>
                   </div>
                 </div>
@@ -3265,7 +3317,7 @@ function Interactive3DLabContent() {
                     disabled={playgroundRunning}
                     className="w-full py-3 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-neutral-950 font-bold uppercase tracking-wider text-xs transition-all shadow-lg hover:shadow-cyan-500/20 disabled:opacity-50 cursor-pointer"
                   >
-                    {playgroundRunning ? '⏳ Annealing LGA Modes...' : '▶ Launch In-Silico Docking Run'}
+                    {playgroundRunning ? '⏳ Optimizing Vina Modes...' : '▶ Launch In-Silico Docking Run'}
                   </button>
                 </div>
 
@@ -3436,7 +3488,7 @@ function Interactive3DLabContent() {
                     <span className="text-emerald-400 font-bold">PASSED (MW: {currentLead.mw}, LogP: {currentLead.logp})</span>
                   </div>
                   <div className="flex items-center justify-between py-1 border-b border-[#1f1e1d]">
-                    <span className="text-neutral-300">3. Scripps AutoDock Vina Iterated Local Search (BFGS) (LGA) Convergence</span>
+                    <span className="text-neutral-300">3. Scripps AutoDock Vina Iterated Local Search (BFGS) Convergence</span>
                     <span className="text-emerald-400 font-bold">CONVERGED (&Delta;G = {currentLead.deltaG} kcal/mol)</span>
                   </div>
                   <div className="flex items-center justify-between py-1 border-b border-[#1f1e1d]">
@@ -3453,7 +3505,7 @@ function Interactive3DLabContent() {
               {/* Bottom Actions */}
               <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-[#2e2c29]">
                 <div className="text-[10px] text-neutral-400">
-                  Target SHA-256: <span className="font-mono text-cyan-400">e8b7f29c41a9...{selectedTarget?.pdbId || 'TARGET'}</span> · Method: Rigid Receptor LGA + RDKit
+                  Target SHA-256: <span className="font-mono text-cyan-400">e8b7f29c41a9...{selectedTarget?.pdbId || 'TARGET'}</span> · Method: Rigid Receptor (BFGS) + RDKit
                 </div>
                 <div className="flex items-center gap-2">
                   <button

@@ -122,10 +122,10 @@ const SBVS_WORKFLOW_STEPS = [
   },
   {
     step: '02',
-    title: 'Grid Bounding Box & LGA Sampling',
+    title: 'Grid Bounding Box & Monte Carlo Sampling',
     tag: 'GRID CALCULATION & MONTE CARLO',
-    desc: 'Cubic search box (spacing 0.375 Å) defined around catalytic centroid. Lamarckian Genetic Algorithm (LGA) runs iterative Monte Carlo conformational searches with parallel CPU threads.',
-    specs: ['Grid Spacing: 0.375 Å', 'Exhaustiveness: 8 to 64', 'Global LGA + BFGS Local Search']
+    desc: 'Cubic search box (spacing 0.375 Å) defined around catalytic centroid. AutoDock Vina runs iterative Monte Carlo conformational searches with BFGS local optimization.',
+    specs: ['Grid Spacing: 0.375 Å', 'Exhaustiveness: 8 to 64', 'Global Monte Carlo + BFGS Local Search']
   },
   {
     step: '03',
@@ -554,7 +554,7 @@ cpu = 16
           </div>
 
           <div className="hidden sm:flex items-center gap-4 text-neutral-400">
-            <span>Force Field: <strong className="text-white">AutoDock Vina v1.2.5 (LGA)</strong></span>
+            <span>Force Field: <strong className="text-white">AutoDock Vina v1.2.7</strong></span>
             <span className="h-1 w-1 rounded-full bg-neutral-600" />
             <span>Target: <strong className="text-emerald-400">{selectedTarget.pdb} ({selectedTarget.resolution})</strong></span>
           </div>
@@ -586,7 +586,7 @@ cpu = 16
                 Structure-Based Virtual Screening (SBVS) &amp; High-Throughput Docking
               </h1>
               <p className="text-neutral-400 text-sm max-w-3xl font-light leading-relaxed">
-                Empirical thermodynamic force-fields, Lamarckian Genetic Algorithm (LGA) Monte Carlo sampling, and local BFGS gradient minimization screen multi-compound libraries against crystallographic active site clefts.
+                Empirical thermodynamic force-fields, Iterated Local Search (ILS) Monte Carlo sampling, and BFGS gradient minimization screen multi-compound libraries against crystallographic active site clefts.
               </p>
             </div>
 
@@ -771,7 +771,7 @@ cpu = 16
                     />
                     <div className="flex justify-between text-[9px] text-neutral-500">
                       <span>Fast (8)</span>
-                      <span>LGA (16)</span>
+                      <span>Thorough (16)</span>
                       <span>Doctoral (64)</span>
                     </div>
                   </div>
@@ -886,7 +886,7 @@ cpu = 16
               </h2>
             </div>
             <p className="text-neutral-400 text-xs sm:text-sm max-w-xl font-light leading-relaxed">
-              Standardized computational pipeline: Receptor PDBQT prep → Ligand TorTree flexibilization → LGA Monte Carlo energy minimization → Post-docking ADMET filtering.
+              Standardized computational pipeline: Receptor PDBQT prep → Ligand TorTree flexibilization → Vina Monte Carlo / BFGS energy minimization → Post-docking ADMET filtering.
             </p>
           </div>
 

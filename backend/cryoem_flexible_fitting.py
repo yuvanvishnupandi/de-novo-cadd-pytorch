@@ -70,7 +70,7 @@ class CryoEMFlexibleFittingEngine:
 
     def evaluate_model_fit(self,
                            pdb_id: str,
-                           alphafold_plddt: float = 97.4) -> Dict[str, Any]:
+                           alphafold_plddt: Optional[float] = None) -> Dict[str, Any]:
         """
         Evaluates structural convergence and real-space correlation for target PDB.
         """

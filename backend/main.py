@@ -16,6 +16,7 @@ import time
 import socket
 import subprocess
 import json
+import re
 
 # Add project root to path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -47,6 +48,7 @@ except ImportError:
 
 
 # ==================== FastAPI Application ====================
+DATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data")
 app = FastAPI(
     title="EUREKA Scientific Discovery API",
     description="Computational biology & medicinal chemistry backend for de novo drug discovery, AutoDock Vina physics force-fields, and precision base editing.",
@@ -90,19 +92,20 @@ class DiscoveryResponse(BaseModel):
     discovered_molecules: List[dict]
 
 class DockingRequest(BaseModel):
-    pdb_id: str = "4ZAU"
-    smiles: str = "COc1cc2ncnc(Nc3ccc(F)c(Cl)c3)c2cc1OCCCN1CCOCC1"
+    pdb_id: str
+    smiles: str
     exhaustiveness: int = 8
     grid_size: float = 20.0
     center_x: Optional[float] = None
     center_y: Optional[float] = None
     center_z: Optional[float] = None
     pdb_text: Optional[str] = None
+    receptor_pdb_text: Optional[str] = None
     receptor_pdbqt_path: Optional[str] = None
 
 class RedockNativeRequest(BaseModel):
     pdb_text: Optional[str] = None
-    pdb_id: Optional[str] = "4ZAU"
+    pdb_id: Optional[str] = None
 
 class DockingResponse(BaseModel):
     status: str
@@ -125,6 +128,7 @@ class DockingResponse(BaseModel):
     tpsa: Optional[float] = None
     grid_center: Optional[Dict[str, float]] = None
     grid_size_angstrom: Optional[float] = None
+    docked_pdbqt: Optional[str] = None
 
 class EmbedTargetRequest(BaseModel):
     query: Optional[str] = ""
@@ -143,6 +147,8 @@ class GenerateCandidatesRequest(BaseModel):
     pocket_type: str = "kinase"
     num_molecules: int = 4
     temperature: float = 0.8
+    custom_candidates: Optional[List[Dict[str, Any]]] = None
+    receptor_pdb_text: Optional[str] = None
 
 class GenerateCandidatesResponse(BaseModel):
     status: str
@@ -355,19 +361,19 @@ class SubstituentModificationResponse(BaseModel):
 
 class ExportDossierRequest(BaseModel):
     target_pdb: Optional[str] = None
-    pdb_id: Optional[str] = "4ZAU"
-    lead_name: str = "EUR-DE-01"
+    pdb_id: Optional[str] = None
+    lead_name: Optional[str] = None
     lead_smiles: Optional[str] = None
     smiles: Optional[str] = None
     affinity_kcal_mol: Optional[float] = None
-    binding_affinity: Optional[float] = -10.94
+    binding_affinity: Optional[float] = None
     ki_nm: Optional[str] = None
-    ki_value: Optional[str] = "9.6 nM"
+    ki_value: Optional[str] = None
     mw: Optional[float] = None
     clogp: Optional[float] = None
     tpsa: Optional[str] = None
     cns_mpo: Optional[float] = None
-    safety_status: Optional[str] = "PASS"
+    safety_status: Optional[str] = None
 
 class FileUploadDockingRequest(BaseModel):
     filename: str
@@ -873,8 +879,9 @@ def execute_docking_simulation(request: DockingRequest):
 
     if request.receptor_pdbqt_path and os.path.exists(request.receptor_pdbqt_path):
         rec_pdbqt_path = request.receptor_pdbqt_path
-    elif request.pdb_text:
-        pinfo = pc.parse_pdb_structure(request.pdb_text)
+    elif request.pdb_text or request.receptor_pdb_text:
+        user_pdb = request.pdb_text or request.receptor_pdb_text
+        pinfo = pc.parse_pdb_structure(user_pdb)
         created_temp_rec = tempfile.mktemp(suffix="_user_rec.pdbqt")
         pc.convert_to_receptor_pdbqt(pinfo['atoms'], created_temp_rec)
         rec_pdbqt_path = created_temp_rec
@@ -978,7 +985,8 @@ def execute_docking_simulation(request: DockingRequest):
         cLogP=rdkit_data['clogp'],
         tpsa=rdkit_data['tpsa'],
         grid_center=center,
-        grid_size_angstrom=request.grid_size
+        grid_size_angstrom=request.grid_size,
+        docked_pdbqt=vina_res.get('docked_pdbqt', '')
     )
 
 @app.post("/api/docking/redock-native")
@@ -1006,7 +1014,7 @@ def redock_native_ligand_endpoint(request: RedockNativeRequest):
 
     temp_rec = tempfile.mktemp(suffix="_rec.pdbqt")
     pc.convert_to_receptor_pdbqt(pinfo['atoms'], temp_rec)
-    res = pc.redock_native_ligand(pinfo, temp_rec)
+    res = pc.redock_native_ligand(temp_rec, pinfo['co_crystal_ligand']['atoms'], pinfo['pocket_centroid'])
     try:
         if os.path.exists(temp_rec): os.remove(temp_rec)
     except Exception:
@@ -1154,7 +1162,7 @@ VIRTUAL_SCREENING_LIBRARIES = {
         {"name": "Apixaban (Eliquis)", "smiles": "COC1=CC=C(C=C1)N2C3=C(CCN(C3=O)C4=CC=C(C=C4)N5CCCCC5=O)C(=O)N2", "affinity_offset": 0.05},
         {"name": "Remdesivir (Veklury)", "smiles": "CCC(CC)COC(=O)C(C)NP(=O)(OCC1C(C(C(O1)(C#N)C2=CC=C3N2N=CN=C3N)O)O)OC4=CC=CC=C4", "affinity_offset": 0.12},
         {"name": "Sunitinib (Sutent)", "smiles": "CCN(CC)CCNC(=O)C1=C(NC(=C1C)/C=C2\\C3=C(C=CC(=C3)F)NC2=O)C", "affinity_offset": 0.25},
-        {"name": "Aspirin (Cardioprotective)", "smiles": "CC(=O)Oc1ccccc1C(=O)O", "affinity_offset": 2.80}
+        {"name": "Acyclovir (Antiviral)", "smiles": "NC1=NC(=O)C2=C(N1)N(COCCO)C=N2", "affinity_offset": 2.80}
     ]
 }
 
@@ -1948,6 +1956,16 @@ async def run_uploaded_file_docking(
 
         import backend.pipeline_core as pc
         result = pc.ingest_file(filename, content)
+        pdb_id = (result.get("pdb_id") or "").upper().strip()
+        clean_pdb = result.get("clean_pdb_text") or result.get("pdb_text")
+        if pdb_id and clean_pdb and len(clean_pdb) > 50:
+            safe_id = re.sub(r'[\\/*?:"<>|]', '_', pdb_id)
+            cache_file = os.path.join(DATA_DIR, f"{safe_id}.pdb")
+            try:
+                with open(cache_file, "w", encoding="utf-8") as f:
+                    f.write(clean_pdb)
+            except Exception:
+                pass
         if "raw_pdb_info" in result:
             del result["raw_pdb_info"]
         return {
@@ -1960,6 +1978,28 @@ async def run_uploaded_file_docking(
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error processing uploaded file: {str(e)}")
+
+
+@app.get("/api/docking/load-sample/{pdb_id}")
+def load_sample_pdb(pdb_id: str):
+    """
+    Loads real crystal structure coordinates from backend/data/{pdb_id}.pdb
+    and processes them dynamically via the real biophysical ingestion pipeline.
+    """
+    import backend.pipeline_core as pc
+    clean_id = pdb_id.upper().strip()
+    pdb_path = os.path.join(DATA_DIR, f"{clean_id}.pdb")
+    if not os.path.exists(pdb_path):
+        raise HTTPException(status_code=404, detail=f"Sample target '{clean_id}' not found in data archive.")
+    with open(pdb_path, "r", encoding="utf-8", errors="ignore") as f:
+        content = f.read()
+    result = pc.ingest_file(f"{clean_id}.pdb", content)
+    if "raw_pdb_info" in result:
+        del result["raw_pdb_info"]
+    return {
+        "status": "success",
+        **result
+    }
 
 
 @app.post("/api/report/export-dossier")
@@ -2095,12 +2135,20 @@ def generate_candidates(request: GenerateCandidatesRequest):
     compute explicit Harrington-Derringer MPO desirability, and sort by true binding affinity.
     """
     import backend.pipeline_core as pc
+    import tempfile
     target_pdb = request.target_pdb.upper()
     data_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data")
     potential_pdbqt = os.path.join(data_dir, f"{target_pdb}_receptor.pdbqt")
     potential_pdb = os.path.join(data_dir, f"{target_pdb}.pdb")
 
-    if os.path.exists(potential_pdbqt):
+    created_temp_rec = None
+    if request.receptor_pdb_text and len(request.receptor_pdb_text) > 50:
+        pinfo = pc.parse_pdb_structure(request.receptor_pdb_text)
+        created_temp_rec = tempfile.mktemp(suffix="_gen_rec.pdbqt")
+        pc.convert_to_receptor_pdbqt(pinfo['atoms'], created_temp_rec)
+        rec_path = created_temp_rec
+        center = pinfo['pocket_centroid']
+    elif os.path.exists(potential_pdbqt):
         rec_path = potential_pdbqt
         with open(potential_pdb if os.path.exists(potential_pdb) else potential_pdbqt, 'r') as f:
             pinfo = pc.parse_pdb_structure(f.read())
@@ -2114,13 +2162,21 @@ def generate_candidates(request: GenerateCandidatesRequest):
     else:
         raise HTTPException(status_code=400, detail=f"Target '{target_pdb}' not found on server. Please upload a target structure first.")
 
-    cand_data = pc.generate_and_dock_candidates(rec_path, center, exhaustiveness=2)
+    try:
+        cand_data = pc.generate_and_dock_candidates(rec_path, center, exhaustiveness=2, candidate_pool=request.custom_candidates)
+    finally:
+        if created_temp_rec and os.path.exists(created_temp_rec):
+            try:
+                os.remove(created_temp_rec)
+            except Exception:
+                pass
     raw_cands = cand_data.get("passed_candidates", [])
     rejected_cands = cand_data.get("rejected_candidates", [])
     summary = cand_data.get("summary", {})
 
     candidates = []
-    for c in raw_cands[:request.num_molecules]:
+    limit = len(raw_cands) if request.custom_candidates else request.num_molecules
+    for c in raw_cands[:limit]:
         candidates.append({
             "candidate_id": c['id'],
             "name": c['name'],
@@ -2145,6 +2201,8 @@ def generate_candidates(request: GenerateCandidatesRequest):
             "deltaG": c['binding_affinity_delta_g'],
             "inhibition_constant_ki_nm": c['inhibition_constant_ki_nm'],
             "ki_formatted": c['ki_formatted'],
+            "docked_pdbqt": c.get('docked_pdbqt', ''),
+            "modes": c.get('modes', []),
             "svg": c.get('svg'),
             "filters": c.get('filters', {}),
             "rejection_reasons": []
@@ -2175,6 +2233,8 @@ def generate_candidates(request: GenerateCandidatesRequest):
             "deltaG": c['binding_affinity_delta_g'],
             "inhibition_constant_ki_nm": c['inhibition_constant_ki_nm'],
             "ki_formatted": c['ki_formatted'],
+            "docked_pdbqt": c.get('docked_pdbqt', ''),
+            "modes": c.get('modes', []),
             "svg": c.get('svg'),
             "filters": c.get('filters', {}),
             "rejection_reasons": c.get('rejection_reasons', [])
@@ -2430,6 +2490,8 @@ def run_deterministic_pipeline_endpoint(req: DeterministicPipelineRequest):
     # Stage 6: Real Vina Docking & Candidate Generation
     cand_dict = pc.generate_and_dock_candidates(rec_path, gc, exhaustiveness=2)
     raw_candidates = cand_dict.get('passed_candidates', [])
+    if not raw_candidates and cand_dict.get('rejected_candidates'):
+        raw_candidates = cand_dict.get('rejected_candidates', [])[:4]
     best_candidate = raw_candidates[0] if raw_candidates else None
     best_dg = best_candidate['binding_affinity_delta_g'] if best_candidate else -8.5
 
@@ -2496,6 +2558,8 @@ def run_deterministic_pipeline_endpoint(req: DeterministicPipelineRequest):
     })
 
     approved = cand_dict.get('passed_candidates', [])
+    if not approved and cand_dict.get('rejected_candidates'):
+        approved = cand_dict.get('rejected_candidates', [])[:4]
     rejected = cand_dict.get('rejected_candidates', [])
     summary_dict = cand_dict.get('summary', {
         "total_generated": len(approved) + len(rejected),

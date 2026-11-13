@@ -208,12 +208,7 @@ class LamarckianGeneticAlgorithm:
 
     def run_docking_simulation(self, target_id: str, box: BiophysicalGridBox, ligand_smiles: str) -> Dict[str, Any]:
         """Executes full Monte Carlo simulated annealing across stochastic seeds."""
-        calibrated_targets = {
-            '4ZAU': {'name': 'EGFR Kinase Domain (T790M/C797S)', 'base_dG': -10.94, 'ki': 9.6, 'plddt': 97.4, 'rmsd': 1.82},
-            '1FJS': {'name': 'Coagulation Factor Xa (S1/S4 Subsites)', 'base_dG': -11.42, 'ki': 4.2, 'plddt': 98.1, 'rmsd': 1.45},
-            '1ERR': {'name': 'Estrogen Receptor ER-alpha LBD (Y537S)', 'base_dG': -10.35, 'ki': 24.8, 'plddt': 96.8, 'rmsd': 1.63},
-            '3MXF': {'name': 'Epigenetic Reader BRD4 BD1 (Acetyl-Lysine)', 'base_dG': -9.88, 'ki': 52.3, 'plddt': 95.9, 'rmsd': 1.91}
-        }
+        calibrated_targets = {}
 
         target_meta = calibrated_targets.get(target_id, {
             'name': f'PDB Target {target_id}',

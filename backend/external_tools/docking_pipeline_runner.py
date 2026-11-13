@@ -199,16 +199,8 @@ class DockingPipelineRunner:
 
         elapsed = round(time.time() - start_time, 3)
 
-        # Baseline thermodynamic fallback if CLI execution was skipped/failed
-        base_dg = -10.95 if target_pdb_id.upper() == "6LU7" else -10.84
-        for r in range(1, num_modes + 1):
-            d_val = round(base_dg + (r - 1) * 0.36, 2)
-            modes.append({
-                "mode": r,
-                "affinity_kcal_mol": d_val,
-                "rmsd_lower_bound": round((r - 1) * 0.42, 2),
-                "rmsd_upper_bound": round((r - 1) * 0.42 + 0.65, 2)
-            })
+        if not vina_success:
+            raise RuntimeError(f"AutoDock Vina execution failed (code {getattr(res, 'returncode', 'unknown')}): {stdout_log}")
 
         # Cleanup scratch job directory
         try:

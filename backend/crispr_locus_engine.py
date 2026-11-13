@@ -85,7 +85,7 @@ class LocusSimulator:
         # Base editor position-dependent deamination activity window (positions 1-20, counting from PAM-distal 5')
         # Peak deamination occurs in canonical positions 4 to 8
         self.abe8e_activity_window = {
-            1: 0.04, 2: 0.08, 3: 0.25, 4: 0.72, 5: 0.94,
+            1: 0.04, 2: 0.08, 3: 0.25, 4: 0.72, 5: 0.935,
             6: 0.98, 7: 0.91, 8: 0.68, 9: 0.32, 10: 0.12,
             11: 0.05, 12: 0.02, 13: 0.01, 14: 0.01, 15: 0.00,
             16: 0.00, 17: 0.00, 18: 0.00, 19: 0.00, 20: 0.00

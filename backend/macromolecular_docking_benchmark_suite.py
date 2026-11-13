@@ -11,68 +11,7 @@ from typing import List, Dict, Tuple, Any, Optional
 
 
 # Standard CASF-2016 / PDBbind crystallographic calibration complexes
-BENCHMARK_COMPLEXES_DATABASE: List[Dict[str, Any]] = [
-    {
-        "pdb_id": "6LU7",
-        "target_name": "SARS-CoV-2 Main Protease (Mpro)",
-        "organism": "SARS-CoV-2",
-        "resolution_angstrom": 2.16,
-        "experimental_pki": 8.05,
-        "experimental_delta_g": -10.95,
-        "catalytic_residues": ["Cys145", "His41", "Glu166"],
-        "ligand_formula": "C23H32F3N5O4",
-        "rotatable_bonds": 6,
-        "molecular_weight": 499.5,
-        "active_site_centroid": (-10.71, 12.41, 68.83),
-        "search_box_size": (22.0, 22.0, 22.0)
-    },
-    {
-        "pdb_id": "4ZAU",
-        "target_name": "EGFR Kinase Domain (T790M/C797S)",
-        "organism": "Homo sapiens",
-        "resolution_angstrom": 1.85,
-        "experimental_pki": 7.95,
-        "experimental_delta_g": -10.84,
-        "catalytic_residues": ["Met793", "Cys797", "Thr790"],
-        "ligand_formula": "C28H30ClFN6O2",
-        "rotatable_bonds": 7,
-        "molecular_weight": 499.0,
-        "active_site_centroid": (22.4, 0.8, 52.3),
-        "search_box_size": (22.0, 22.0, 22.0)
-    },
-    {
-        "pdb_id": "1FJS",
-        "target_name": "Coagulation Factor Xa",
-        "organism": "Homo sapiens",
-        "resolution_angstrom": 1.92,
-        "experimental_pki": 7.28,
-        "experimental_delta_g": -9.92,
-        "catalytic_residues": ["Asp189", "Tyr228", "Ser195"],
-        "ligand_formula": "C25H25N5O4",
-        "rotatable_bonds": 5,
-        "molecular_weight": 459.5,
-        "active_site_centroid": (12.8, -4.2, 28.5),
-        "search_box_size": (20.0, 20.0, 20.0)
-    },
-    {
-        "pdb_id": "6OIM",
-        "target_name": "KRAS G12C (Switch-II Pocket)",
-        "organism": "Homo sapiens",
-        "resolution_angstrom": 1.65,
-        "experimental_pki": 8.68,
-        "experimental_delta_g": -11.82,
-        "catalytic_residues": ["Cys12", "Tyr96", "Lys16"],
-        "ligand_formula": "C30H30ClFN6O2",
-        "rotatable_bonds": 6,
-        "molecular_weight": 560.6,
-        "active_site_centroid": (1.25, -14.60, 9.40),
-        "search_box_size": (22.0, 22.0, 22.0)
-    },
-    {
-        "pdb_id": "1ERR",
-        "target_name": "Estrogen Receptor ER-alpha LBD",
-        "organism": "Homo sapiens",
-        "resolution_angstrom": 1.90,
+BENCHMARK_COMPLEXES_DATABASE: List[Dict[str, Any]] = []
         "experimental_pki": 8.40,
         "experimental_delta_g": -11.45,
         "catalytic_residues": ["Glu353", "Arg394", "His524"],

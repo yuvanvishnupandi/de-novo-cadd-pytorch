@@ -9,7 +9,7 @@ import React, { useState } from 'react';
 export default function InteractionNetworkViewer({ target, activeSiteResidues = [], computedDeltaG, ki }) {
   const [selectedResidue, setSelectedResidue] = useState(null);
 
-  // Parse residue strings like "Met793 (2.1 Å)" or "Asp189"
+  // Parse residue strings like "Tyr123 (2.1 Å)" or "Asp189"
   const parsedContacts = (activeSiteResidues || []).map((r, idx) => {
     let name = typeof r === 'string' ? r : (r.name || r.resName || `Res${idx}`);
     let dist = 2.5 + (idx * 0.4) % 2.5; // default plausible distance if not embedded

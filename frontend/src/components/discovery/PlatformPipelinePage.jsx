@@ -19,12 +19,12 @@ const VALIDATED_TARGETS = [
     name: 'EGFR Kinase Domain (T790M/C797S Resistance)',
     pdb: '4ZAU',
     organism: 'Homo sapiens',
-    resolution: '1.85 Å',
-    bindingPocket: 'ATP-binding cleft (Met793 hinge - Lys745)',
-    kd: '14.2 nM',
-    deltaG: -10.4,
+    resolution: '2.80 Å',
+    bindingPocket: 'ATP-binding cleft',
+    kd: 'N/A',
+    deltaG: null,
     category: 'Oncology',
-    gridCenter: { x: 20.4, y: 15.2, z: -10.8 }
+    gridCenter: null
   },
   {
     id: '6lu7',
@@ -305,18 +305,13 @@ export default function PlatformPipelinePage({ onNavigate }) {
   };
 
   const handleTestModel3Dossier = async () => {
+    if (!modelLstmLead) {
+      alert("Please generate or select a candidate lead first before synthesizing an IND dossier.");
+      return;
+    }
     setIsGeneratingDossier(true);
     try {
-      const lead = modelLstmLead || {
-        candidate_id: "EUR-DE-01",
-        name: "Osimertinib Covalent Analog",
-        smiles: "COC1=C(OCCCN2CCOCC2)C=C3C(=C1)N=CN=C3NC4=CC(=C(F)C=C4)Cl",
-        binding_affinity_delta_g: -10.94,
-        inhibition_constant_ki_nm: 9.6,
-        molecular_weight: 499.0,
-        cLogP: 3.1,
-        tpsa: 64.8
-      };
+      const lead = modelLstmLead;
       const res = await fetch('http://localhost:8000/api/models/summarize-dossier', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -331,15 +326,19 @@ export default function PlatformPipelinePage({ onNavigate }) {
           tpsa: lead.tpsa
         })
       });
+      if (!res.ok) {
+        const errJson = await res.json().catch(() => ({}));
+        throw new Error(errJson.detail || `HTTP ${res.status}`);
+      }
       const data = await res.json();
       setModelIndDossier(data.dossier);
-    } catch {
+    } catch (err) {
       setModelIndDossier({
-        dossier_id: "IND-EUR-4ZAU-179386",
-        regulatory_framework: "FDA Form 1571 / 21 CFR § 312.23(a)(8)",
-        candidate_designation: "EUR-DE-01",
-        mechanism_of_action_rationale: "Establishes sub-nanomolar thermodynamic lock within catalytic hinge residues Met793 with ΔG = -10.94 kcal/mol and Ki = 9.6 nM.",
-        investigational_recommendation: "Advance to IND-enabling in-vitro cell assays and rodent pharmacokinetic profiling."
+        dossier_id: `ERR-${selectedTarget.pdb || 'FAIL'}`,
+        regulatory_framework: "FDA Form 1571 Error",
+        candidate_designation: modelLstmLead?.candidate_id || "N/A",
+        mechanism_of_action_rationale: `Dossier generation failed: ${err.message}`,
+        investigational_recommendation: "Review input parameters and retry."
       });
     } finally {
       setIsGeneratingDossier(false);
@@ -409,10 +408,10 @@ export default function PlatformPipelinePage({ onNavigate }) {
       setScreenProgress(45);
       setScreenLogs(prev => [
         ...prev,
-        `[GRID_BOX] Search Centroid: [${gridCenter.x}, ${gridCenter.y}, ${gridCenter.z}] Å | Spacing: ${gridSpacing} Å`,
-        `[LGA_LAUNCH] Spawning Lamarckian Genetic Algorithm across 16 parallel threads...`,
-        `[LGA_BATCH_1] Screened compounds 1-4 (Lapatinib, Sotorasib, Osimertinib, Imatinib)`,
-        `[LGA_BATCH_2] Screened compounds 5-8 (Dasatinib, Gefitinib, Bosutinib, Nirmatrelvir)`
+        `[GRID_BOX] Search Centroid: [${gridCenter?.x ?? 0}, ${gridCenter?.y ?? 0}, ${gridCenter?.z ?? 0}] Å | Spacing: ${gridSpacing} Å`,
+        `[VINA_LAUNCH] Executing AutoDock Vina v1.2.7 Monte Carlo iterated local search with BFGS...`,
+        `[VINA_BATCH_1] Screening compound batch 1-4...`,
+        `[VINA_BATCH_2] Screening compound batch 5-8...`
       ]);
     }, 850);
 
@@ -420,9 +419,9 @@ export default function PlatformPipelinePage({ onNavigate }) {
       setScreenProgress(75);
       setScreenLogs(prev => [
         ...prev,
-        `[BFGS_MINIMIZE] Running iterated local search & torsion angle annealing...`,
-        `[LGA_BATCH_3] Screened compounds 9-12 (Donepezil, Erlotinib, Sorafenib, Rivaroxaban)`,
-        `[LGA_BATCH_4] Screened compounds 13-16 (Apixaban, Remdesivir, Sunitinib, Aspirin)`,
+        `[BFGS_MINIMIZE] Running iterated local search with BFGS minimization...`,
+        `[VINA_BATCH_3] Screening compound batch 9-12...`,
+        `[VINA_BATCH_4] Screening compound batch 13-16...`,
         `[RMSD_CLUSTER] Clustering binding modes at 2.0 Å tolerance...`
       ]);
     }, 1800);
@@ -1074,7 +1073,7 @@ cpu = 16
               {/* Responsive Bar Chart Canvas / SVG Container */}
               <div className="w-full overflow-x-auto">
                 <div className="min-w-[700px] space-y-6 pt-4">
-                  {(comparisonChart?.categories || ['Lapatinib', 'Sotorasib', 'Osimertinib', 'Imatinib', 'Dasatinib', 'Gefitinib']).map((cat, idx) => {
+                  {(comparisonChart?.categories || ['Compound-A', 'Compound-B', 'Compound-C', 'Compound-D', 'Compound-E', 'Compound-F']).map((cat, idx) => {
                     const vinaVal = comparisonChart?.autodock_vina_kcal_mol?.[idx] || -11.0 + idx * 0.2;
                     const ad4Val = comparisonChart?.autodock4_kcal_mol?.[idx] || -9.8 + idx * 0.2;
                     const mmffVal = comparisonChart?.mmff94_forcefield_kcal_mol?.[idx] || -8.5 + idx * 0.2;

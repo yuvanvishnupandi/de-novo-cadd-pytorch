@@ -21,12 +21,7 @@ import math
 class StructuralQualityEvaluator:
     """Evaluates AlphaFold 3 and ESMFold prediction outputs."""
 
-    CALIBRATED_TARGET_CONFIDENCE = {
-        '4ZAU': {'mean_plddt': 97.4, 'iptm': 0.89, 'ptm': 0.94, 'status': 'VERY_HIGH_CONFIDENCE'},
-        '1FJS': {'mean_plddt': 98.1, 'iptm': 0.92, 'ptm': 0.96, 'status': 'VERY_HIGH_CONFIDENCE'},
-        '1ERR': {'mean_plddt': 96.8, 'iptm': 0.87, 'ptm': 0.93, 'status': 'VERY_HIGH_CONFIDENCE'},
-        '3MXF': {'mean_plddt': 95.9, 'iptm': 0.85, 'ptm': 0.91, 'status': 'VERY_HIGH_CONFIDENCE'}
-    }
+    CALIBRATED_TARGET_CONFIDENCE = {}
 
     def evaluate_target_confidence(self, target_pdb: str) -> Dict[str, Any]:
         """Returns deep structural metrics including domain confidence breakdown."""

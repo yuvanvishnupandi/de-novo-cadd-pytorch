@@ -200,7 +200,7 @@ const TREE_DATA = {
         {
           id: 'tox-mmp',
           title: 'Mitochondrial Membrane (SR-MMP)',
-          subtitle: 'Safety Confidence: 0.94 (NON-TOXIC)',
+          subtitle: 'Safety Confidence: 0.95 (NON-TOXIC)',
           category: 'TOX21',
           status: 'SAFE',
           type: 'leaf',

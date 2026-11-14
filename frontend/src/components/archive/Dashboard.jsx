@@ -25,7 +25,7 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white font-sans selection:bg-cyan-500/30 relative overflow-hidden">
       
-      {/* Enveda-style ambient gradient background blobs */}
+      {/* Ambient gradient background blobs */}
       <div className="absolute top-0 left-1/4 w-[50vw] h-[50vw] bg-cyan-600/20 rounded-full blur-[120px] mix-blend-screen pointer-events-none -translate-y-1/2"></div>
       <div className="absolute bottom-0 right-1/4 w-[60vw] h-[60vw] bg-fuchsia-600/10 rounded-full blur-[150px] mix-blend-screen pointer-events-none translate-y-1/4"></div>
 

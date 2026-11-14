@@ -64,7 +64,7 @@ export function setupTargetHub(iframeDoc, heading) {
   // Prevent duplicate insertion
   if (iframeDoc.getElementById('eureka-target-hub-container')) return;
 
-  // 1. Inject or update dedicated style element for Platform Hero layout & Enveda Luxury Theme
+  // 1. Inject or update dedicated style element for Platform Hero layout & Luxury Theme
   let hubStyle = iframeDoc.getElementById('eureka-platform-hero-style');
   if (!hubStyle) {
     hubStyle = iframeDoc.createElement('style');
@@ -104,7 +104,7 @@ export function setupTargetHub(iframeDoc, heading) {
       margin-top: 15px !important;
     }
 
-    /* Target Ingestion Hub - Enveda Luxury Biotech Theme */
+    /* Target Ingestion Hub - Luxury Biotech Theme */
     .hub-glass-card {
       background: rgba(14, 18, 30, 0.48);
       backdrop-filter: blur(28px) saturate(180%);

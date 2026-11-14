@@ -236,6 +236,7 @@ ppt/
 whatsapp_docs/
 docs/
 ref_pins/
+assets/
 backend/assets/
 
 # Node & frontend builds

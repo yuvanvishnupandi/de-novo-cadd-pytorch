@@ -1,5 +1,5 @@
 // Professional System Architecture & Pipeline Workflow Section for EUREKA
-// 100% Matching Enveda's Minimalist Swiss Editorial Layout, Outfit Typography & Atmospheric Aesthetic
+// Minimalist Scientific Editorial Layout, Modern Typography & Atmospheric Aesthetic
 export const EUREKA_ARCH_HTML = `
 <div id="eureka-system-architecture" style="width: 100%; max-width: 100%; padding: 0 4vw; margin: 80px auto 90px auto; font-family: 'Outfit', sans-serif !important; color: #111; box-sizing: border-box; background: radial-gradient(circle at 50% 15%, rgba(124, 58, 237, 0.03) 0%, rgba(2, 132, 199, 0.02) 40%, transparent 80%);">
   
@@ -62,7 +62,7 @@ export const EUREKA_ARCH_HTML = `
     }
   </style>
 
-  <!-- TOP DIVIDER LINE (Matches Enveda's standard section divider) -->
+  <!-- TOP DIVIDER LINE -->
   <div style="width: 100%; height: 1px; background: #e5e5e5; margin-bottom: 60px;"></div>
 
   <!-- SECTION HEADER -->
@@ -478,7 +478,7 @@ export const EUREKA_ARCH_HTML = `
 
   </div>
 
-  <!-- 4. BENCHMARK TELEMETRY BAR (Matching Enveda's Stats Strip) -->
+  <!-- 4. BENCHMARK TELEMETRY BAR -->
   <div class="arch-stats-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); width: 100%; border-top: 1px solid #e5e5e5; border-bottom: 1px solid #e5e5e5; padding: 45px 0; margin-bottom: 50px; text-align: center;">
     <div style="border-right: 1px solid #e5e5e5; padding: 0 16px;">
       <div style="font-size: 3.4rem; font-weight: 300; color: #111; letter-spacing: -1.5px; line-height: 1; margin-bottom: 10px;">500,000+</div>
@@ -498,7 +498,7 @@ export const EUREKA_ARCH_HTML = `
     </div>
   </div>
 
-  <!-- 5. CALL TO ACTION BUTTONS (Matching Enveda's Signature Button Design) -->
+  <!-- 5. CALL TO ACTION BUTTONS -->
   <div style="text-align: center; margin-bottom: 60px;">
     <a href="#platform" class="arch-btn-action" style="margin-right: 16px;">
       Launch Target Ingestion

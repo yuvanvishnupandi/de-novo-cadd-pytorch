@@ -2310,7 +2310,7 @@ def analyze_fasta_sequence(request: FastaAnalyzeRequest):
     import backend.pipeline_core as pc
 
     telemetry_logs = []
-    telemetry_logs.append("[EUREKA] ━━━━━━━━━━ RECEPTOR INGESTION PIPELINE v3.1 ━━━━━━━━━━")
+    telemetry_logs.append("[DENOVO-CADD] ━━━━━━━━━━ RECEPTOR INGESTION PIPELINE v3.1 ━━━━━━━━━━")
 
     fasta_text = (request.fasta or "").strip()
     pdb_text   = (request.pdb_id or "").strip().upper()

@@ -42,7 +42,7 @@ export default function AntibodyDesignStudio() {
         rounds_of_optimization: 3
       })
     }).then(res => res.json()).then(data => {
-      console.log('[EUREKA Converge Bio Antibody API Telemetry]', data);
+      console.log('[Antibody API Telemetry]', data);
     }).catch(() => {});
 
     if (activeTab === 'generate') {

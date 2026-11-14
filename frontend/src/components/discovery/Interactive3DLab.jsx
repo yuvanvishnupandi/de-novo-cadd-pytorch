@@ -1938,7 +1938,7 @@ function Interactive3DLabContent() {
             {/* Live Streaming Terminal Body (Spacious & Clean, Auto-Scrolling, No Cramped Inner Box) */}
             <div ref={terminalContainerRef} className="p-6 sm:p-8 bg-[#090807] font-mono text-xs space-y-2 min-h-[480px] max-h-[680px] overflow-y-auto leading-relaxed">
               <div className="flex items-center justify-between text-neutral-500 border-b border-[#1c1b1a] pb-2 mb-3">
-                <span># EUREKA HIGH-THROUGHPUT DETERMINISTIC PIPELINE TELEMETRY</span>
+                <span># HIGH-THROUGHPUT DETERMINISTIC PIPELINE TELEMETRY</span>
                 <span>ISO/IEC 17025 Biophysical Force Field Compliance</span>
               </div>
               {landingAnalysisLogs.map((log, i) => (

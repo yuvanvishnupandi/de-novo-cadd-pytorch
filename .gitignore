@@ -222,3 +222,23 @@ scratch/
 *.pdbqt.tmp
 scratch_ligand.pdbqt
 audit_findings.json
+
+# Presentations, slide decks, and academic reports
+PPT/
+ppt/
+*.pptx
+*.ppt
+*.docx
+*.doc
+*.pdf
+
+# Documentation, guides, presentations content & course archives
+whatsapp_docs/
+docs/
+ref_pins/
+
+# Node & frontend builds
+node_modules/
+dist/
+.vite/
+

@@ -4,14 +4,16 @@
 
 Implementation of an in-silico computational biophysics and generative molecular design pipeline in PyTorch and RDKit.
 
-[![PyPI - Version](https://img.shields.io/badge/pypi-v1.2.7-blue.svg)](https://pypi.org)
-[![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![AutoDock Vina](https://img.shields.io/badge/Docking-AutoDock_Vina_v1.2.7-brightgreen.svg)](https://vina.scripps.edu/)
-[![RDKit](https://img.shields.io/badge/Cheminformatics-RDKit_WASM-orange.svg)](https://www.rdkit.org/)
+[![PyPI - Python Version](https://img.shields.io/badge/python-3.10%20%7C%203.11-blue.svg)](https://www.python.org/)
+[![PyPI](https://img.shields.io/badge/pypi-v1.2.7-blue.svg)](https://pypi.org/project/denovo-cadd-pytorch/)
+[![License](https://img.shields.io/badge/license-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![AutoDock Vina](https://img.shields.io/badge/docking-AutoDock_Vina_v1.2.7-22c55e.svg)](https://vina.scripps.edu/)
+[![RDKit](https://img.shields.io/badge/cheminformatics-RDKit_WASM-f97316.svg)](https://www.rdkit.org/)
+[![PyTorch](https://img.shields.io/badge/framework-PyTorch_2.x-ee4c2c.svg)](https://pytorch.org/)
 
-<br/>
+<br/><br/>
 
-<img src="./assets/pipeline.png" width="92%" alt="Pipeline Architecture" />
+<img src="./assets/pipeline.svg" width="100%" alt="Pipeline Architecture" />
 
 </div>
 

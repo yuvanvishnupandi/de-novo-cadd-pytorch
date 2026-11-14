@@ -345,3 +345,4 @@ The EUREKA platform was rigorously benchmarked across 9 automated acceptance tes
 | **T7** | Candidate Screening Accounting | Fixed library + Invalid injection | Generated = Passed + Rejected + Invalid | $3 = 0\text{ pass} + 2\text{ rej} + 1\text{ inv}$ | **PASS (100%)** |
 | **T8** | Global Codebase Grep for Presets | Whole repo grep check | Zero matches for mock values | **0 Matches found** | **PASS (100%)** |
 | **T9** | Biophysical Unit Conversion | $\Delta G \to K_i$ calculation | $-10.84\text{ kcal/mol} \to 11.3\text{ nM}$ | Computed: $11.33\text{ nM}$ | **PASS (100%)** |
+

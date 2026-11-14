@@ -154,6 +154,42 @@ In compliance with experimental wet-lab benchmarking standards, all model accura
 
 ---
 
+## Repository Architecture & Directory Organization
+
+The repository has been structured cleanly into modular functional domains:
+
+```text
+eureka/
+├── backend/                  # FastAPI biophysics server, Vina physics engine & RDKit services
+│   ├── main.py               # Master API server daemon
+│   ├── pipeline_core.py      # Core CADD biophysical pipeline
+│   ├── pipeline_manager.py   # Deterministic stage orchestrator
+│   └── external_tools/       # Official AutoDock Vina v1.2.7 binaries
+├── frontend/                 # React 19 + Vite + Tailwind CSS + 3Dmol WebGL Studio
+│   ├── src/                  # Component library, 3D Mol viewer & laboratory controls
+│   └── package.json          # Node dependencies & build scripts
+├── docs/                     # Project documentation, guides & presentation materials
+│   ├── guides/               # Master technical manual, viva defense & teammate guides
+│   ├── slides_content/       # Slide-by-slide markdown content & team speaking scripts
+│   ├── reports/              # Interactive HTML reports & audit summaries
+│   └── benchmarks/           # Biophysics, genomics & discovery engine benchmarks
+├── PPT/                      # Academic presentations, posters & templates
+│   ├── GenAI_Eureka/         # Applied GenAI course presentation deck (.pptx) & posters (.pdf)
+│   ├── Biomechanics/         # BioMotion Lab project presentation & clinical report
+│   ├── HTR/                  # Handwritten Text Recognition slides & model evaluations
+│   └── Templates/            # Official SRM presentation templates & institutional branding
+├── scripts/                  # Deployment, environment setup & background runners
+│   ├── start_backend.bat     # Windows launcher to start backend server
+│   ├── run_backend.py        # Python launcher to run backend server
+│   ├── pipeline.bat          # Command-line pipeline execution script
+│   └── legacy_cli/           # Standalone terminal CLI scripts
+├── fasta_samples/            # Benchmark FASTA sequences (SARS-CoV-2 Mpro, EGFR, HIV-1 RT)
+├── data/ & data_pipelines/   # Preprocessed datasets, target PDBs & ingestion pipelines
+└── ref_pins/                 # Architectural visual references & UI benchmarks
+```
+
+---
+
 ## Server Deployment
 
 ```bash

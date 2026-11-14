@@ -1,13 +1,17 @@
 <div align="center">
 
-## eureka
+## denovo-cadd-pytorch
 
-Implementation of an in-silico computational biophysics and generative molecular discovery pipeline in PyTorch and RDKit.
+Implementation of an in-silico computational biophysics and generative molecular design pipeline in PyTorch and RDKit.
 
 [![PyPI - Version](https://img.shields.io/badge/pypi-v1.2.7-blue.svg)](https://pypi.org)
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![AutoDock Vina](https://img.shields.io/badge/Docking-AutoDock_Vina_v1.2.7-brightgreen.svg)](https://vina.scripps.edu/)
 [![RDKit](https://img.shields.io/badge/Cheminformatics-RDKit_WASM-orange.svg)](https://www.rdkit.org/)
+
+<br/>
+
+<img src="./assets/pipeline.png" width="92%" alt="Pipeline Architecture" />
 
 </div>
 
@@ -71,6 +75,29 @@ pipeline_output = run_pipeline(
 for mol in pipeline_output["top_candidates"]:
     print(mol["smiles"], mol["binding_affinity"], mol["mpo_score"])
 ```
+
+## Biophysics & Scoring Formulation
+
+AutoDock Vina evaluates the total predicted free energy of binding ($\Delta G$) through an empirical, physics-grounded scoring function:
+
+$$\Delta G_{\text{binding}} = \Delta G_{\text{vdw}} \sum_{i,j} \left( \frac{A_{ij}}{r_{ij}^{12}} - \frac{B_{ij}}{r_{ij}^6} \right) + \Delta G_{\text{hbond}} \sum_{i,j} E(t) + \Delta G_{\text{elec}} \sum_{i,j} \frac{q_i q_j}{\varepsilon(r_{ij}) r_{ij}} + \Delta G_{\text{tor}} N_{\text{rot}} + \Delta G_{\text{desolv}}$$
+
+Where:
+- $\Delta G_{\text{vdw}}$ evaluates steric complementarity via 6-12 Lennard-Jones potentials.
+- $\Delta G_{\text{hbond}}$ evaluates directional hydrogen bond geometry between donor-acceptor dyads.
+- $\Delta G_{\text{elec}}$ computes Coulombic electrostatics with Gasteiger partial atomic charges at physiological pH 7.4.
+- $\Delta G_{\text{tor}}$ penalizes conformational entropy loss proportional to the number of rotatable bonds $N_{\text{rot}}$.
+- $\Delta G_{\text{desolv}}$ calculates the desolvation penalty of displacing pocket-bound solvent molecules.
+
+The theoretical inhibition constant ($K_i$) is derived from runtime binding free energy ($\Delta G$) via the van 't Hoff relation:
+
+$$K_i = \exp\left( \frac{\Delta G}{R \cdot T} \right)$$
+
+where $R = 0.0019872\text{ kcal/(mol}\cdot\text{K)}$ and $T = 298.15\text{ K}$.
+
+Multi-Parameter Optimization (MPO) calculates Harrington-Derringer composite desirability across candidate properties:
+
+$$D = \left( d_{\text{MW}} \cdot d_{\text{cLogP}} \cdot d_{\text{TPSA}} \cdot d_{\text{HBD}} \cdot d_{\text{HBA}} \cdot d_{\Delta G} \right)^{1/6}$$
 
 ## Features
 

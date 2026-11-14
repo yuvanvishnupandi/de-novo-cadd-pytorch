@@ -1,4 +1,4 @@
-<h2 align="center"><b>denovo-cadd-pytorch</b></h2>
+<h2 align="center"><b>de-novo-cadd-pytorch</b></h2>
 
 <h4 align="center">A deterministic closed-loop pipeline for de novo therapeutic discovery, topological filtering, and Lamarckian docking in PyTorch.</h4> 
 

@@ -1,6 +1,6 @@
 <h2 align="center"><b>denovo-cadd-pytorch</b></h2>
 
-<h4 align="center">Implementation of an in-silico computational biophysics and generative molecular design pipeline in PyTorch</h4>
+<h4 align="center">A deterministic closed-loop pipeline for de novo therapeutic discovery, topological filtering, and Lamarckian docking in PyTorch.</h4>
 
 <p align="center">
     <a href="https://github.com/yuvanvishnupandi/denovo-cadd-pytorch"><img src="https://img.shields.io/badge/GitHub-denovo--cadd--pytorch-181717?logo=github&style=flat-square" alt="GitHub Repo"></a>

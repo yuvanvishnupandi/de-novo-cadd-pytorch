@@ -314,15 +314,6 @@ Each individual desirability $d_i \in [0, 1]$ transforms a raw physicochemical o
 
 ---
 
-## Contributors
-
-- [Yuvan Vishnu Pandi](https://github.com/yuvanvishnupandi)
-- [Claude](https://github.com/claude) (`@anthropics`)
-- [Aanujvj](https://github.com/Aanujvj)
-- [Raghav Sharma](https://github.com/shin1899)
-
----
-
 ## License
 
 [Apache 2.0](LICENSE)

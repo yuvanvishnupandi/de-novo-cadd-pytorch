@@ -4,16 +4,24 @@
 
 <p align="center">
     <a href="https://github.com/yuvanvishnupandi/denovo-cadd-pytorch"><img src="https://img.shields.io/badge/GitHub-denovo--cadd--pytorch-181717?logo=github&style=flat-square" alt="GitHub Repo"></a>
-    <a href="http://localhost:5173/"><img src="https://img.shields.io/badge/Live%20Demo-Localhost-success?logo=vite&style=flat-square" alt="Live Demo"></a>
     <a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache_2.0-blue.svg?style=flat-square" alt="Apache 2.0 License"></a>
-    <img src="https://img.shields.io/badge/Python-3.11+-3776AB.svg?logo=python&logoColor=white&style=flat-square" alt="Python 3.11+">
-    <img src="https://img.shields.io/badge/PyTorch-2.0+-EE4C2C.svg?logo=pytorch&logoColor=white&style=flat-square" alt="PyTorch 2.0+">
+    <img src="https://img.shields.io/badge/Python-3.10%20%7C%203.11-3776AB.svg?logo=python&logoColor=white&style=flat-square" alt="Python 3.10 | 3.11">
+    <img src="https://img.shields.io/badge/PyTorch-2.x-EE4C2C.svg?logo=pytorch&logoColor=white&style=flat-square" alt="PyTorch 2.x">
     <img src="https://img.shields.io/badge/AutoDock%20Vina-v1.2.7-22c55e.svg?style=flat-square" alt="AutoDock Vina v1.2.7">
     <img src="https://img.shields.io/badge/RDKit-WASM%202026.09-f97316.svg?style=flat-square" alt="RDKit WASM">
     <img src="https://img.shields.io/badge/FastAPI-0.110+-009688.svg?logo=fastapi&logoColor=white&style=flat-square" alt="FastAPI">
     <img src="https://img.shields.io/badge/React-19-61DAFB.svg?logo=react&logoColor=black&style=flat-square" alt="React 19">
     <img src="https://img.shields.io/badge/TailwindCSS-v4-38BDF8.svg?logo=tailwindcss&logoColor=white&style=flat-square" alt="Tailwind CSS">
     <img src="https://img.shields.io/badge/Viewer-3Dmol.js-8b5cf6.svg?style=flat-square" alt="3Dmol.js WebGL">
+</p>
+
+<p align="center">
+    <a href="#pipeline-overview">Pipeline Overview</a> •
+    <a href="#architecture">Architecture</a> •
+    <a href="#mathematical-formulations">Biophysics Formulations</a> •
+    <a href="#install">Install</a> •
+    <a href="#usage">Usage</a> •
+    <a href="#citations">Citations</a>
 </p>
 
 ---
@@ -24,7 +32,30 @@ Capable of ingesting crystallographic structures (`pdb`, `cif`, `pdbqt`) or raw 
 
 ---
 
+## Pipeline Overview
+
+```text
+  ┌────────────────────────┐      ┌────────────────────────┐      ┌────────────────────────┐
+  │  01. Target Receptor   │      │  02. De Novo Generator │      │  03. Cheminformatics   │
+  │  • PDB / FASTA Ingest  │ ───> │  • PyTorch LSTM Decoder│ ───> │  • RDKit WASM Filters  │
+  │  • ESMFold Coordinates │      │  • SMILES Autoreg T=0.8│      │  • Lipinski / PAINS    │
+  └────────────────────────┘      └────────────────────────┘      └────────────────────────┘
+                                                                               │
+  ┌────────────────────────┐      ┌────────────────────────┐                   ▼
+  │  06. 3D WebGL Studio   │      │  05. Potency & MPO     │      ┌────────────────────────┐
+  │  • 3Dmol.js Viewer     │ <─── │  • Harrington-Derringer│ <─── │  04. Biophysic Docking │
+  │  • SASA & H-Bond Scan  │      │  • Ki (nM) van 't Hoff │      │  • AutoDock Vina v1.2.7│
+  └────────────────────────┘      └────────────────────────┘      │  • Lamarckian GA / BFGS│
+                                                                  └────────────────────────┘
+```
+
+---
+
 ## Architecture
+
+<details>
+<summary><b>Click to expand full architecture diagram</b></summary>
+<br/>
 
 ```mermaid
 flowchart TD
@@ -96,6 +127,8 @@ flowchart TD
     end
 ```
 
+</details>
+
 ---
 
 ## Biophysics & Pipeline Architecture Layers
@@ -115,7 +148,7 @@ flowchart TD
 
 ---
 
-## Directory Structure & Controls
+## Directory Structure
 
 ```text
 denovo-cadd-pytorch/
